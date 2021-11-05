@@ -1,0 +1,5 @@
+*.Rproj
+.Rproj.user/
+
+#Suppress data folder
+data_raw/
