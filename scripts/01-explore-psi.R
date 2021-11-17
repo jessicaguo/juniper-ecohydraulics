@@ -1,5 +1,10 @@
 # Explore and plot water potentials
+remotes::install_github("jpshanno/tydygraphs")
+library(tydygraphs)
 library(tidyverse)
+library(tsibble)
+library(xts)
+library(dygraphs)
 source("source/round.POSIXct.R")
 
 # read in data
@@ -17,8 +22,9 @@ psy <- read.csv("data_raw/Merged-psychrometer-data.csv",  encoding="UTF-8") %>%
          ext_power_volt = 17,
          ext_power_current = 18,
          comment = 19) %>%
-  mutate(Date = as.POSIXct(Date, format = "%d/%m/%Y", tz = "America/Denver"),
-         dt = as.POSIXct(paste0(Date, Time), tz = "America/Denver"))
+  mutate(Date = as.POSIXct(Date, format = "%m/%d/%Y", tz = "America/Denver"),
+         datetime = as.POSIXct(paste0(Date, Time), tz = "America/Denver"),
+         dt = round.POSIXct(datetime, units = "30 mins"))
 
 # read in maintenance days
 maint <- read_csv("data_raw/Maintenance-times.csv")
@@ -50,5 +56,39 @@ ggplot(man, aes(x = WP_mpa, y = psy)) +
   # facet_wrap(~Date) +
   scale_x_continuous(expression(paste("Pressure chamber ",  Psi[leaf], " (MPa)"))) +
   scale_y_continuous(expression(paste("Psychrometer ", Psi[stem], " (MPa)"))) +
-  coord_equal() + 
   theme_bw()
+
+# Explore whether datetimes are duplicated
+psy %>%
+  group_by(Tree, Logger) %>%
+  summarize(n = n(),
+            n.dt = length(unique(dt)),
+            ndiff = n - n.dt,
+            dup = which(duplicated(dt) == TRUE),
+            dt.dup = dt[which(duplicated(dt) == TRUE)])
+# All trees/loggers have at least one duplicated rounded time
+
+# Calculate mean for each tree, logger, and datetime
+psy2 <- psy %>%
+  group_by(Tree, Logger, dt) %>%
+  summarize(chamber_temp = mean(chamber_temp),
+            dT = mean(dT),
+            psy = mean(psy),
+            Intercept = mean(Intercept),
+            Slope = mean(Slope),
+            EDBO = mean(EDBO),
+            correction_dT = mean(correction_dT),
+            correction = mean(correction))
+
+# Create a wide dataframe
+psy_wide <- psy2 %>%
+  select(Tree, Logger, dt, psy) %>%
+  tidyr::pivot_wider(names_from = c(Tree, Logger),
+                     values_from = psy) 
+
+# Create xts object
+psy_xts <- xts(psy_wide, order.by = psy_wide$dt)
+
+# Create dygraph
+dygraph(psy_xts)
+        
