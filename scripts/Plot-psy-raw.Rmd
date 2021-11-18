@@ -1,0 +1,369 @@
+---
+title: "Visualizing raw psy timeseries"
+author: "Jessica Guo"
+date: "11/17/2021"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(plantecophys)
+library(tsibble)
+library(xts)
+library(dygraphs)
+source("../source/round.POSIXct.R")
+```
+
+## Background
+
+Fourteen stem psychrometers were installed on seven individual *Juniperus osteosperma* at an Ameriflux eddy covaraince site in southeastern Utah (US-CdM) between 2021-05-21 and 2021-11-06. Here, we intend to combine and plot the stem water potential with soil water content and VPD in order to identify flagged values. 
+
+### Stem psychrometer data inputs
+
+Individual .csv files were combined by S. Kannenberg and labeled with the associated tree and logger ID. These raw data were read in and the timestamps were rounded to the nearest half hour. 
+
+```{r, message=FALSE}
+psy <- read.csv("../data_raw/Merged-psychrometer-data.csv",  encoding="UTF-8") %>%
+  rename(chamber_temp = 5,
+         dT = 6,
+         wet_bulb = 7,
+         psy = 8,
+         correction_dT = 12,
+         correction = 13,
+         batt_volt = 14,
+         int_batt_temp = 15,
+         ext_power = 16,
+         ext_power_volt = 17,
+         ext_power_current = 18,
+         comment = 19) %>%
+  mutate(Date = as.POSIXct(Date, format = "%m/%d/%Y", tz = "America/Denver"),
+         datetime = as.POSIXct(paste0(Date, Time), tz = "America/Denver"),
+         dt = round.POSIXct(datetime, units = "30 mins"))
+```
+
+Occasionally, the psychrometer dataloggers record two measurements for the same half-hour. We identify duplicates and take the average. 
+
+```{r, message=FALSE}
+psy %>%
+  group_by(Tree, Logger) %>%
+  summarize(n = n(),
+            n.dt = length(unique(dt)),
+            ndiff = n - n.dt)
+```
+
+Roughly half of the loggers had at least one duplication, but none had more than three. Next, we take the mean values of the duplicates. 
+
+```{r,  message=FALSE}
+psy2 <- psy %>%
+  group_by(Tree, Logger, dt) %>%
+  summarize(chamber_temp = mean(chamber_temp),
+            dT = mean(dT),
+            psy = mean(psy),
+            Intercept = mean(Intercept),
+            Slope = mean(Slope),
+            EDBO = mean(EDBO),
+            correction_dT = mean(correction_dT),
+            correction = mean(correction))
+```
+
+Finally, let's check the range of psy measurements for each tree and logger. 
+
+```{r,  message=FALSE}
+psy2 %>%
+  group_by(Tree, Logger) %>%
+  summarize(n = sum(!is.na(psy)),
+            n_na = sum(is.na(psy)),
+            n_12.5 = length(which(psy < -12.5)),
+            n_0 = length(which(psy >= 0)),
+            min_psy = min(psy, na.rm = TRUE),
+            max_psy = max(psy, na.rm = TRUE))
+```
+
+The number of missing values per logger ranges from 0 to 484. Also, we can remove points that are less than -12.5 and greater than or equal to 0. 
+
+```{r,  message=FALSE}
+psy3 <- psy2 %>%
+  filter(psy > -12.5 & psy <0)
+```
+
+### Met data inputs
+
+Tower and met data were collected starting in 2019. We select the relevant soil and met values for the time period of interest. 
+
+```{r, message=FALSE}
+col_names <- names(read_csv("../data_raw/Other-tower-data.csv",
+                skip = 1, n_max = 0))
+
+met <- read_csv("../data_raw/Other-tower-data.csv",
+                skip = 4, 
+                col_names = col_names, 
+                na = c("-9999")) %>%
+  mutate(dt = as.POSIXct(TIMESTAMP, format = "%m/%d/%Y %H:%M", 
+                         tz = "America/Denver"),
+         VPD_Avg = RHtoVPD(RH_Avg, AirTemp_Avg)) %>%
+  select(dt, AirTemp_Avg, RH_Avg, VPD_Avg, 
+         Precip_Tot, contains("VWC")) %>%
+  filter(dt >= min(psy2$dt) & dt <= max(psy2$dt))
+```
+
+### Combine datasets for plotting
+
+Finally, we convert the `psy` column to a wide format to match with the met data. 
+
+```{r, message=FALSE, warning=FALSE}
+psy_wide <- psy3 %>%
+  select(Tree, Logger, dt, psy) %>%
+  tidyr::pivot_wider(names_from = c(Tree, Logger),
+                     values_from = psy) %>%
+  left_join(met)
+```
+
+### Creating interactive plots
+
+For each tree, we would like to interactively plot the time series from both loggers and match with a second panel of VPD and soil VWC, possibly at two depths. The dygraph input needs to be an xts object. 
+
+#### Tree 1
+
+```{r, echo=FALSE, fig.width=8, fig.height=2}
+tree_1 <- psy_wide %>%
+  select(dt, '1_1', '1_2', "AirTemp_Avg")
+tree_1 <- xts(tree_1[,-1], order.by = tree_1$dt)
+
+met_xts <- psy_wide %>%
+  select(dt, Precip_Tot, VWC_5cm_Avg, VWC_10cm_Avg)
+met_xts <- xts(met_xts[,-1], order.by = met_xts$dt)
+
+dygraph(tree_1, group = "tree-1") %>%
+  dySeries("1_1", color = "seagreen") %>%
+  dySeries("1_2", color = "turquoise") %>%
+  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+           pointShape = "triangle") %>%
+  dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyRangeSelector() %>%
+  dyAxis("y", label = "Psi (MPa)") %>% 
+  dyAxis("y2", label = "Temp (C)") %>% 
+  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "")
+
+
+dygraph(met_xts, group = "tree-1") %>%
+  dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
+  dySeries("VWC_10cm_Avg", color = "saddlebrown") %>%
+  dySeries("Precip_Tot", axis = 'y2',
+           stepPlot = TRUE,
+           fillGraph = TRUE,
+           color = "cornflowerblue") %>%
+  dyAxis("y", label = "VWC (%)") %>%
+  dyAxis("y2", label = "Precip (mm/0.5hr)", 
+         independentTicks = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "") %>%
+  dyLegend(labelsSeparateLines = TRUE)
+```
+
+
+#### Tree 2
+
+```{r, echo=FALSE, fig.width=8, fig.height=2}
+tree_2 <- psy_wide %>%
+  select(dt, '2_1', '2_2', "AirTemp_Avg")
+tree_2 <- xts(tree_2[,-1], order.by = tree_2$dt)
+
+dygraph(tree_2, group = "tree-2") %>%
+  dySeries("2_1", color = "seagreen") %>%
+  dySeries("2_2", color = "turquoise") %>%
+  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+           pointShape = "triangle") %>%
+  dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyRangeSelector() %>%
+  dyAxis("y", label = "Psi (MPa)") %>% 
+  dyAxis("y2", label = "Temp (C)") %>% 
+  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "")
+
+
+dygraph(met_xts, group = "tree-2") %>%
+  dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
+  dySeries("VWC_10cm_Avg", color = "saddlebrown") %>%
+  dySeries("Precip_Tot", axis = 'y2',
+           stepPlot = TRUE,
+           fillGraph = TRUE,
+           color = "cornflowerblue") %>%
+  dyAxis("y", label = "VWC (%)") %>%
+  dyAxis("y2", label = "Precip (mm/0.5hr)", 
+         independentTicks = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "") %>%
+  dyLegend(labelsSeparateLines = TRUE)
+```
+
+#### Tree 3
+
+```{r, echo=FALSE, fig.width=8, fig.height=2}
+tree_3 <- psy_wide %>%
+  select(dt, '3_1', '3_2', "AirTemp_Avg")
+tree_3 <- xts(tree_3[,-1], order.by = tree_3$dt)
+
+dygraph(tree_3, group = "tree-3") %>%
+  dySeries("3_1", color = "seagreen") %>%
+  dySeries("3_2", color = "turquoise") %>%
+  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+           pointShape = "triangle") %>%
+  dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyRangeSelector() %>%
+  dyAxis("y", label = "Psi (MPa)") %>% 
+  dyAxis("y2", label = "Temp (C)") %>% 
+  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "")
+
+
+dygraph(met_xts, group = "tree-3") %>%
+  dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
+  dySeries("VWC_10cm_Avg", color = "saddlebrown") %>%
+  dySeries("Precip_Tot", axis = 'y2',
+           stepPlot = TRUE,
+           fillGraph = TRUE,
+           color = "cornflowerblue") %>%
+  dyAxis("y", label = "VWC (%)") %>%
+  dyAxis("y2", label = "Precip (mm/0.5hr)", 
+         independentTicks = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "") %>%
+  dyLegend(labelsSeparateLines = TRUE)
+```
+
+#### Tree 4
+
+```{r, echo=FALSE, fig.width=8, fig.height=2}
+tree_4 <- psy_wide %>%
+  select(dt, '4_1', '4_2', "AirTemp_Avg")
+tree_4 <- xts(tree_4[,-1], order.by = tree_4$dt)
+
+dygraph(tree_4, group = "tree-4") %>%
+  dySeries("4_1", color = "seagreen") %>%
+  dySeries("4_2", color = "turquoise") %>%
+  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+           pointShape = "triangle") %>%
+  dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyRangeSelector() %>%
+  dyAxis("y", label = "Psi (MPa)") %>% 
+  dyAxis("y2", label = "Temp (C)") %>% 
+  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "")
+
+
+dygraph(met_xts, group = "tree-4") %>%
+  dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
+  dySeries("VWC_10cm_Avg", color = "saddlebrown") %>%
+  dySeries("Precip_Tot", axis = 'y2',
+           stepPlot = TRUE,
+           fillGraph = TRUE,
+           color = "cornflowerblue") %>%
+  dyAxis("y", label = "VWC (%)") %>%
+  dyAxis("y2", label = "Precip (mm/0.5hr)", 
+         independentTicks = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "") %>%
+  dyLegend(labelsSeparateLines = TRUE)
+```
+
+#### Tree 5
+
+```{r, echo=FALSE, fig.width=8, fig.height=2}
+tree_5 <- psy_wide %>%
+  select(dt, '5_1', '5_2', "AirTemp_Avg")
+tree_5 <- xts(tree_5[,-1], order.by = tree_5$dt)
+
+dygraph(tree_5, group = "tree-5") %>%
+  dySeries("5_1", color = "seagreen") %>%
+  dySeries("5_2", color = "turquoise") %>%
+  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+           pointShape = "triangle") %>%
+  dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyRangeSelector() %>%
+  dyAxis("y", label = "Psi (MPa)") %>% 
+  dyAxis("y2", label = "Temp (C)") %>% 
+  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "")
+
+
+dygraph(met_xts, group = "tree-5") %>%
+  dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
+  dySeries("VWC_10cm_Avg", color = "saddlebrown") %>%
+  dySeries("Precip_Tot", axis = 'y2',
+           stepPlot = TRUE,
+           fillGraph = TRUE,
+           color = "cornflowerblue") %>%
+  dyAxis("y", label = "VWC (%)") %>%
+  dyAxis("y2", label = "Precip (mm/0.5hr)", 
+         independentTicks = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "") %>%
+  dyLegend(labelsSeparateLines = TRUE)
+```
+
+#### Tree 6
+
+```{r, echo=FALSE, fig.width=8, fig.height=2}
+tree_6 <- psy_wide %>%
+  select(dt, '6_1', '6_2', "AirTemp_Avg")
+tree_6 <- xts(tree_6[,-1], order.by = tree_6$dt)
+
+dygraph(tree_6, group = "tree-6") %>%
+  dySeries("6_1", color = "seagreen") %>%
+  dySeries("6_2", color = "turquoise") %>%
+  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+           pointShape = "triangle") %>%
+  dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyRangeSelector() %>%
+  dyAxis("y", label = "Psi (MPa)") %>% 
+  dyAxis("y2", label = "Temp (C)") %>% 
+  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "")
+
+
+dygraph(met_xts, group = "tree-6") %>%
+  dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
+  dySeries("VWC_10cm_Avg", color = "saddlebrown") %>%
+  dySeries("Precip_Tot", axis = 'y2',
+           stepPlot = TRUE,
+           fillGraph = TRUE,
+           color = "cornflowerblue") %>%
+  dyAxis("y", label = "VWC (%)") %>%
+  dyAxis("y2", label = "Precip (mm/0.5hr)", 
+         independentTicks = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "") %>%
+  dyLegend(labelsSeparateLines = TRUE)
+```
+
+#### Tree 7
+
+```{r, echo=FALSE, fig.width=8, fig.height=2}
+tree_7 <- psy_wide %>%
+  select(dt, '7_1', '7_2', "AirTemp_Avg")
+tree_7 <- xts(tree_7[,-1], order.by = tree_7$dt)
+
+dygraph(tree_7, group = "tree-7") %>%
+  dySeries("7_1", color = "seagreen") %>%
+  dySeries("7_2", color = "turquoise") %>%
+  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+           pointShape = "triangle") %>%
+  dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyRangeSelector() %>%
+  dyAxis("y", label = "Psi (MPa)") %>% 
+  dyAxis("y2", label = "Temp (C)") %>% 
+  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "")
+
+
+dygraph(met_xts, group = "tree-7") %>%
+  dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
+  dySeries("VWC_10cm_Avg", color = "saddlebrown") %>%
+  dySeries("Precip_Tot", axis = 'y2',
+           stepPlot = TRUE,
+           fillGraph = TRUE,
+           color = "cornflowerblue") %>%
+  dyAxis("y", label = "VWC (%)") %>%
+  dyAxis("y2", label = "Precip (mm/0.5hr)", 
+         independentTicks = TRUE) %>%
+  dyRangeSelector(height = 20, strokeColor = "") %>%
+  dyLegend(labelsSeparateLines = TRUE)
+```
