@@ -1,6 +1,6 @@
 # Explore and plot water potentials
-remotes::install_github("jpshanno/tydygraphs")
-library(tydygraphs)
+# remotes::install_github("jpshanno/tydygraphs")
+# library(tydygraphs)
 library(tidyverse)
 library(tsibble)
 library(xts)
@@ -86,9 +86,4 @@ psy_wide <- psy2 %>%
   tidyr::pivot_wider(names_from = c(Tree, Logger),
                      values_from = psy) 
 
-# Create xts object
-psy_xts <- xts(psy_wide, order.by = psy_wide$dt)
-
-# Create dygraph
-dygraph(psy_xts)
         
