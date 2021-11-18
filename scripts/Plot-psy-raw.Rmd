@@ -302,7 +302,7 @@ dygraph(met_xts, group = "tree-5") %>%
 
 #### Tree 6
 
-```{r, echo=FALSE, fig.width=8, fig.height=2}
+```{r, echo=FALSE, fig.width=8, fig.height=3}
 tree_6 <- psy_wide %>%
   select(dt, '6_1', '6_2', "AirTemp_Avg")
 tree_6 <- xts(tree_6[,-1], order.by = tree_6$dt)
