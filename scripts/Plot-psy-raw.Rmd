@@ -19,7 +19,7 @@ source("../source/round.POSIXct.R")
 
 ## Background
 
-Fourteen stem psychrometers were installed on seven individual *Juniperus osteosperma* at an Ameriflux eddy covaraince site in southeastern Utah (US-CdM) between 2021-05-21 and 2021-11-06. Here, we intend to combine and plot the stem water potential with soil water content and VPD in order to identify flagged values. 
+Fourteen stem psychrometers were installed on seven individual *Juniperus osteosperma* at an Ameriflux eddy covariance site in southeastern Utah (US-CdM) between 2021-05-21 and 2021-11-06. Here, we intend to combine and plot the stem water potential with soil water content and VPD in order to identify flagged values. 
 
 ### Stem psychrometer data inputs
 
@@ -121,6 +121,16 @@ psy_wide <- psy3 %>%
   left_join(met)
 ```
 
+### Maintenance days
+
+Monthly site visits were made, wherein the psychrometer sensors were removed, cleaned, and reattached to a fresh branch on the same tree. We expect some odd values during these periods and want to highlight them on the visualization. 
+
+```{r, message=FALSE, warning=FALSE}
+maint <- read_csv("../data_raw/Maintenance-times2.csv") %>%
+  mutate(Start = as.POSIXct(Start, tz = "America/Denver"),
+         End= as.POSIXct(End, tz = "America/Denver"))
+```
+
 ### Creating interactive plots
 
 For each tree, we would like to interactively plot the time series from both loggers and match with a second panel of VPD and soil VWC, possibly at two depths. The dygraph input needs to be an xts object. 
@@ -129,7 +139,7 @@ For each tree, we would like to interactively plot the time series from both log
 
 ```{r, echo=FALSE, fig.width=8, fig.height=2}
 tree_1 <- psy_wide %>%
-  select(dt, '1_1', '1_2', "AirTemp_Avg")
+  select(dt, '1_1', '1_2', "VPD_Avg")
 tree_1 <- xts(tree_1[,-1], order.by = tree_1$dt)
 
 met_xts <- psy_wide %>%
@@ -139,13 +149,18 @@ met_xts <- xts(met_xts[,-1], order.by = met_xts$dt)
 dygraph(tree_1, group = "tree-1") %>%
   dySeries("1_1", color = "seagreen") %>%
   dySeries("1_2", color = "turquoise") %>%
-  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+  dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
            pointShape = "triangle") %>%
   dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyShading(from = maint$Start[1], to = maint$End[1], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[2], to = maint$End[2], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[3], to = maint$End[3], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[4], to = maint$End[4], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[5], to = maint$End[5], color = "#CCEBD6") %>%
   dyRangeSelector() %>%
   dyAxis("y", label = "Psi (MPa)") %>% 
-  dyAxis("y2", label = "Temp (C)") %>% 
-  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyAxis("y2", label = "VPD (kPa)") %>% 
+  dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
 
@@ -160,7 +175,7 @@ dygraph(met_xts, group = "tree-1") %>%
   dyAxis("y2", label = "Precip (mm/0.5hr)", 
          independentTicks = TRUE) %>%
   dyRangeSelector(height = 20, strokeColor = "") %>%
-  dyLegend(labelsSeparateLines = TRUE)
+  dyLegend(show = "follow")
 ```
 
 
@@ -168,19 +183,24 @@ dygraph(met_xts, group = "tree-1") %>%
 
 ```{r, echo=FALSE, fig.width=8, fig.height=2}
 tree_2 <- psy_wide %>%
-  select(dt, '2_1', '2_2', "AirTemp_Avg")
+  select(dt, '2_1', '2_2', "VPD_Avg")
 tree_2 <- xts(tree_2[,-1], order.by = tree_2$dt)
 
 dygraph(tree_2, group = "tree-2") %>%
   dySeries("2_1", color = "seagreen") %>%
   dySeries("2_2", color = "turquoise") %>%
-  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+  dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
            pointShape = "triangle") %>%
   dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyShading(from = maint$Start[1], to = maint$End[1], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[2], to = maint$End[2], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[3], to = maint$End[3], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[4], to = maint$End[4], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[5], to = maint$End[5], color = "#CCEBD6") %>%
   dyRangeSelector() %>%
   dyAxis("y", label = "Psi (MPa)") %>% 
-  dyAxis("y2", label = "Temp (C)") %>% 
-  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyAxis("y2", label = "VPD (kPa)") %>% 
+  dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
 
@@ -195,26 +215,31 @@ dygraph(met_xts, group = "tree-2") %>%
   dyAxis("y2", label = "Precip (mm/0.5hr)", 
          independentTicks = TRUE) %>%
   dyRangeSelector(height = 20, strokeColor = "") %>%
-  dyLegend(labelsSeparateLines = TRUE)
+  dyLegend(show = "follow")
 ```
 
 #### Tree 3
 
 ```{r, echo=FALSE, fig.width=8, fig.height=2}
 tree_3 <- psy_wide %>%
-  select(dt, '3_1', '3_2', "AirTemp_Avg")
+  select(dt, '3_1', '3_2', "VPD_Avg")
 tree_3 <- xts(tree_3[,-1], order.by = tree_3$dt)
 
 dygraph(tree_3, group = "tree-3") %>%
   dySeries("3_1", color = "seagreen") %>%
   dySeries("3_2", color = "turquoise") %>%
-  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+  dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
            pointShape = "triangle") %>%
   dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyShading(from = maint$Start[1], to = maint$End[1], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[2], to = maint$End[2], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[3], to = maint$End[3], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[4], to = maint$End[4], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[5], to = maint$End[5], color = "#CCEBD6") %>%
   dyRangeSelector() %>%
   dyAxis("y", label = "Psi (MPa)") %>% 
-  dyAxis("y2", label = "Temp (C)") %>% 
-  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyAxis("y2", label = "VPD (kPa)") %>% 
+  dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
 
@@ -229,26 +254,31 @@ dygraph(met_xts, group = "tree-3") %>%
   dyAxis("y2", label = "Precip (mm/0.5hr)", 
          independentTicks = TRUE) %>%
   dyRangeSelector(height = 20, strokeColor = "") %>%
-  dyLegend(labelsSeparateLines = TRUE)
+  dyLegend(show = "follow")
 ```
 
 #### Tree 4
 
 ```{r, echo=FALSE, fig.width=8, fig.height=2}
 tree_4 <- psy_wide %>%
-  select(dt, '4_1', '4_2', "AirTemp_Avg")
+  select(dt, '4_1', '4_2', "VPD_Avg")
 tree_4 <- xts(tree_4[,-1], order.by = tree_4$dt)
 
 dygraph(tree_4, group = "tree-4") %>%
   dySeries("4_1", color = "seagreen") %>%
   dySeries("4_2", color = "turquoise") %>%
-  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+  dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
            pointShape = "triangle") %>%
   dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyShading(from = maint$Start[1], to = maint$End[1], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[2], to = maint$End[2], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[3], to = maint$End[3], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[4], to = maint$End[4], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[5], to = maint$End[5], color = "#CCEBD6") %>%
   dyRangeSelector() %>%
   dyAxis("y", label = "Psi (MPa)") %>% 
-  dyAxis("y2", label = "Temp (C)") %>% 
-  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyAxis("y2", label = "VPD (kPa)") %>% 
+  dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
 
@@ -263,26 +293,31 @@ dygraph(met_xts, group = "tree-4") %>%
   dyAxis("y2", label = "Precip (mm/0.5hr)", 
          independentTicks = TRUE) %>%
   dyRangeSelector(height = 20, strokeColor = "") %>%
-  dyLegend(labelsSeparateLines = TRUE)
+  dyLegend(show = "follow")
 ```
 
 #### Tree 5
 
 ```{r, echo=FALSE, fig.width=8, fig.height=2}
 tree_5 <- psy_wide %>%
-  select(dt, '5_1', '5_2', "AirTemp_Avg")
+  select(dt, '5_1', '5_2', "VPD_Avg")
 tree_5 <- xts(tree_5[,-1], order.by = tree_5$dt)
 
 dygraph(tree_5, group = "tree-5") %>%
   dySeries("5_1", color = "seagreen") %>%
   dySeries("5_2", color = "turquoise") %>%
-  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+  dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
            pointShape = "triangle") %>%
   dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyShading(from = maint$Start[1], to = maint$End[1], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[2], to = maint$End[2], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[3], to = maint$End[3], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[4], to = maint$End[4], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[5], to = maint$End[5], color = "#CCEBD6") %>%
   dyRangeSelector() %>%
   dyAxis("y", label = "Psi (MPa)") %>% 
-  dyAxis("y2", label = "Temp (C)") %>% 
-  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyAxis("y2", label = "VPD (kPa)") %>% 
+  dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
 
@@ -297,26 +332,31 @@ dygraph(met_xts, group = "tree-5") %>%
   dyAxis("y2", label = "Precip (mm/0.5hr)", 
          independentTicks = TRUE) %>%
   dyRangeSelector(height = 20, strokeColor = "") %>%
-  dyLegend(labelsSeparateLines = TRUE)
+  dyLegend(show = "follow")
 ```
 
 #### Tree 6
 
-```{r, echo=FALSE, fig.width=8, fig.height=3}
+```{r, echo=FALSE, fig.width=8, fig.height=2}
 tree_6 <- psy_wide %>%
-  select(dt, '6_1', '6_2', "AirTemp_Avg")
+  select(dt, '6_1', '6_2', "VPD_Avg")
 tree_6 <- xts(tree_6[,-1], order.by = tree_6$dt)
 
 dygraph(tree_6, group = "tree-6") %>%
   dySeries("6_1", color = "seagreen") %>%
   dySeries("6_2", color = "turquoise") %>%
-  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+  dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
            pointShape = "triangle") %>%
   dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyShading(from = maint$Start[1], to = maint$End[1], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[2], to = maint$End[2], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[3], to = maint$End[3], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[4], to = maint$End[4], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[5], to = maint$End[5], color = "#CCEBD6") %>%
   dyRangeSelector() %>%
   dyAxis("y", label = "Psi (MPa)") %>% 
-  dyAxis("y2", label = "Temp (C)") %>% 
-  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyAxis("y2", label = "VPD (kPa)") %>% 
+  dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
 
@@ -331,26 +371,31 @@ dygraph(met_xts, group = "tree-6") %>%
   dyAxis("y2", label = "Precip (mm/0.5hr)", 
          independentTicks = TRUE) %>%
   dyRangeSelector(height = 20, strokeColor = "") %>%
-  dyLegend(labelsSeparateLines = TRUE)
+  dyLegend(show = "follow")
 ```
 
 #### Tree 7
 
 ```{r, echo=FALSE, fig.width=8, fig.height=2}
 tree_7 <- psy_wide %>%
-  select(dt, '7_1', '7_2', "AirTemp_Avg")
+  select(dt, '7_1', '7_2', "VPD_Avg")
 tree_7 <- xts(tree_7[,-1], order.by = tree_7$dt)
 
 dygraph(tree_7, group = "tree-7") %>%
   dySeries("7_1", color = "seagreen") %>%
   dySeries("7_2", color = "turquoise") %>%
-  dySeries("AirTemp_Avg", color = "darkorange", axis = 'y2',
+  dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
            pointShape = "triangle") %>%
   dyOptions(drawPoints = TRUE, pointSize = 2) %>%
+  dyShading(from = maint$Start[1], to = maint$End[1], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[2], to = maint$End[2], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[3], to = maint$End[3], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[4], to = maint$End[4], color = "#CCEBD6") %>%
+  dyShading(from = maint$Start[5], to = maint$End[5], color = "#CCEBD6") %>%
   dyRangeSelector() %>%
   dyAxis("y", label = "Psi (MPa)") %>% 
-  dyAxis("y2", label = "Temp (C)") %>% 
-  dyLegend(labelsSeparateLines = TRUE) %>%
+  dyAxis("y2", label = "VPD (kPa)") %>% 
+  dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
 
@@ -365,5 +410,5 @@ dygraph(met_xts, group = "tree-7") %>%
   dyAxis("y2", label = "Precip (mm/0.5hr)", 
          independentTicks = TRUE) %>%
   dyRangeSelector(height = 20, strokeColor = "") %>%
-  dyLegend(labelsSeparateLines = TRUE)
+  dyLegend(show = "follow")
 ```
