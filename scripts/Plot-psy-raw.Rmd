@@ -126,9 +126,19 @@ psy_wide <- psy3 %>%
 Monthly site visits were made, wherein the psychrometer sensors were removed, cleaned, and reattached to a fresh branch on the same tree. We expect some odd values during these periods and want to highlight them on the visualization. 
 
 ```{r, message=FALSE, warning=FALSE}
-maint <- read_csv("../data_raw/Maintenance-times2.csv") %>%
+maint <- read_csv("../data_raw/Maintenance-times.csv") %>%
   mutate(Start = as.POSIXct(Start, tz = "America/Denver"),
          End= as.POSIXct(End, tz = "America/Denver"))
+```
+
+### Dates to skip
+
+Psychrometers can fail to record a realistic $\Psi$ for a number of reasons, including primarily the loss of contact and good seal between living xylem and the chamber. We have identified periods where either the contact deteriorates over time until the chamber is re-installed ('Loss of contact'), contact is simply poor and results in spiky readings for a period before resolving naturally ('Poor contact, very spiky'), or particular spikes are noted, often across loggers and trees and potentially associated with weather phenomenon ('Unknown spike'). We read in these dates, which can be manually updated during the process of data cleaning. 
+
+```{r, message=FALSE, warning=FALSE}
+skip <- read_csv("../data_raw/Psy-skip-dates.csv") %>%
+  mutate(Start = as.POSIXct(st, format = "%m/%d/%Y %H:%M:%S", tz = "America/Denver"),
+         End= as.POSIXct(en, format = "%m/%d/%Y %H:%M:%S", tz = "America/Denver"))
 ```
 
 ### Creating interactive plots
@@ -146,7 +156,7 @@ met_xts <- psy_wide %>%
   select(dt, Precip_Tot, VWC_5cm_Avg, VWC_10cm_Avg)
 met_xts <- xts(met_xts[,-1], order.by = met_xts$dt)
 
-dygraph(tree_1, group = "tree-1") %>%
+dg <- dygraph(tree_1, group = "tree-1") %>%
   dySeries("1_1", color = "seagreen") %>%
   dySeries("1_2", color = "turquoise") %>%
   dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
@@ -163,6 +173,16 @@ dygraph(tree_1, group = "tree-1") %>%
   dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
+colors <- c("#FFFFCC", "#FFE6E6")
+for(i in 1:2) {
+  skip_temp <- skip %>%
+  filter(Tree == 1, Logger == i)
+  
+  for(j in 1:nrow(skip_temp)){
+    dg <- dyShading(dg, from = skip_temp$Start, to = skip_temp$End, color = colors[i])
+  }
+}  
+dg
 
 dygraph(met_xts, group = "tree-1") %>%
   dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
@@ -186,7 +206,7 @@ tree_2 <- psy_wide %>%
   select(dt, '2_1', '2_2', "VPD_Avg")
 tree_2 <- xts(tree_2[,-1], order.by = tree_2$dt)
 
-dygraph(tree_2, group = "tree-2") %>%
+dg <- dygraph(tree_2, group = "tree-2") %>%
   dySeries("2_1", color = "seagreen") %>%
   dySeries("2_2", color = "turquoise") %>%
   dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
@@ -203,6 +223,16 @@ dygraph(tree_2, group = "tree-2") %>%
   dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
+colors <- c("#FFFFCC", "#FFE6E6")
+for(i in 1:2) {
+  skip_temp <- skip %>%
+  filter(Tree == 2, Logger == i)
+  
+  for(j in 1:nrow(skip_temp)){
+    dg <- dyShading(dg, from = skip_temp$Start, to = skip_temp$End, color = colors[i])
+  }
+}  
+dg
 
 dygraph(met_xts, group = "tree-2") %>%
   dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
@@ -225,7 +255,7 @@ tree_3 <- psy_wide %>%
   select(dt, '3_1', '3_2', "VPD_Avg")
 tree_3 <- xts(tree_3[,-1], order.by = tree_3$dt)
 
-dygraph(tree_3, group = "tree-3") %>%
+dg <- dygraph(tree_3, group = "tree-3") %>%
   dySeries("3_1", color = "seagreen") %>%
   dySeries("3_2", color = "turquoise") %>%
   dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
@@ -242,6 +272,16 @@ dygraph(tree_3, group = "tree-3") %>%
   dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
+colors <- c("#FFFFCC", "#FFE6E6")
+for(i in 1:2) {
+  skip_temp <- skip %>%
+  filter(Tree == 3, Logger == i)
+  
+  for(j in 1:nrow(skip_temp)){
+    dg <- dyShading(dg, from = skip_temp$Start, to = skip_temp$End, color = colors[i])
+  }
+}  
+dg
 
 dygraph(met_xts, group = "tree-3") %>%
   dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
@@ -264,7 +304,7 @@ tree_4 <- psy_wide %>%
   select(dt, '4_1', '4_2', "VPD_Avg")
 tree_4 <- xts(tree_4[,-1], order.by = tree_4$dt)
 
-dygraph(tree_4, group = "tree-4") %>%
+dg <- dygraph(tree_4, group = "tree-4") %>%
   dySeries("4_1", color = "seagreen") %>%
   dySeries("4_2", color = "turquoise") %>%
   dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
@@ -281,6 +321,16 @@ dygraph(tree_4, group = "tree-4") %>%
   dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
+colors <- c("#FFFFCC", "#FFE6E6")
+for(i in 1:2) {
+  skip_temp <- skip %>%
+  filter(Tree == 4, Logger == i)
+  
+  for(j in 1:nrow(skip_temp)){
+    dg <- dyShading(dg, from = skip_temp$Start, to = skip_temp$End, color = colors[i])
+  }
+}  
+dg
 
 dygraph(met_xts, group = "tree-4") %>%
   dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
@@ -303,7 +353,7 @@ tree_5 <- psy_wide %>%
   select(dt, '5_1', '5_2', "VPD_Avg")
 tree_5 <- xts(tree_5[,-1], order.by = tree_5$dt)
 
-dygraph(tree_5, group = "tree-5") %>%
+dg <- dygraph(tree_5, group = "tree-5") %>%
   dySeries("5_1", color = "seagreen") %>%
   dySeries("5_2", color = "turquoise") %>%
   dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
@@ -320,6 +370,16 @@ dygraph(tree_5, group = "tree-5") %>%
   dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
+colors <- c("#FFFFCC", "#FFE6E6")
+for(i in 1:2) {
+  skip_temp <- skip %>%
+  filter(Tree == 5, Logger == i)
+  
+  for(j in 1:nrow(skip_temp)){
+    dg <- dyShading(dg, from = skip_temp$Start, to = skip_temp$End, color = colors[i])
+  }
+}  
+dg
 
 dygraph(met_xts, group = "tree-5") %>%
   dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
@@ -342,7 +402,7 @@ tree_6 <- psy_wide %>%
   select(dt, '6_1', '6_2', "VPD_Avg")
 tree_6 <- xts(tree_6[,-1], order.by = tree_6$dt)
 
-dygraph(tree_6, group = "tree-6") %>%
+dg <- dygraph(tree_6, group = "tree-6") %>%
   dySeries("6_1", color = "seagreen") %>%
   dySeries("6_2", color = "turquoise") %>%
   dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
@@ -359,6 +419,16 @@ dygraph(tree_6, group = "tree-6") %>%
   dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
 
+colors <- c("#FFFFCC", "#FFE6E6")
+for(i in 1:2) {
+  skip_temp <- skip %>%
+  filter(Tree == 6, Logger == i)
+  
+  for(j in 1:nrow(skip_temp)){
+    dg <- dyShading(dg, from = skip_temp$Start, to = skip_temp$End, color = colors[i])
+  }
+}  
+dg
 
 dygraph(met_xts, group = "tree-6") %>%
   dySeries("VWC_5cm_Avg", color = "darksalmon") %>%
@@ -381,7 +451,7 @@ tree_7 <- psy_wide %>%
   select(dt, '7_1', '7_2', "VPD_Avg")
 tree_7 <- xts(tree_7[,-1], order.by = tree_7$dt)
 
-dygraph(tree_7, group = "tree-7") %>%
+dg <- dygraph(tree_7, group = "tree-7") %>%
   dySeries("7_1", color = "seagreen") %>%
   dySeries("7_2", color = "turquoise") %>%
   dySeries("VPD_Avg", color = "darkorange", axis = 'y2',
@@ -397,6 +467,17 @@ dygraph(tree_7, group = "tree-7") %>%
   dyAxis("y2", label = "VPD (kPa)") %>% 
   dyLegend(show = "follow") %>%
   dyRangeSelector(height = 20, strokeColor = "")
+
+colors <- c("#FFFFCC", "#FFE6E6")
+for(i in 1:2) {
+  skip_temp <- skip %>%
+  filter(Tree == 7, Logger == i)
+  
+  for(j in 1:nrow(skip_temp)){
+    dg <- dyShading(dg, from = skip_temp$Start, to = skip_temp$End, color = colors[i])
+  }
+}  
+dg
 
 
 dygraph(met_xts, group = "tree-7") %>%
