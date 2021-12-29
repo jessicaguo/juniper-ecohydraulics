@@ -493,3 +493,33 @@ dygraph(met_xts, group = "tree-7") %>%
   dyRangeSelector(height = 20, strokeColor = "") %>%
   dyLegend(show = "follow")
 ```
+
+
+### Edit timeseries
+
+Cut the maintenance days (all loggers) and skip days (tree- and logger-specific) from the half-hourly timeseries and output as .csv file. 
+
+```{r, eval=FALSE}
+# Function to find overlap in maintenance times
+maint.overlap <- function(vals) {
+  rowSums(mapply(function(a,b) between(vals, a, b), 
+                 maint$Start, maint$End)) > 0
+}
+
+psy4 <- psy3 %>%
+  filter(!test.overlap(dt))
+
+# Create sequence of half-hours
+skip_hourly <- data.frame()
+for(i in 1:nrow(skip)) {
+  temp <- data.frame(dt = seq(skip$Start[i], skip$End[i], by = 30*60)) %>%
+    mutate(Tree = skip$Tree[i],
+           Logger = skip$Logger[i])
+  skip_hourly <- rbind.data.frame(skip_hourly, temp)
+}
+
+psy5 <- anti_join(psy4, skip_hourly)
+
+write_csv(psy5, file = "../data_cleaned/psy_hourly.csv")
+
+```
