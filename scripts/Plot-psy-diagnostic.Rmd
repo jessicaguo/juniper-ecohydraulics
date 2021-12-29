@@ -1,0 +1,108 @@
+---
+title: "Diagnostic plots of cleaned psy timeseries"
+author: "Jessica Guo"
+date: "12/29/2021"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(plantecophys)
+library(plotly)
+```
+
+## Exploring psychrometer time series
+
+After visually inspecting and cleaning the half-hourly time series of *Juniperus osteosperma* stem water potentials, we turn to exploratory plots that will help understand how the trees and loggers relate to each other, to meteorological variables, and in diurnal patterns. 
+
+First, we bring in the relevant datasets. 
+
+```{r, message=FALSE}
+# Psychrometer (cleaned)
+psy <- read_csv(file = "../data_cleaned/psy_hourly.csv") %>%
+  mutate(Tree = as.factor(Tree),
+         Logger = as.factor(Logger))
+
+# Met data
+col_names <- names(read_csv("../data_raw/Other-tower-data.csv",
+                skip = 1, n_max = 0))
+
+met <- read_csv("../data_raw/Other-tower-data.csv",
+                skip = 4, 
+                col_names = col_names, 
+                na = c("-9999")) %>%
+  mutate(dt = as.POSIXct(TIMESTAMP, format = "%m/%d/%Y %H:%M", 
+                         tz = "America/Denver"),
+         VPD_Avg = RHtoVPD(RH_Avg, AirTemp_Avg)) %>%
+  select(dt, AirTemp_Avg, RH_Avg, VPD_Avg, 
+         Precip_Tot, contains("VWC")) %>%
+  filter(dt >= min(psy$dt) & dt <= max(psy$dt))
+
+# Combine
+psy_met <- left_join(psy, met)
+
+```
+
+### Plot all psychrometers together
+
+After separately plotting each tree, we bring together all loggers together to see patterns across the seven individual trees
+
+```{r, echo=FALSE}
+fig1 <- plot_ly(psy_met, type = 'scatter', mode = 'markers') %>%
+  add_markers(x = ~dt,
+              y = ~psy,
+              color = ~Tree)  %>%
+  add_bars(x = ~dt,
+           y = ~Precip_Tot/14) %>%
+  layout(
+    xaxis = list(
+      rangeselector = list(
+        buttons = list(list(step = "all"))),
+      rangeslider = list(type = "d")),
+    yaxis = list(title = "Psi (MPa) | Precip (mm/hr)")
+  )
+fig1
+```
+
+### Examine each tree with met variables
+
+For each tree, plot the psychrometer time series in synch with scatterplots with shallow soil moisture, deep soil moisture, and VPD. 
+
+```{r}
+
+tree1 <- filter(psy_met, Tree == 1)
+
+ts1 <- plot_ly(tree1, type = 'scatter', mode = 'markers',
+                x = ~dt, 
+                y = ~ psy, 
+                color = ~Logger) %>%
+  layout(
+    xaxis = list(
+      rangeselector = list(
+        buttons = list(list(step = "all"))),
+      rangeslider = list(type = "d")),
+    yaxis = list(title = "Psi (MPa)")
+  )
+
+shallow1 <- plot_ly(psy_met, type = 'scatter', mode = 'markers',
+                    x = ~VWC_5cm_Avg,
+                    y = ~psy,
+                    color = ~Logger)
+
+med1 <- plot_ly(psy_met, type = 'scatter', mode = 'markers',
+                x = ~VWC_20cm_Avg,
+                y = ~psy,
+                color = ~Logger)
+
+vpd1 <- plot_ly(psy_met, type = 'scatter', mode = 'markers',
+                x = ~VPD_Avg,
+                y = ~psy,
+                color = ~Logger)
+
+subplot(ts1, subplot(shallow1, med1, vpd1, nrows = 1), nrows = 2)
+
+
+```
