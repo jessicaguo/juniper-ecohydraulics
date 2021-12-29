@@ -2,8 +2,9 @@
 .Rproj.user/
 .Rhistory
 
-# Suppress data folder
+# Suppress data folders
 data_raw/
+data_cleaned/
 
 # Suppress html and rsconnect files
 *.html
