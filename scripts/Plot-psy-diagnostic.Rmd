@@ -11,7 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(plantecophys)
-library(plotly)
+library(RColorBrewer)
 ```
 
 ## Exploring psychrometer time series
@@ -20,7 +20,7 @@ After visually inspecting and cleaning the half-hourly time series of *Juniperus
 
 First, we bring in the relevant datasets. 
 
-```{r, message=FALSE}
+```{r, message=FALSE, warning=FALSE}
 # Psychrometer (cleaned)
 psy <- read_csv(file = "../data_cleaned/psy_hourly.csv") %>%
   mutate(Tree = as.factor(Tree),
@@ -42,7 +42,10 @@ met <- read_csv("../data_raw/Other-tower-data.csv",
   filter(dt >= min(psy$dt) & dt <= max(psy$dt))
 
 # Combine
-psy_met <- left_join(psy, met)
+psy_met <- left_join(psy, met) %>%
+  mutate(month = factor(month.name[lubridate::month(dt)],
+                        levels = month.name),
+         day = lubridate::day(dt))
 
 ```
 
@@ -50,59 +53,89 @@ psy_met <- left_join(psy, met)
 
 After separately plotting each tree, we bring together all loggers together to see patterns across the seven individual trees
 
-```{r, echo=FALSE}
-fig1 <- plot_ly(psy_met, type = 'scatter', mode = 'markers') %>%
-  add_markers(x = ~dt,
-              y = ~psy,
-              color = ~Tree)  %>%
-  add_bars(x = ~dt,
-           y = ~Precip_Tot/14) %>%
-  layout(
-    xaxis = list(
-      rangeselector = list(
-        buttons = list(list(step = "all"))),
-      rangeslider = list(type = "d")),
-    yaxis = list(title = "Psi (MPa) | Precip (mm/hr)")
-  )
-fig1
+```{r, echo=FALSE, fig.width=10, fig.height=4}
+ggplot() +
+  geom_point(data = psy_met, aes(x = dt, y = psy, color = Tree, shape = Logger)) +
+  geom_point(data = met, aes(x = dt, y = VWC_5cm_Avg/2)) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)")), 
+                     sec.axis = sec_axis(~.*2, 
+                                         expression(paste(VWC[5*cm], " (", cm^3, " ", cm^-3, ")")))) +
+  theme_bw(base_size = 12) +
+  theme(axis.title.x = element_blank())
+```
+
+### Examine relationship between met variables
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=4}
+labs <- pretty(met$dt, 5)
+ggplot(met, aes(x = VPD_Avg, y = VWC_10cm_Avg, color = dt)) + 
+  geom_point() +
+  scale_x_continuous("VPD (kPa)") +
+  scale_y_continuous(expression(paste(VWC[5*cm], " (", cm^3, " ", cm^-3, ")"))) +
+  scale_color_gradient(low = "goldenrod1", high = "darkorchid",
+                       breaks = labs,
+                       labels = format(labs, "%b")) +
+  theme_bw(base_size = 12)
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=4}
+ggplot(met, aes(x = dt)) + 
+  geom_point(aes(y = VWC_5cm_Avg, color = "5 cm")) +
+  geom_point(aes(y = VWC_10cm_Avg, color = "10 cm")) +
+  geom_point(aes(y = VWC_20cm_Avg, color = "20 cm")) +
+  geom_point(aes(y = VWC_50cm_Avg, color = "50 cm")) +
+  geom_point(aes(y = VWC_100cm_Avg, color = "100 cm")) +
+  scale_color_manual(values = rev(brewer.pal(6, "BrBG"))[1:5],
+                     breaks = c("5 cm",
+                                "10 cm",
+                                "20 cm", 
+                                "50 cm",
+                                "100 cm")) +
+  theme_bw(base_size = 12)
+
 ```
 
 ### Examine each tree with met variables
 
-For each tree, plot the psychrometer time series in synch with scatterplots with shallow soil moisture, deep soil moisture, and VPD. 
+For each tree, plot stem water potential against soil moisture and VPD by month.The color axis indicates day within eacn month.  
 
-```{r}
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+psy_met %>%
+  ggplot(aes(x = VWC_5cm_Avg, y = psy, shape = Logger, color = day)) +
+  geom_point() +
+  facet_grid(rows = vars(Tree),
+             cols = vars(month)) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous(expression(paste(VWC[5*cm], " (", cm^3, " ", cm^-3, ")"))) +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank())
 
-tree1 <- filter(psy_met, Tree == 1)
+```
 
-ts1 <- plot_ly(tree1, type = 'scatter', mode = 'markers',
-                x = ~dt, 
-                y = ~ psy, 
-                color = ~Logger) %>%
-  layout(
-    xaxis = list(
-      rangeselector = list(
-        buttons = list(list(step = "all"))),
-      rangeslider = list(type = "d")),
-    yaxis = list(title = "Psi (MPa)")
-  )
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=6}
+psy_met %>%
+  ggplot(aes(x = VWC_10cm_Avg, y = psy, shape = Logger, color = day)) +
+  geom_point() +
+  facet_grid(rows = vars(Tree),
+             cols = vars(month)) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous(expression(paste(VWC[10*cm], " (", cm^3, " ", cm^-3, ")"))) +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank())
+```
 
-shallow1 <- plot_ly(psy_met, type = 'scatter', mode = 'markers',
-                    x = ~VWC_5cm_Avg,
-                    y = ~psy,
-                    color = ~Logger)
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 
-med1 <- plot_ly(psy_met, type = 'scatter', mode = 'markers',
-                x = ~VWC_20cm_Avg,
-                y = ~psy,
-                color = ~Logger)
-
-vpd1 <- plot_ly(psy_met, type = 'scatter', mode = 'markers',
-                x = ~VPD_Avg,
-                y = ~psy,
-                color = ~Logger)
-
-subplot(ts1, subplot(shallow1, med1, vpd1, nrows = 1), nrows = 2)
-
-
+psy_met %>%
+  ggplot(aes(x = VPD_Avg, y = psy, shape = Logger, color = day)) +
+  geom_point() +
+  facet_grid(rows = vars(Tree),
+             cols = vars(month)) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous("VPD (kPa)") +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank())
 ```
