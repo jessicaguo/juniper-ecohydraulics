@@ -10,6 +10,7 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(lubridate)
 library(plantecophys)
 library(tsibble)
 library(xts)
@@ -26,7 +27,7 @@ Fourteen stem psychrometers were installed on seven individual *Juniperus osteos
 Individual .csv files were combined by S. Kannenberg and labeled with the associated tree and logger ID. These raw data were read in and the timestamps were rounded to the nearest half hour. 
 
 ```{r, message=FALSE}
-psy <- read.csv("../data_raw/Merged-psychrometer-data.csv",  encoding="UTF-8") %>%
+psy <- read.csv("../data_raw/Merged-psychrometer-data.csv") %>%
   rename(chamber_temp = 5,
          dT = 6,
          wet_bulb = 7,
@@ -39,7 +40,7 @@ psy <- read.csv("../data_raw/Merged-psychrometer-data.csv",  encoding="UTF-8") %
          ext_power_volt = 17,
          ext_power_current = 18,
          comment = 19) %>%
-  mutate(Date = as.POSIXct(Date, format = "%m/%d/%Y", tz = "America/Denver"),
+  mutate(Date = as.Date(Date, format = "%m/%d/%Y"),
          datetime = as.POSIXct(paste0(Date, Time), tz = "America/Denver"),
          dt = round.POSIXct(datetime, units = "30 mins"))
 ```
@@ -69,7 +70,7 @@ psy2 <- psy %>%
             correction = mean(correction))
 ```
 
-Finally, let's check the range of psy measurements for each tree and logger. 
+Finally, let's check the range of psychrometer values for each tree and logger. 
 
 ```{r,  message=FALSE}
 psy2 %>%
@@ -126,9 +127,9 @@ psy_wide <- psy3 %>%
 Monthly site visits were made, wherein the psychrometer sensors were removed, cleaned, and reattached to a fresh branch on the same tree. We expect some odd values during these periods and want to highlight them on the visualization. 
 
 ```{r, message=FALSE, warning=FALSE}
-maint <- read_csv("../data_raw/Maintenance-times.csv") %>%
+maint <- read.csv("../data_raw/Maintenance-times.csv") %>%
   mutate(Start = as.POSIXct(Start, tz = "America/Denver"),
-         End= as.POSIXct(End, tz = "America/Denver"))
+         End = as.POSIXct(End, tz = "America/Denver"))
 ```
 
 ### Dates to skip
@@ -136,7 +137,7 @@ maint <- read_csv("../data_raw/Maintenance-times.csv") %>%
 Psychrometers can fail to record a realistic $\Psi$ for a number of reasons, including primarily the loss of contact and good seal between living xylem and the chamber. We have identified periods where either the contact deteriorates over time until the chamber is re-installed ('Loss of contact'), contact is simply poor and results in spiky readings for a period before resolving naturally ('Poor contact, very spiky'), or particular spikes are noted, often across loggers and trees and potentially associated with weather phenomenon ('Unknown spike'). We read in these dates, which can be manually updated during the process of data cleaning. 
 
 ```{r, message=FALSE, warning=FALSE}
-skip <- read_csv("../data_raw/Psy-skip-dates.csv") %>%
+skip <- read.csv("../data_raw/Psy-skip-dates.csv") %>%
   mutate(Start = as.POSIXct(st, format = "%m/%d/%Y %H:%M:%S", tz = "America/Denver"),
          End= as.POSIXct(en, format = "%m/%d/%Y %H:%M:%S", tz = "America/Denver"))
 ```
@@ -507,7 +508,7 @@ maint.overlap <- function(vals) {
 }
 
 psy4 <- psy3 %>%
-  filter(!test.overlap(dt))
+  filter(!maint.overlap(dt))
 
 # Create sequence of half-hours
 skip_hourly <- data.frame()
