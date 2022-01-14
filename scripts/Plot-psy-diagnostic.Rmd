@@ -10,21 +10,37 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
+library(lubridate)
 library(plantecophys)
 library(RColorBrewer)
+source("../source/round.POSIXct.R")
 ```
 
 ## Exploring psychrometer time series
 
 After visually inspecting and cleaning the half-hourly time series of *Juniperus osteosperma* stem water potentials, we turn to exploratory plots that will help understand how the trees and loggers relate to each other, to meteorological variables, and in diurnal patterns. 
 
-First, we bring in the relevant datasets. 
+First, we bring in the relevant datasets, including manual validation of leaf water potential using a pressure chamber. 
 
 ```{r, message=FALSE, warning=FALSE}
 # Psychrometer (cleaned)
-psy <- read_csv(file = "../data_cleaned/psy_hourly.csv") %>%
+psy <- read_csv(file = "../data_cleaned/psy_hourly.csv",
+                locale = locale(tz = "America/Denver")) %>%
   mutate(Tree = as.factor(Tree),
          Logger = as.factor(Logger))
+
+# Manual validation data
+man <- read_csv("../data_raw/Pressure-chamber-data.csv") %>%
+  rename(dt = 1,
+         WP_bar = 4,
+         WP_mpa = 5,
+         Psy = 6) %>%
+  mutate(Tree = as.factor(Tree),
+         Logger = as.factor(Logger),
+         dt_orig = as.POSIXct(dt, format = "%m/%d/%Y %H:%M", tz = "America/Denver"),
+         dt = round.POSIXct(dt_orig, units = "30 mins")) %>%
+  select(Tree, Logger, dt, WP_mpa) %>%
+  filter(!is.na(WP_mpa))
 
 # Met data
 col_names <- names(read_csv("../data_raw/Other-tower-data.csv",
@@ -41,12 +57,22 @@ met <- read_csv("../data_raw/Other-tower-data.csv",
          Precip_Tot, contains("VWC")) %>%
   filter(dt >= min(psy$dt) & dt <= max(psy$dt))
 
-# Combine
-psy_met <- left_join(psy, met) %>%
+# Combine psy and manual and met, create time indices for plotting
+psy_met <- psy %>%
+  left_join(man) %>%
+  left_join( met) %>%
   mutate(month = factor(month.name[lubridate::month(dt)],
                         levels = month.name),
-         day = lubridate::day(dt))
-
+         day = lubridate::day(dt),
+         hour = lubridate::hour(dt),
+         mo = sprintf("%02d", lubridate::month(dt)),
+         Month = as.POSIXct(paste0("2021-", mo, "-01 00:00:00"), 
+                            tz = "America/Denver"),
+         month_diff = as.numeric(difftime(dt, Month, "secs")),
+         month_ind = as.POSIXct(month_diff, 
+                                origin = "1970-01-01",
+                                tz = "America/Denver")) %>%
+  select(-mo, -Month, -month_diff)
 ```
 
 ### Plot all psychrometers together
@@ -97,7 +123,7 @@ ggplot(met, aes(x = dt)) +
 
 ### Examine each tree with met variables
 
-For each tree, plot stem water potential against soil moisture and VPD by month.The color axis indicates day within eacn month.  
+For each tree, plot stem water potential against soil moisture and VPD by month.The color axis indicates day within each month.  
 
 ```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=6}
 psy_met %>%
@@ -109,7 +135,8 @@ psy_met %>%
   scale_x_continuous(expression(paste(VWC[5*cm], " (", cm^3, " ", cm^-3, ")"))) +
   scale_color_gradient(low = "yellow", high = "darkorchid") +
   theme_bw(base_size = 12) +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank())
 
 ```
 
@@ -123,7 +150,8 @@ psy_met %>%
   scale_x_continuous(expression(paste(VWC[10*cm], " (", cm^3, " ", cm^-3, ")"))) +
   scale_color_gradient(low = "yellow", high = "darkorchid") +
   theme_bw(base_size = 12) +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank())
 ```
 
 ```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=6}
@@ -137,5 +165,290 @@ psy_met %>%
   scale_x_continuous("VPD (kPa)") +
   scale_color_gradient(low = "yellow", high = "darkorchid") +
   theme_bw(base_size = 12) +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank())
+```
+
+The presence of multiple relationships within each panel indicates that the effect of environmental drivers could be interactive and dependent on past conditions. 
+
+### Plot diurnal patterns
+
+Within each month, plot the diurnal patterns of stem water potential. Plots are separated for each tree to better check for differences between loggers. 
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=8}
+psy_met %>%
+  filter(Tree == 1) %>%
+  ggplot(aes(x = hour, y = psy, color = day)) +
+  geom_point() +
+  facet_grid(cols = vars(Logger),
+             rows = vars(month),
+             scales = "free_y") +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous("Hour of day", breaks = c(0, 6, 12, 18, 24)) +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank()) +
+  ggtitle("Tree 1")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=8}
+psy_met %>%
+  filter(Tree == 2) %>%
+  ggplot(aes(x = hour, y = psy, color = day)) +
+  geom_point() +
+  facet_grid(cols = vars(Logger),
+             rows = vars(month),
+             scales = "free_y") +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous("Hour of day", breaks = c(0, 6, 12, 18, 24)) +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank()) +
+  ggtitle("Tree 2")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=8}
+psy_met %>%
+  filter(Tree == 3) %>%
+  ggplot(aes(x = hour, y = psy, color = day)) +
+  geom_point() +
+  facet_grid(cols = vars(Logger),
+             rows = vars(month),
+             scales = "free_y") +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous("Hour of day", breaks = c(0, 6, 12, 18, 24)) +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank()) +
+  ggtitle("Tree 3")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=8}
+psy_met %>%
+  filter(Tree == 4) %>%
+  ggplot(aes(x = hour, y = psy, color = day)) +
+  geom_point() +
+  facet_grid(cols = vars(Logger),
+             rows = vars(month),
+             scales = "free_y") +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous("Hour of day", breaks = c(0, 6, 12, 18, 24)) +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank()) +
+  ggtitle("Tree 4")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=8}
+psy_met %>%
+  filter(Tree == 5) %>%
+  ggplot(aes(x = hour, y = psy, color = day)) +
+  geom_point() +
+  facet_grid(cols = vars(Logger),
+             rows = vars(month),
+             scales = "free_y") +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous("Hour of day", breaks = c(0, 6, 12, 18, 24)) +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank()) +
+  ggtitle("Tree 5")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=8}
+psy_met %>%
+  filter(Tree == 6) %>%
+  ggplot(aes(x = hour, y = psy, color = day)) +
+  geom_point() +
+  facet_grid(cols = vars(Logger),
+             rows = vars(month),
+             scales = "free_y") +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous("Hour of day", breaks = c(0, 6, 12, 18, 24)) +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank()) +
+  ggtitle("Tree 6")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=6, fig.height=8}
+psy_met %>%
+  filter(Tree == 7) %>%
+  ggplot(aes(x = hour, y = psy, color = day)) +
+  geom_point() +
+  facet_grid(cols = vars(Logger),
+             rows = vars(month),
+             scales = "free_y") +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_continuous("Hour of day", breaks = c(0, 6, 12, 18, 24)) +
+  scale_color_gradient(low = "yellow", high = "darkorchid") +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank()) +
+  ggtitle("Tree 7")
+```
+
+### Time series by month
+
+Finally, the time series for each tree is broken down by month. 
+
+```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
+psy_met %>%
+  filter(Tree == 1) %>%
+  ggplot(aes(x = month_ind)) +
+  geom_point(aes(y = psy, color = Logger)) +
+  geom_point(aes(y = WP_mpa, color = "manual"),
+             size = 2,
+             pch = 8) +
+  facet_wrap(~month,
+             scales = "free_y",  
+             ncol = 1) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_datetime(date_breaks = "1 week", 
+                   date_labels = format("%d")) +
+  scale_color_manual(values = c("steelblue", "turquoise", "orchid")) +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank(),
+        axis.title.x = element_blank()) +
+  guides(color = guide_legend(override.aes = list(shape = c(16, 16, 8)))) +
+  ggtitle("Tree 1")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
+psy_met %>%
+  filter(Tree == 2) %>%
+  ggplot(aes(x = month_ind)) +
+  geom_point(aes(y = psy, color = Logger)) +
+  geom_point(aes(y = WP_mpa, color = "manual"),
+             size = 2,
+             pch = 8) +
+  facet_wrap(~month,
+             scales = "free_y",  
+             ncol = 1) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_datetime(date_breaks = "1 week", 
+                   date_labels = format("%d")) +
+  scale_color_manual(values = c("steelblue", "turquoise", "orchid")) +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank(),
+        axis.title.x = element_blank()) +
+  ggtitle("Tree 2")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
+psy_met %>%
+  filter(Tree == 3) %>%
+  ggplot(aes(x = month_ind)) +
+  geom_point(aes(y = psy, color = Logger)) +
+  geom_point(aes(y = WP_mpa, color = "manual"),
+             size = 2,
+             pch = 8) +
+  facet_wrap(~month,
+             scales = "free_y",  
+             ncol = 1) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_datetime(date_breaks = "1 week", 
+                   date_labels = format("%d")) +
+  scale_color_manual(values = c("steelblue", "turquoise", "orchid")) +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank(),
+        axis.title.x = element_blank()) +
+  ggtitle("Tree 3")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
+psy_met %>%
+  filter(Tree == 4) %>%
+  ggplot(aes(x = month_ind)) +
+  geom_point(aes(y = psy, color = Logger)) +
+  geom_point(aes(y = WP_mpa, color = "manual"),
+             size = 2,
+             pch = 8) +
+  facet_wrap(~month,
+             scales = "free_y",  
+             ncol = 1) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_datetime(date_breaks = "1 week", 
+                   date_labels = format("%d")) +
+  scale_color_manual(values = c("steelblue", "turquoise", "orchid")) +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank(),
+        axis.title.x = element_blank()) +
+  ggtitle("Tree 4")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
+psy_met %>%
+  filter(Tree == 5) %>%
+  ggplot(aes(x = month_ind)) +
+  geom_point(aes(y = psy, color = Logger)) +
+  geom_point(aes(y = WP_mpa, color = "manual"),
+             size = 2,
+             pch = 8) +
+  facet_wrap(~month,
+             scales = "free_y",  
+             ncol = 1) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_datetime(date_breaks = "1 week", 
+                   date_labels = format("%d")) +
+  scale_color_manual(values = c("steelblue", "turquoise", "orchid")) +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank(),
+        axis.title.x = element_blank()) +
+  ggtitle("Tree 5")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
+psy_met %>%
+  filter(Tree == 6) %>%
+  ggplot(aes(x = month_ind)) +
+  geom_point(aes(y = psy, color = Logger)) +
+  geom_point(aes(y = WP_mpa, color = "manual"),
+             size = 2,
+             pch = 8) +
+  facet_wrap(~month,
+             scales = "free_y",  
+             ncol = 1) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_datetime(date_breaks = "1 week", 
+                   date_labels = format("%d")) +
+  scale_color_manual(values = c("steelblue", "turquoise", "orchid")) +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank(),
+        axis.title.x = element_blank()) +
+  ggtitle("Tree 6")
+```
+
+```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
+psy_met %>%
+  filter(Tree == 7) %>%
+  ggplot(aes(x = month_ind)) +
+  geom_point(aes(y = psy, color = Logger)) +
+  geom_point(aes(y = WP_mpa, color = "manual"),
+             size = 2,
+             pch = 8) +
+  facet_wrap(~month,
+             scales = "free_y",  
+             ncol = 1) +
+  scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
+  scale_x_datetime(date_breaks = "1 week", 
+                   date_labels = format("%d")) +
+  scale_color_manual(values = c("steelblue", "turquoise", "orchid")) +
+  theme_bw(base_size = 12) +
+  theme(panel.grid = element_blank(),
+        strip.background = element_blank(),
+        axis.title.x = element_blank()) +
+  ggtitle("Tree 7")
 ```
