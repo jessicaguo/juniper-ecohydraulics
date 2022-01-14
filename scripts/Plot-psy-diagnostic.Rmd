@@ -300,14 +300,13 @@ Finally, the time series for each tree is broken down by month.
 
 ```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
 psy_met %>%
-  filter(Tree == 1) %>%
+  filter(month == "May") %>%
   ggplot(aes(x = month_ind)) +
   geom_point(aes(y = psy, color = Logger)) +
   geom_point(aes(y = WP_mpa, color = "manual"),
              size = 2,
              pch = 8) +
-  facet_wrap(~month,
-             scales = "free_y",  
+  facet_wrap(~Tree, 
              ncol = 1) +
   scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
   scale_x_datetime(date_breaks = "1 week", 
@@ -318,19 +317,18 @@ psy_met %>%
         strip.background = element_blank(),
         axis.title.x = element_blank()) +
   guides(color = guide_legend(override.aes = list(shape = c(16, 16, 8)))) +
-  ggtitle("Tree 1")
+  ggtitle("May")
 ```
 
 ```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
 psy_met %>%
-  filter(Tree == 2) %>%
+  filter(month == "June") %>%
   ggplot(aes(x = month_ind)) +
   geom_point(aes(y = psy, color = Logger)) +
   geom_point(aes(y = WP_mpa, color = "manual"),
              size = 2,
              pch = 8) +
-  facet_wrap(~month,
-             scales = "free_y",  
+  facet_wrap(~Tree,
              ncol = 1) +
   scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
   scale_x_datetime(date_breaks = "1 week", 
@@ -340,19 +338,18 @@ psy_met %>%
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         axis.title.x = element_blank()) +
-  ggtitle("Tree 2")
+  ggtitle("June")
 ```
 
 ```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
 psy_met %>%
-  filter(Tree == 3) %>%
+  filter(month == "July") %>%
   ggplot(aes(x = month_ind)) +
   geom_point(aes(y = psy, color = Logger)) +
   geom_point(aes(y = WP_mpa, color = "manual"),
              size = 2,
              pch = 8) +
-  facet_wrap(~month,
-             scales = "free_y",  
+  facet_wrap(~Tree, 
              ncol = 1) +
   scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
   scale_x_datetime(date_breaks = "1 week", 
@@ -362,19 +359,18 @@ psy_met %>%
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         axis.title.x = element_blank()) +
-  ggtitle("Tree 3")
+  ggtitle("July")
 ```
 
 ```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
 psy_met %>%
-  filter(Tree == 4) %>%
+  filter(month == "August") %>%
   ggplot(aes(x = month_ind)) +
   geom_point(aes(y = psy, color = Logger)) +
   geom_point(aes(y = WP_mpa, color = "manual"),
              size = 2,
              pch = 8) +
-  facet_wrap(~month,
-             scales = "free_y",  
+  facet_wrap(~Tree,
              ncol = 1) +
   scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
   scale_x_datetime(date_breaks = "1 week", 
@@ -384,19 +380,18 @@ psy_met %>%
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         axis.title.x = element_blank()) +
-  ggtitle("Tree 4")
+  ggtitle("August")
 ```
 
 ```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
 psy_met %>%
-  filter(Tree == 5) %>%
+  filter(month == "September") %>%
   ggplot(aes(x = month_ind)) +
   geom_point(aes(y = psy, color = Logger)) +
   geom_point(aes(y = WP_mpa, color = "manual"),
              size = 2,
              pch = 8) +
-  facet_wrap(~month,
-             scales = "free_y",  
+  facet_wrap(~Tree,
              ncol = 1) +
   scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
   scale_x_datetime(date_breaks = "1 week", 
@@ -406,19 +401,18 @@ psy_met %>%
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         axis.title.x = element_blank()) +
-  ggtitle("Tree 5")
+  ggtitle("September")
 ```
 
 ```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
 psy_met %>%
-  filter(Tree == 6) %>%
+  filter(month == "October") %>%
   ggplot(aes(x = month_ind)) +
   geom_point(aes(y = psy, color = Logger)) +
   geom_point(aes(y = WP_mpa, color = "manual"),
              size = 2,
              pch = 8) +
-  facet_wrap(~month,
-             scales = "free_y",  
+  facet_wrap(~Tree,
              ncol = 1) +
   scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
   scale_x_datetime(date_breaks = "1 week", 
@@ -428,19 +422,18 @@ psy_met %>%
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         axis.title.x = element_blank()) +
-  ggtitle("Tree 6")
+  ggtitle("October")
 ```
 
 ```{r, echo=FALSE, warning=FALSE, fig.width=8, fig.height=10}
 psy_met %>%
-  filter(Tree == 7) %>%
+  filter(month == "November") %>%
   ggplot(aes(x = month_ind)) +
   geom_point(aes(y = psy, color = Logger)) +
   geom_point(aes(y = WP_mpa, color = "manual"),
              size = 2,
              pch = 8) +
-  facet_wrap(~month,
-             scales = "free_y",  
+  facet_wrap(~Tree,
              ncol = 1) +
   scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
   scale_x_datetime(date_breaks = "1 week", 
@@ -450,5 +443,5 @@ psy_met %>%
   theme(panel.grid = element_blank(),
         strip.background = element_blank(),
         axis.title.x = element_blank()) +
-  ggtitle("Tree 7")
+  ggtitle("November")
 ```
