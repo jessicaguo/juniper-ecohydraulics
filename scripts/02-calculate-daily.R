@@ -72,18 +72,21 @@ col_names <- names(read_csv("data_raw/Other-tower-data.csv",
 met <- read_csv("data_raw/Other-tower-data.csv",
                 skip = 4, 
                 col_names = col_names, 
-                na = c("-9999")) %>%
+                na = c("-9999", ""),
+                col_types = cols(TIMESTAMP = "c",
+                                 .default = "d")) %>%
   mutate(dt = as.POSIXct(TIMESTAMP, format = "%m/%d/%Y %H:%M", 
                          tz = "America/Denver"),
-         date = lubridate::date(dt),
+         date = as.Date(dt),
+         doy = lubridate::yday(dt),
          VPD_Avg = RHtoVPD(RH_Avg, AirTemp_Avg)) %>%
-  select(date, dt, AirTemp_Avg, RH_Avg, VPD_Avg, 
+  select(date, doy, dt, AirTemp_Avg, RH_Avg, VPD_Avg, 
          Precip_Tot, contains("VWC")) %>%
   filter(date >= as.Date("2021-01-01"))
 
 # Summarize to daily
 met_daily <- met %>%
-  group_by(`date`) %>%
+  group_by(date) %>%
   summarize(VPD_mean = mean(VPD_Avg, na.rm = TRUE),
             VPD_max = max(VPD_Avg, na.rm = TRUE),
             T_min = min(AirTemp_Avg, na.rm = TRUE),
@@ -95,11 +98,12 @@ met_daily <- met %>%
             VWC_20cm = mean(VWC_20cm_Avg, na.rm = TRUE),
             VWC_50cm = mean(VWC_50cm_Avg, na.rm = TRUE),
             VWC_100cm = mean(VWC_100cm_Avg, na.rm = TRUE),
-            n = n())
+            n = n()) %>%
+  arrange(date)
 
 # Quick plots
 met_daily %>%
-  ggplot(aes(x = date)) +
+  ggplot(aes(x = as.POSIXct(date))) +
   geom_point(aes(y = VPD_mean, color = "mean")) +
   geom_point(aes(y = VPD_max, color = "max")) +
   geom_bar(aes(y = Precip/6, color = "precip"),
@@ -108,7 +112,7 @@ met_daily %>%
   theme_bw()
 
 met_daily %>%
-  ggplot(aes(x = date)) +
+  ggplot(aes(x = as.POSIXct(date))) +
   geom_point(aes(y = T_min, color = "min")) +
   geom_point(aes(y = T_mean, color = "mean")) +
   geom_point(aes(y = T_max, color = "max")) +
@@ -118,7 +122,7 @@ met_daily %>%
   theme_bw()
 
 met_daily %>%
-  ggplot(aes(x = date)) +
+  ggplot(aes(x = as.POSIXct(date))) +
   geom_point(aes(y = VWC_5cm, color = "5")) +
   geom_point(aes(y = VWC_10cm, color = "10")) +
   geom_point(aes(y = VWC_20cm, color = "20")) +
