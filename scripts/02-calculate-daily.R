@@ -50,7 +50,8 @@ psy_daily <- inner_join(psy, sun_dt, by = c("dt" = "time")) %>%
             WP.SD = sd(psy),
             n = n()) %>%
   mutate(type = case_when(type == "solarnoon" ~ "MD", 
-                          type == "sunrise" ~ "PD"))
+                          type == "sunrise" ~ "PD"),
+         doy = lubridate::yday(date))
 
 # Quick plotting
 psy_daily %>%
