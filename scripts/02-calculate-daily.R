@@ -35,7 +35,7 @@ sun_dt <- getSunlightTimes(date = seq(as.Date("2021-01-01"),
                       names_pattern = "(.*)_(.)",
                       values_to = "time") %>%
   arrange(date, type, timing)
-
+rm(round.POSIXct)
 
 # Psychrometer (cleaned)
 psy <- read_csv(file = "data_cleaned/psy_hourly.csv",
@@ -103,7 +103,7 @@ met_daily <- met %>%
 
 # Quick plots
 met_daily %>%
-  ggplot(aes(x = as.POSIXct(date))) +
+  ggplot(aes(x = date)) +
   geom_point(aes(y = VPD_mean, color = "mean")) +
   geom_point(aes(y = VPD_max, color = "max")) +
   geom_bar(aes(y = Precip/6, color = "precip"),
@@ -112,7 +112,7 @@ met_daily %>%
   theme_bw()
 
 met_daily %>%
-  ggplot(aes(x = as.POSIXct(date))) +
+  ggplot(aes(x = date)) +
   geom_point(aes(y = T_min, color = "min")) +
   geom_point(aes(y = T_mean, color = "mean")) +
   geom_point(aes(y = T_max, color = "max")) +
@@ -122,7 +122,7 @@ met_daily %>%
   theme_bw()
 
 met_daily %>%
-  ggplot(aes(x = as.POSIXct(date))) +
+  ggplot(aes(x = date)) +
   geom_point(aes(y = VWC_5cm, color = "5")) +
   geom_point(aes(y = VWC_10cm, color = "10")) +
   geom_point(aes(y = VWC_20cm, color = "20")) +
