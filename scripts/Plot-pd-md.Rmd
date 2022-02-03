@@ -11,145 +11,72 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
-library(suncalc)
-library(plantecophys)
-library(tsibble)
 library(xts)
 library(dygraphs)
 ```
 
 ## Daily values of predawn and midday plant water potential
 
-### Summarizing psy to daily
+The cleaned half-hourly psychrometer values have been summarized to daily predawn (mean of 2 hours prior to sunrise, inclusive) and midday (mean of 2 hours following solar noon, inclusive). Similarly, the half-hourly environmental variables  have been summarized to daily sums or statistics (mean, min, max), depending on the variable. 
+```{r, message=FALSE}
+load("../data_cleaned/met_daily.Rdata")
+load("../data_cleaned/psy_daily.Rdata")
+```
 
-As an initial screening effort, daily predawn and midday water potential averages will be calculated from the half-hourly psychrometer time series and matched to daily environmental values. First, we read in the raw data, round the times to the nearest half-hour, summarize the duplicates, and remove values outside [-12.5, 0].
+Next, we will exclusively consider the predawn and midday means matched with the daily environmental variables. For plotting purposes, we will also include the maintenance times. After each maintenance, the logger was switched to a new, previously un-instrumented branch. Therefore, the identity of Logger 1 and Logger 2 are arbitrary and considered replicates for the same time period.  
 
 ```{r, message=FALSE}
-psy <- read.csv("../data_raw/Merged-psychrometer-data.csv",  encoding="UTF-8") %>%
-  rename(chamber_temp = 5,
-         dT = 6,
-         wet_bulb = 7,
-         psy = 8,
-         correction_dT = 12,
-         correction = 13,
-         batt_volt = 14,
-         int_batt_temp = 15,
-         ext_power = 16,
-         ext_power_volt = 17,
-         ext_power_current = 18,
-         comment = 19) %>%
-  mutate(Date = as.POSIXct(Date, format = "%m/%d/%Y", tz = "America/Denver"),
-         datetime = as.POSIXct(paste0(Date, Time), tz = "America/Denver"),
-         dt = round_date(datetime, unit = "30 mins")) %>%
-  group_by(Tree, Logger, dt) %>%
-  summarize(Date = unique(Date), 
-            chamber_temp = mean(chamber_temp),
-            dT = mean(dT),
-            psy = mean(psy),
-            Intercept = mean(Intercept),
-            Slope = mean(Slope),
-            EDBO = mean(EDBO),
-            correction_dT = mean(correction_dT),
-            correction = mean(correction)) %>%
-  filter(psy > -12.5 & psy <0)
+met_clip <- met_daily %>%
+  filter(date >= min(psy_daily$date),
+         date <= max(psy_daily$date))
+
+psy_all <- psy_daily %>%
+  select(Tree, Logger, date, type, WP) %>%
+  pivot_wider(names_from = type,
+              values_from = WP) %>%
+  left_join(met_daily, by = "date")
+
+maint <- read_csv("../data_raw/Maintenance-times.csv") %>%
+  mutate(st_date = as.Date(Start),
+         en_date = as.Date(End))
 ```
 
-Next, we find the sunrise and solar noon times for the Bears Ears site. Each sunrise time will be rounded to the half-hour floor and solar noon time to the half-hour ceiling. We create the four half-hours prior to sunrise and the four half-hours after solar noon, which will be used to calculate predawn and midday plant water potential. 
+### Plotting daily timeseries
 
-```{r}
-sun <- getSunlightTimes(date = seq(min(as.Date(psy$dt)), 
-                                   max(as.Date(psy$dt)), 
-                                   by = "day"),
-                       lat = 37.52473, 
-                       lon = -109.746, 
-                       keep = c("sunrise", "solarNoon"), 
-                       tz = "America/Denver") %>%
-  select(-lat, -lon) %>%
-  mutate(sunrise_1 = floor_date(sunrise, unit = "30 mins"),
-         solarNoon_1 = ceiling_date(solarNoon, unit = "30 mins"),
-         sunrise_2 = sunrise_1 - 1*30*60,
-         sunrise_3 = sunrise_1 - 2*30*60,
-         sunrise_4 = sunrise_1 - 3*30*60,
-         solarNoon_2 = solarNoon_1 - 1*30*60,
-         solarNoon_3 = solarNoon_1 - 2*30*60,
-         solarNoon_4 = solarNoon_1 - 3*30*60) %>%
-  select(-sunrise, -solarNoon) %>%
-  pivot_longer(!date, names_to = c("type", "count"), 
-               names_pattern = "(.*)_(.*)", values_to = "dt") %>%
-  arrange(date, type)
+For each tree and logger, we examine how stem water potential varies over time with daily maximum VPD and precipitation. Vertical bars represent maintenance periods. 
 
-predawn <- sun %>%
-  filter(type == "sunrise") %>%
-  select(date, dt)
-
-midday <- sun %>%
-  filter(type == "solarNoon") %>%
-  select(date, dt)
-```
-
-Select only the psychrometer data that match the list of times for predawn and midday and take mean, sd, and n for each tree, logger, and date combination. Almost all predawn and midday are summarized from four half-hourly data points, so can consider removing the ones with fewer than 4. 
-
-```{r}
-pd <- psy %>%
-  filter(dt %in% predawn$dt) %>%
-  group_by(Tree, Logger, Date) %>%
-  summarize(pd = mean(psy),
-            psy.sd = sd(psy),
-            psy.n = n())
-
-md <- psy %>%
-  filter(dt %in% midday$dt) %>%
-  group_by(Tree, Logger, Date) %>%
-  summarize(md = mean(psy),
-            psy.sd = sd(psy),
-            psy.n = n())
-```
-
-Finally, create a wide data frame for each. 
-
-```{r}
-pd_wide <- pd %>%
-  select(Tree, Logger, Date, pd) %>%
-  tidyr::pivot_wider(names_from = c(Tree, Logger),
-                     values_from = pd)
-
-md_wide <- md %>%
-  select(Tree, Logger, Date, md) %>%
-  tidyr::pivot_wider(names_from = c(Tree, Logger),
-                     values_from = md)
-  
-```
-
-### Summarizing met data to daily
-
-Tower and met data were collected at the half-hourly scale, and here are summarized to daily values. Note that the transition between MST and MDT are marked as NA, but not relevant to time period of interest. 
-
-```{r, message=FALSE}
-col_names <- names(read_csv("../data_raw/Other-tower-data.csv",
-                skip = 1, n_max = 0))
-
-met_daily <- read_csv("../data_raw/Other-tower-data.csv",
-                skip = 4, 
-                col_names = col_names, 
-                na = c("-9999")) %>%
-  mutate(dt = as.POSIXct(TIMESTAMP, format = "%m/%d/%Y %H:%M", 
-                         tz = "America/Denver"),
-         Date = as.Date(dt),
-         VPD_Avg = RHtoVPD(RH_Avg, AirTemp_Avg)) %>%
-  select(Date, dt, AirTemp_Avg, RH_Avg, VPD_Avg, 
-         Precip_Tot, contains("VWC")) %>%
-  filter(!is.na(Date)) %>%
-  group_by(Date) %>%
-  summarize(ppt = sum(Precip_Tot, na.rm = T),
-            vpd = mean(VPD_Avg, na.rm = T),
-            Tmin = min(AirTemp_Avg, na.rm = T),
-            Tmean = mean(AirTemp_Avg, na.rm = T),
-            Tmax = max(AirTemp_Avg, na.rm = T),
-            vwc_5 = mean(VWC_5cm_Avg, na.rm = T),
-            vwc_10 = mean(VWC_10cm_Avg, na.rm = T),
-            vwc_20 = mean(VWC_20cm_Avg, na.rm = T),
-            vwc_50 = mean(VWC_50cm_Avg, na.rm = T),
-            vwc_100 = mean(VWC_100cm_Avg, na.rm = T),
-            n = n()) %>%
-  filter(Date >= min(sun$date) & Date <= max(sun$date))
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+ggplot() +
+  geom_rect(data = maint, 
+            aes(xmin = st_date, xmax = en_date, 
+                ymin= -Inf, ymax = Inf),
+            alpha = 0.5) +
+  geom_point(data = psy_all,
+             aes(x = date,y = MD, col = "MD (MPa)"),
+             size = 2) +
+  geom_point(data = psy_all,
+             aes(x = date,y = PD, col = "PD (MPa)"),
+             size = 2) +
+  geom_line(data = met_clip,
+            aes(x = date,y = VPD_max, col = "VPD (kPa)"),
+            size = 1.5) +
+  geom_bar(data = met_clip,
+           aes(x = date,y = Precip/10, fill = "Precip"),
+           stat = "identity") +
+  facet_grid(cols = vars(Logger),
+             rows = vars(Tree)) +
+  scale_y_continuous(expression(paste(Psi, " | VPD | Precip (cm)"))) +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank(),
+        axis.title.x = element_blank(),
+        legend.title = element_blank()) +
+  scale_color_manual(values = c("darkkhaki",
+                               "aquamarine3",
+                               "coral")) +
+  scale_fill_manual(values = "cornflowerblue") +
+  guides(fill = "none",
+         color = guide_legend(
+           override.aes = list(linetype = c(0, 0, 1),
+                               shape = c(16, 16, NA),
+                               size = c(3, 3, 1.5))))
 ```
