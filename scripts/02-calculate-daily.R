@@ -138,3 +138,25 @@ met_daily %>%
 # Write out datasets
 save(met_daily, file = "data_cleaned/met_daily.Rdata")
 save(psy_daily, file = "data_cleaned/psy_daily.Rdata")
+
+# Match and exploratory plotting
+psy_all <- psy_daily %>%
+  select(Tree, Logger, date, type, WP) %>%
+  tidyr::pivot_wider(names_from = type, 
+                     values_from = WP) %>%
+  left_join(met_daily, by = "date")
+
+psy_all %>%
+  ggplot(aes(x = VWC_5cm, y = PD)) +
+  geom_point(aes(color = VPD_max)) +
+  facet_wrap(~Tree) +
+  scale_color_gradient(low = "blue", high = "orange")
+
+psy_all %>%
+  ggplot(aes(x = date)) +
+  geom_point(aes(y = PD, col = "PD")) +
+  geom_point(aes(y = MD, col = "MD")) +
+  geom_bar(aes(y = Precip/100),
+           stat = "identity")
+
+             
