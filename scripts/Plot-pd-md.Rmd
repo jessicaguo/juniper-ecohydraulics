@@ -80,3 +80,105 @@ ggplot() +
                                shape = c(16, 16, NA),
                                size = c(3, 3, 1.5))))
 ```
+
+Next, plot the predawn and midday water potentials as a time series with soil moisture. 
+
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=10}
+ggplot() +
+  geom_rect(data = maint, 
+            aes(xmin = st_date, xmax = en_date, 
+                ymin= -Inf, ymax = Inf),
+            alpha = 0.5) +
+  geom_point(data = psy_all,
+             aes(x = date,y = MD, col = "MD"),
+             size = 2) +
+  geom_point(data = psy_all,
+             aes(x = date,y = PD, col = "PD"),
+             size = 2) +
+  geom_bar(data = met_clip,
+           aes(x = date,y = Precip/10, fill = "Precip"),
+           stat = "identity") +
+  geom_line(data = met_clip,
+            aes(x = date,y = VWC_5cm/2, col = "VWC (5 cm)"),
+            size = 1.5) +
+  geom_line(data = met_clip,
+            aes(x = date,y = VWC_10cm/2, col = "VWC (10 cm)"),
+            size = 1.5) +
+  geom_line(data = met_clip,
+            aes(x = date,y = VWC_20cm/2, col = "VWC (20 cm)"),
+            size = 1.5) +
+  scale_y_continuous(expression(paste(Psi, " (MPa) | Precip (cm)")),
+                     sec.axis = sec_axis(~.*2, 
+                                         name = "VWC (%)")) +
+  facet_grid(cols = vars(Logger),
+             rows = vars(Tree)) +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_rect(fill = "transparent"),
+        axis.title.x = element_blank(),
+        legend.title = element_blank()) +
+  scale_color_manual(values = c("aquamarine3",
+                                "darkkhaki",
+                                "mistyrose4",
+                                "darkgoldenrod",
+                                "chocolate4"),
+                     breaks = c("PD", "MD",
+                                "VWC (5 cm)",
+                                "VWC (10 cm)",
+                                "VWC (20 cm)")) +
+  scale_fill_manual(values = "cornflowerblue") +
+  guides(fill = "none",
+         color = guide_legend(
+           override.aes = list(linetype = c(0, 0, 1, 1, 1),
+                               shape = c(16, 16, NA, NA, NA),
+                               size = c(3, 3, 1.5, 1.5, 1.5))))
+```
+
+## Separating by branch
+
+Because the loggers were rotated to a fresh branch during each maintenance period, the label of Logger 1 and Logger 2 are better expressed as Branches 1 - x. Let us add the Branch label to each set of water potential observations. 
+
+```{r}
+psy_all2 <- psy_all %>%
+  mutate(period = case_when(date > maint$en_date[1] &
+                              date < maint$st_date[2] ~ 1,
+                          date > maint$en_date[2] &
+                              date < maint$st_date[3] ~ 2,
+                          date > maint$en_date[3] &
+                              date < maint$st_date[4] ~ 3,
+                          date > maint$en_date[4] &
+                              date < maint$st_date[5] ~ 4,
+                          date > maint$en_date[5] ~ 5))
+
+branch_id <- psy_all2 %>%
+  group_by(Tree, Logger, period) %>%
+  count() %>%
+  group_by(Logger, period) %>%
+  mutate(branch_fixed = cur_group_id()) %>%
+  select(-n)
+
+psy_all3 <- psy_all2 %>%
+  left_join(branch_id)
+```
+
+Next, plot scatterplots for each time period, with different branches broken out. 
+
+```{r}
+psy_all3 %>%
+  ggplot(aes(x= VPD_max, y = PD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  facet_grid(rows = vars(Tree),
+             cols = vars(period), 
+             scales = "free")
+
+psy_all3 %>%
+  ggplot(aes(x= VWC_5cm, y = PD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  facet_grid(rows = vars(Tree),
+             cols = vars(period))
+
+psy_all3 %>%
+  ggplot(aes(x= VWC_5cm, y = MD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  facet_grid(rows = vars(Tree),
+             cols = vars(period))
+```
