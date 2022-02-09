@@ -36,9 +36,13 @@ psy_all <- psy_daily %>%
               values_from = WP) %>%
   left_join(met_daily, by = "date")
 
+# save(psy_all, file = "../daily_app/psy_all.Rdata")
+
 maint <- read_csv("../data_raw/Maintenance-times.csv") %>%
   mutate(st_date = as.Date(Start),
          en_date = as.Date(End))
+ 
+# save(maint, file = "../daily_app/maint.Rdata")
 ```
 
 ### Plotting daily timeseries
