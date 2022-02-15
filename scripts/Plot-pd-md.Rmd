@@ -11,8 +11,7 @@ editor_options:
 knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(lubridate)
-library(xts)
-library(dygraphs)
+library(cowplot)
 ```
 
 ## Daily values of predawn and midday plant water potential
@@ -104,13 +103,13 @@ ggplot() +
            stat = "identity") +
   geom_line(data = met_clip,
             aes(x = date,y = VWC_5cm/2, col = "VWC (5 cm)"),
-            size = 1.5) +
+            size = 1) +
   geom_line(data = met_clip,
             aes(x = date,y = VWC_10cm/2, col = "VWC (10 cm)"),
-            size = 1.5) +
+            size = 1) +
   geom_line(data = met_clip,
             aes(x = date,y = VWC_20cm/2, col = "VWC (20 cm)"),
-            size = 1.5) +
+            size = 1) +
   scale_y_continuous(expression(paste(Psi, " (MPa) | Precip (cm)")),
                      sec.axis = sec_axis(~.*2, 
                                          name = "VWC (%)")) +
@@ -141,7 +140,7 @@ ggplot() +
 
 Because the loggers were rotated to a fresh branch during each maintenance period, the label of Logger 1 and Logger 2 are better expressed as Branches 1 - x. Let us add the Branch label to each set of water potential observations. 
 
-```{r}
+```{r, message=FALSE}
 psy_all2 <- psy_all %>%
   mutate(period = case_when(date > maint$en_date[1] &
                               date < maint$st_date[2] ~ 1,
@@ -164,25 +163,179 @@ psy_all3 <- psy_all2 %>%
   left_join(branch_id)
 ```
 
-Next, plot scatterplots for each time period, with different branches broken out. 
+Next, plot relationships between environmental variables and predawn/midday water potential, with individual branches as separate colors. 
 
-```{r}
-psy_all3 %>%
-  ggplot(aes(x= VPD_max, y = PD)) +
-  geom_point(aes(color = as.factor(branch_fixed))) +
-  facet_grid(rows = vars(Tree),
-             cols = vars(period), 
-             scales = "free")
+First, the relationship between daily max VPD and stem water potential differs between trees, but also between branches. 
 
-psy_all3 %>%
-  ggplot(aes(x= VWC_5cm, y = PD)) +
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+fig1a <- ggplot(psy_all3, aes(x = VPD_max, y = PD)) +
   geom_point(aes(color = as.factor(branch_fixed))) +
-  facet_grid(rows = vars(Tree),
-             cols = vars(period))
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(D[max], " (kPa)"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank())
 
-psy_all3 %>%
-  ggplot(aes(x= VWC_5cm, y = MD)) +
+fig1b <- ggplot(psy_all3, aes(x = VPD_max, y = MD)) +
   geom_point(aes(color = as.factor(branch_fixed))) +
-  facet_grid(rows = vars(Tree),
-             cols = vars(period))
+  scale_y_continuous(expression(paste(Psi[MD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(D[max], " (kPa)"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14)+
+  theme(strip.background = element_blank())
+
+plot_grid(fig1a, fig1b,  nrow = 2)
+
+```
+
+Second, the relationship between soil VWC and stem water potential also shows both between tree and between branch differences.
+
+#### 5 cm
+
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+fig2a <- ggplot(psy_all3, aes(x = VWC_5cm, y = PD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[5], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank())
+
+fig2b <- ggplot(psy_all3, aes(x = VWC_5cm, y = MD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[MD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[5], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14)+
+  theme(strip.background = element_blank())
+
+plot_grid(fig2a, fig2b,  nrow = 2)
+```
+
+#### 10 cm
+
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+
+fig3a <- ggplot(psy_all3, aes(x = VWC_10cm, y = PD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[10], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank())
+
+fig3b <- ggplot(psy_all3, aes(x = VWC_10cm, y = MD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[MD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[10], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14)+
+  theme(strip.background = element_blank())
+
+plot_grid(fig3a, fig3b,  nrow = 2)
+```
+
+#### 20 cm
+
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+
+fig4a <- ggplot(psy_all3, aes(x = VWC_20cm, y = PD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[20], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank())
+
+fig4b <- ggplot(psy_all3, aes(x = VWC_20cm, y = MD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[MD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[20], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14)+
+  theme(strip.background = element_blank())
+
+plot_grid(fig4a, fig4b,  nrow = 2)
+```
+
+#### 50 cm
+
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+
+fig5a <- ggplot(psy_all3, aes(x = VWC_50cm, y = PD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[50], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank())
+
+fig5b <- ggplot(psy_all3, aes(x = VWC_50cm, y = MD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[MD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[50], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14)+
+  theme(strip.background = element_blank())
+
+plot_grid(fig5a, fig5b,  nrow = 2)
+```
+
+#### 100 cm
+
+```{r, echo=FALSE, warning=FALSE, fig.width=10, fig.height=5}
+
+fig6a <- ggplot(psy_all3, aes(x = VWC_100cm, y = PD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[100], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank())
+
+fig6b <- ggplot(psy_all3, aes(x = VWC_100cm, y = MD)) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  scale_y_continuous(expression(paste(Psi[MD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(Theta[100], " (", m^3, " ", m^-3, ")"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14)+
+  theme(strip.background = element_blank())
+
+plot_grid(fig6a, fig6b,  nrow = 2)
 ```
