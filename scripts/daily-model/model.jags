@@ -1,0 +1,62 @@
+model{
+  for(i in 1:N){
+    #Likelihood
+    pd[i] ~ dnorm(mu[i], tau)
+    
+    # Replicated data
+    pd.rep[i] ~ dnorm(mu[i], tau)
+    
+    # Linear model - branch level
+    mu[i] = a[1, branch[i]] + 
+      a[2, branch[i]] * Dmax[doy[i]] +
+      a[3, branch[i]] * VWC5[doy[i]] +
+      a[4, branch[i]] * VWC50[doy[i]]
+    
+    #Part of the calculation of the posterior predictive loss	
+    Sqdiff[i] <- pow(pd.rep[i] - pd[i],2)
+  }
+  
+  # Branch level parameters
+  for(j in 1:NBranch) { # number of branches
+    for(k in 1:NParam) { # number of regression parameters
+      a[k, j] ~ dnorm(mu.a[k, tree[j]], tau.a[k, tree[j])
+    }
+  }
+  
+  # Tree level parameters
+  for(t in 1:NTree) { # number of trees
+    for(k in 1:NParam){ # number of regression parameters
+      
+      # Priors for tree level means
+      mu.a[k, t] ~ dnorm(mu.alpha[k], tau.alpha[k])
+      
+      # Priors for tree level precisions
+      tau.eps.a[k, t] ~ dt(0, Ta[k, t], 2)
+      sig.a[k, t] <- abs(tau.eps.a[k, t])
+      tau.a[k, t] <- pow(sig.a[k, t], -2)
+      Ta[k, t] <- pow(Sa[k, t], -2) # set Sa as data matrix
+      
+    }
+  }
+  
+  # Population level paramaeters
+  for(k in 1:NParam) {
+    
+    # Priors for population level  means
+    mu.alpha[k] ~ dnorm(0, 0.0001)
+    
+    # Priors for population level precision
+    tau.eps.alpha[k] ~ dt(0, Talpha[k], 2)
+    sig.alpha[k] <- abs(tau.eps.alpha[k])
+    tau.alpha[k] <- pow(sig.alpha[k], -2)
+    Talpha[k] <- pow(Salpha[k], -2) # set Salpha as data vector
+    
+  }
+  
+  #global precision
+  tau ~ dgamma(0.01, 0.01)
+  sig <- pow(tau, -0.5)
+  
+  #Posterior predictive loss is the posterior mean of Dsum, must monitor Dsum
+  Dsum <- sum(Sqdiff[])
+}
