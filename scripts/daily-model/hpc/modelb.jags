@@ -1,0 +1,108 @@
+model{
+  for(i in 1:N){
+    #Likelihood
+    pd[i] ~ dnorm(mu[i], tau)
+    
+    # Replicated data
+    pd.rep[i] ~ dnorm(mu[i], tau)
+    
+    # Linear model - branch level
+    mu[i] = a[1, branch[i]] + 
+      a[2, branch[i]] * Dant[i] +
+      a[3, branch[i]] * W5ant[i] +
+      a[4, branch[i]] * W50ant[i] +
+      a[5, branch[i]] * Dant[i] * W5ant[i] +
+      a[6, branch[i]] * Dant[i] * W50ant[i] +
+      a[7, branch[i]] * W5ant[i] * W50ant[i]
+      
+    # Antecedent variable is the sum across all timesteps
+    Dant[i] <- sum(DTemp[i,])
+    W5ant[i] <- sum(w5Temp[i,])
+    W50ant[i] <- sum(w50Temp[i,])
+    
+    # Multiply weight by each timestep of covariate
+    # Indexing tricks used to accomodate flexible time step size pA - pC
+    # Flexible Tlag nlagA - nlagD
+    for(k in 1:nlagA){
+      DTemp[i,k] <- mean(Dmax[(doy[i]-k*pA+1):(doy[i]-k*pA+pA)])*wA[k]
+    }
+    for(k in 1:nlagB){
+      w5Temp[i,k] <- mean(VWC5[(doy[i]-k*pB+1):(doy[i]-k*pB+pB)])*wB[k]
+    }
+    for(k in 1:nlagC){
+      w50Temp[i,k] <- mean(VWC50[(doy[i]-k*pC+1):(doy[i]-k*pC+pC)])*wC[k]
+    }  
+      
+    #Part of the calculation of the posterior predictive loss	
+    Sqdiff[i] <- pow(pd.rep[i] - pd[i],2)
+  }
+  
+  #sum of the deltas for each covariate
+  sumA <- sum(deltaA[])
+  sumB <- sum(deltaB[])
+  sumC <- sum(deltaC[])
+
+  #priors for weights using the delta trick
+  #daily variable weights
+  for(k in 1:nlagA){
+    wA[k] <- deltaA[k] / sumA
+    deltaA[k] ~ dgamma(alphaA[k], 1)
+  }
+  
+  for(k in 1:nlagB){
+    wB[k] <- deltaB[k] / sumB
+    deltaB[k] ~ dgamma(alphaB[k], 1)
+  }
+  
+  for(k in 1:nlagC){
+    wC[k] <- deltaC[k]/sumC
+    deltaC[k] ~ dgamma(alphaC[k], 1)
+  }
+  
+  # Branch level parameters
+  for(j in 1:NBranch) { # number of branches
+    for(k in 1:NParam) { # number of regression parameters
+      a[k, j] ~ dnorm(mu.a[k, tree[j]], tau.a[k, tree[j]])
+    }
+  }
+  
+  # Tree level parameters
+  for(t in 1:NTree) { # number of trees
+    for(k in 1:NParam){ # number of regression parameters
+      
+      # Priors for tree level means
+      mu.a[k, t] ~ dnorm(mu.alpha[k], tau.alpha[k])
+      
+      # Priors for tree level precisions
+      tau.eps.a[k, t] ~ dt(0, Ta[k, t], 2)
+      sig.a[k, t] <- abs(tau.eps.a[k, t])
+      tau.a[k, t] <- pow(sig.a[k, t], -2)
+      Ta[k, t] <- pow(Sa[k, t], -2) # set Sa as data matrix
+      
+    }
+  }
+  
+  # Population level paramaeters
+  for(k in 1:NParam) {
+    # Priors for population level precision
+    tau.eps.alpha[k] ~ dt(0, Talpha[k], 2)
+    sig.alpha[k] <- abs(tau.eps.alpha[k])
+    tau.alpha[k] <- pow(sig.alpha[k], -2)
+    Talpha[k] <- pow(Salpha[k], -2) # set Salpha as data vector
+  }
+  
+  for(k in 2:NParam) {
+    # Priors for population level  means
+    mu.alpha[k] ~ dnorm(0, 0.0001)
+  }
+  
+  # Prior for population level mean of intercept
+  mu.alpha[1] ~ dunif(-12, 0) # most negative PD in data is -8.52
+  
+  #global precision
+  tau ~ dgamma(0.01, 0.01)
+  sig <- pow(tau, -0.5)
+  
+  #Posterior predictive loss is the posterior mean of Dsum, must monitor Dsum
+  Dsum <- sum(Sqdiff[])
+}
