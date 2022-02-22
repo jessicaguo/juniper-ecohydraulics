@@ -61,25 +61,28 @@ model{
   
   # Branch level parameters
   for(j in 1:NBranch) { # number of branches
-    for(k in 1:NParam) { # number of regression parameters
+    for(k in 2:NParam) { # number of regression parameters
       a[k, j] ~ dnorm(mu.a[k, tree[j]], tau.a[k, tree[j]])
     }
+    a[1, j] ~ dnorm(mu.a[1, tree[j]], tau.a[1, tree[j]])T(-12, 0)
   }
   
   # Tree level parameters
   for(t in 1:NTree) { # number of trees
     for(k in 1:NParam){ # number of regression parameters
       
-      # Priors for tree level means
-      mu.a[k, t] ~ dnorm(mu.alpha[k], tau.alpha[k])
-      
       # Priors for tree level precisions
       tau.eps.a[k, t] ~ dt(0, Ta[k, t], 2)
       sig.a[k, t] <- abs(tau.eps.a[k, t])
       tau.a[k, t] <- pow(sig.a[k, t], -2)
       Ta[k, t] <- pow(Sa[k, t], -2) # set Sa as data matrix
-      
     }
+    for(k in 2:NParam){ # number of regression parameters
+     # Priors for tree level means
+      mu.a[k, t] ~ dnorm(mu.alpha[k], tau.alpha[k])
+    }
+    
+    mu.a[1, t] ~ dnorm(mu.alpha[1], tau.alpha[1])T(-12, 0)
   }
   
   # Population level paramaeters
@@ -89,7 +92,7 @@ model{
   }
   
   # Prior for population level mean of intercept
-  mu.alpha[1] ~ dunif(-12, 0)
+  mu.alpha[1] ~ dnorm(0, 0.0001)T(-12, 0) # most negative PD in data is -8.52
   
   for(k in 1:NParam) {
     # Priors for population level precision
