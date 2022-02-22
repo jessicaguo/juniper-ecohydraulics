@@ -1,6 +1,7 @@
 # Prepare daily water potential and env data for JAGS model
 # Identify separate branches per tree for a random effect
 
+library(readr)
 library(dplyr)
 library(ggplot2)
 
@@ -29,6 +30,22 @@ psy_all <- psy_daily %>%
                             date > maint$en_date[4] &
                               date < maint$st_date[5] ~ 4,
                             date > maint$en_date[5] ~ 5))
+
+# Render NA an outlier in Tree 7 period 1
+# Where PD dropped below -3.5 on one day only
+psy_all[psy_all$Tree == 7 &
+        psy_all$PD < -3.5 &
+        psy_all$period == 1, ] <- NA
+
+# Check number of observations per period
+psy_all %>%
+  group_by(Tree, Logger, period) %>%
+  summarize(npd = sum(!is.na(MD))) %>%
+  print(n = 65)
+
+# Remove tree/logger/period combo with only one observation
+psy_all <- psy_all %>%
+  filter(!(Tree == 4 & Logger == 1 & period == 3))
 
 # Create association between period within logger
 # and branch within tree
