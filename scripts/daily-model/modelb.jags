@@ -10,7 +10,7 @@ model{
     mu[i] = a[1, branch[i]] + 
       a[2, branch[i]] * Dant[i] +
       a[3, branch[i]] * W5ant[i] +
-      a[4, branch[i]] * W5ant[i +
+      a[4, branch[i]] * W50ant[i] +
       a[5, branch[i]] * Dant[i] * W5ant[i] +
       a[6, branch[i]] * Dant[i] * W50ant[i] +
       a[7, branch[i]] * W5ant[i] * W50ant[i]
@@ -84,17 +84,20 @@ model{
   
   # Population level paramaeters
   for(k in 1:NParam) {
-    
-    # Priors for population level  means
-    mu.alpha[k] ~ dnorm(0, 0.0001)
-    
     # Priors for population level precision
     tau.eps.alpha[k] ~ dt(0, Talpha[k], 2)
     sig.alpha[k] <- abs(tau.eps.alpha[k])
     tau.alpha[k] <- pow(sig.alpha[k], -2)
     Talpha[k] <- pow(Salpha[k], -2) # set Salpha as data vector
-    
   }
+  
+  for(k in 2:NParam) {
+    # Priors for population level  means
+    mu.alpha[k] ~ dnorm(0, 0.0001)
+  }
+  
+  # Prior for population level mean of intercept
+  mu.alpha[1] ~ dunif(-12, 0) # most negative PD in data is -8.52
   
   #global precision
   tau ~ dgamma(0.01, 0.01)
