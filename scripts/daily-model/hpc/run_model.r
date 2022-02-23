@@ -49,9 +49,9 @@ dat_list <- list(N = nrow(psy_in),
 # Initialize model
 jm <- jags.model("modelb.jags",
                  data = dat_list,
-                 inits = list(saved_state[[2]][[2]],
+                 inits = list(saved_state[[2]][[1]],
                               saved_state[[2]][[1]],
-                              saved_state[[2]][[2]]),
+                              saved_state[[2]][[3]]),
                  n.chains = 3)
 
 update(jm, n.iter = 100000)
@@ -67,8 +67,8 @@ params <- c("deviance", "Dsum",
             )
 coda.out <- coda.samples(jm,
                          variable.names = params,
-                         n.iter = 15000,
-                         n.thin = 15)
+                         n.iter = 1000,
+                         n.thin = 20)
 
 save(coda.out, file = "coda.Rdata")
 
@@ -76,7 +76,7 @@ save(coda.out, file = "coda.Rdata")
 # Run model for replicated data
 coda.rep <- coda.samples(jm, 
                          variable.names = "pd.rep",
-                         n.iter = 15000,
-                         n.thin = 15)
+                         n.iter = 1000,
+                         n.thin = 20)
 
 save(coda.rep, file = "codarep.Rdata")
