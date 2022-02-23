@@ -17,6 +17,62 @@ Dmax <- scale(met_in$VPD_max)
 VWC5 <- scale(met_in$VWC_5cm)
 VWC50 <- scale(met_in$VWC_50cm)
 
+m <- lm(PD ~ (scale(VPD_max) + scale(VWC_5cm) + scale(VWC_50cm))^2, 
+        data = psy_in)
+m <- lm(PD ~ (VPD_max + VWC_5cm + VWC_50cm)^2, 
+        data = psy_in)
+m <- lm(PD ~ (scale(VPD_max, center = F) + 
+                scale(VWC_5cm, center = F) + 
+                scale(VWC_50cm, center = F))^2, 
+        data = psy_in)
+summary(m)
+
+# Plot with scale vars
+ggplot(psy_in, aes(x = scale(VPD_max), y = PD)) +
+  geom_vline(xintercept = 0) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  geom_smooth(aes(color = as.factor(branch_fixed)),
+             method = lm,
+             se = FALSE) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(D[max], " (kPa)"))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank())
+
+ggplot(psy_in, aes(x = scale(VWC_5cm), y = PD)) +
+  geom_vline(xintercept = 0) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  geom_smooth(aes(color = as.factor(branch_fixed)),
+              method = lm,
+              se = FALSE) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(VWC[5]))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank())
+
+ggplot(psy_in, aes(x = scale(VWC_50cm), y = PD)) +
+  geom_vline(xintercept = 0) +
+  geom_point(aes(color = as.factor(branch_fixed))) +
+  geom_smooth(aes(color = as.factor(branch_fixed)),
+              method = lm,
+              se = FALSE) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
+                     limits = c(-10, 0),
+                     breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste(VWC[50]))) +
+  facet_wrap(~Tree, nrow = 1) +
+  guides(color = "none") +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank())
+
 # Estimates of sd
 psy_in %>%
   group_by(Tree) %>%
@@ -49,6 +105,9 @@ dat_list <- list(N = nrow(psy_in),
                  Dmax = as.vector(Dmax),
                  VWC5 = as.vector(VWC5),
                  VWC50 = as.vector(VWC50),
+                 # Dmax = met_in$VPD_max,
+                 # VWC5 = met_in$VWC_5cm,
+                 # VWC50 = met_in$VWC_50cm,
                  NBranch = nrow(branch_in),
                  NParam = 7,
                  tree = branch_in$tree,
@@ -73,10 +132,15 @@ init <- function() {
 
 inits_list <- list(init(), init(), init())
 
+# Alternative, start from saved state
+load("scripts/daily-model/inits/saved_state.Rdata")
+
 # Initialize model
-jm <- jags.model("scripts/daily-model/modelc.jags",
+jm <- jags.model("scripts/daily-model/modelb.jags",
                  data = dat_list,
-                 inits = saved_state[[2]],
+                 inits = list(saved_state[[2]][[2]],
+                              saved_state[[2]][[1]],
+                              saved_state[[2]][[2]]),
                  n.chains = 3)
 
 update(jm, n.iter = 10000)
@@ -92,15 +156,23 @@ params <- c("deviance", "Dsum",
             )
 coda.out <- coda.samples(jm,
                          variable.names = params,
-                         n.iter = 15000,
-                         n.thin = 5)
+                         n.iter = 1000,
+                         n.thin = 20)
+
+# save(coda.out, file = "scripts/daily-model/coda/coda.Rdata")
 
 # Inspect chains visually
 mcmcplot(coda.out, parms = c("deviance", "Dsum", "mu.alpha", 
                              "sig.alpha", "sig",
                              "wA", "wB", "wC"))
 caterplot(coda.out, parms = "sig.alpha", reorder = FALSE)
-caterplot(coda.out, parms = "sig.a", reorder = FALSE)
+caterplot(coda.out, regex = "sig.a\\[1", reorder = FALSE)
+caterplot(coda.out, regex = "sig.a\\[2", reorder = FALSE)
+caterplot(coda.out, regex = "sig.a\\[3", reorder = FALSE)
+caterplot(coda.out, regex = "sig.a\\[4", reorder = FALSE)
+caterplot(coda.out, regex = "sig.a\\[5", reorder = FALSE)
+caterplot(coda.out, regex = "sig.a\\[6", reorder = FALSE)
+caterplot(coda.out, regex = "sig.a\\[7", reorder = FALSE)
 caterplot(coda.out, parms = "mu.alpha", reorder = FALSE)
 caterplot(coda.out, regex = "mu.a\\[1", reorder = FALSE)
 caterplot(coda.out, regex = "mu.a\\[2", reorder = FALSE)
@@ -140,11 +212,21 @@ final[[1]]
 saved_state <- removevars(final, variables = c(1:2, 6, 8:10, 14:16))
 saved_state[[1]]
 
+mean(coda.out[[1]][,1])
+mean(coda.out[[2]][,1])
+mean(coda.out[[3]][,1])
+
+save(saved_state, file = "scripts/daily-model/inits/saved_state.Rdata")
+
+
 # Run model for replicated data
 coda.rep <- coda.samples(jm, 
                          variable.names = "pd.rep",
-                         n.iter = 15000,
-                         n.thin = 5)
+                         n.iter = 1000,
+                         n.thin = 20)
+
+save(coda.rep, file = "scripts/daily-model/coda/codarep.Rdata")
+
 
 # Summarize replicated output
 coda.sum <- tidyMCMC(coda.rep,
@@ -176,62 +258,65 @@ pred %>%
 
 
 pred %>%
-  filter(Tree == 1) %>%
+  filter(Tree == 3) %>%
   ggplot(aes(x = PD, y = pd.mean)) +
+  geom_vline(xintercept = 0, col = "blue", lwd = 2) +
   geom_abline(intercept = 0, slope = 1, col = "red") +
   geom_errorbar(aes(ymin = pd.lower, ymax = pd.upper),
                 alpha = 0.5) +
   geom_point() +
   geom_smooth(method = "lm", 
-              se = FALSE) +
+              se = FALSE,
+              fullrange = TRUE) +
   scale_x_continuous("Observed") +
   scale_y_continuous("Predicted") +
   theme_bw(base_size = 12) +
   facet_wrap(~branch_fixed,
-             nrow = 2)
-
-pred %>%
-  filter(Tree == 1) %>%
-  ggplot() +
-  geom_pointrange(aes(x = VPD_max, y = pd.mean,
-                      ymin = pd.lower, ymax = pd.upper,
-                      color = "Predicted")) +
-  geom_point(aes(x = VPD_max, y = PD,
-                 color = "Observed")) +
-  scale_x_continuous("VPD max") +
-  scale_y_continuous("PD") +
-  theme_bw(base_size = 12) +
-  facet_wrap(~branch_fixed, 
-             nrow = 2) +
-  guides(color = "none")
-
-pred %>%
-  filter(Tree == 1) %>%
-  ggplot() +
-  geom_pointrange(aes(x = VPD_max, y = pd.mean,
-                      ymin = pd.lower, ymax = pd.upper,
-                      color = "Predicted")) +
-  geom_point(aes(x = VPD_max, y = PD,
-                 color = "Observed")) +
-  scale_x_continuous("VPD max") +
-  scale_y_continuous("PD") +
-  theme_bw(base_size = 12) +
-  facet_wrap(~branch_fixed, 
-             nrow = 2) +
-  guides(color = "none")
-
-pred %>%
-  filter(Tree == 1) %>%
-  ggplot() +
-  geom_pointrange(aes(x = date, y = pd.mean,
-                      ymin = pd.lower, ymax = pd.upper,
-                      color = "Predicted")) +
-  geom_point(aes(x = date, y = PD,
-                 color = "Observed")) +
-  scale_x_date("Date") +
-  scale_y_continuous("PD") +
-  theme_bw(base_size = 12) +
-  facet_wrap(~branch_fixed, 
              nrow = 2,
-             scales = "free") +
-  guides(color = "none")
+             scales = "free")
+
+# pred %>%
+#   filter(Tree == 1) %>%
+#   ggplot() +
+#   geom_pointrange(aes(x = VPD_max, y = pd.mean,
+#                       ymin = pd.lower, ymax = pd.upper,
+#                       color = "Predicted")) +
+#   geom_point(aes(x = VPD_max, y = PD,
+#                  color = "Observed")) +
+#   scale_x_continuous("VPD max") +
+#   scale_y_continuous("PD") +
+#   theme_bw(base_size = 12) +
+#   facet_wrap(~branch_fixed, 
+#              nrow = 2) +
+#   guides(color = "none")
+# 
+# pred %>%
+#   filter(Tree == 1) %>%
+#   ggplot() +
+#   geom_pointrange(aes(x = VPD_max, y = pd.mean,
+#                       ymin = pd.lower, ymax = pd.upper,
+#                       color = "Predicted")) +
+#   geom_point(aes(x = VPD_max, y = PD,
+#                  color = "Observed")) +
+#   scale_x_continuous("VPD max") +
+#   scale_y_continuous("PD") +
+#   theme_bw(base_size = 12) +
+#   facet_wrap(~branch_fixed, 
+#              nrow = 2) +
+#   guides(color = "none")
+# 
+# pred %>%
+#   filter(Tree == 1) %>%
+#   ggplot() +
+#   geom_pointrange(aes(x = date, y = pd.mean,
+#                       ymin = pd.lower, ymax = pd.upper,
+#                       color = "Predicted")) +
+#   geom_point(aes(x = date, y = PD,
+#                  color = "Observed")) +
+#   scale_x_date("Date") +
+#   scale_y_continuous("PD") +
+#   theme_bw(base_size = 12) +
+#   facet_wrap(~branch_fixed, 
+#              nrow = 2,
+#              scales = "free") +
+#   guides(color = "none")
