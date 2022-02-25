@@ -12,20 +12,47 @@ load("scripts/daily-model/met_in.Rdata")
 load("scripts/daily-model/psy_in.Rdata")
 load("scripts/daily-model/branch_in.Rdata")
 
+# Limit psy_in to PD only
+psy_in <- psy_in %>%
+  filter(!is.na(PD))
+
 # Center and scale env vars
 Dmax <- scale(met_in$VPD_max)
 VWC5 <- scale(met_in$VWC_5cm)
+VWC10 <- scale(met_in$VWC_10cm)
 VWC50 <- scale(met_in$VWC_50cm)
+Precip <- scale(met_in$Precip)
 
-m <- lm(PD ~ (scale(VPD_max) + scale(VWC_5cm) + scale(VWC_50cm))^2, 
-        data = psy_in)
-m <- lm(PD ~ (VPD_max + VWC_5cm + VWC_50cm)^2, 
-        data = psy_in)
-m <- lm(PD ~ (scale(VPD_max, center = F) + 
-                scale(VWC_5cm, center = F) + 
-                scale(VWC_50cm, center = F))^2, 
-        data = psy_in)
-summary(m)
+for(i in 1:7) {
+  ggplot() +
+    geom_point(data = met_in,
+               aes(x = date, y = scale(VPD_max), 
+                   col = "Dmax")) +
+    geom_point(data = met_in,
+               aes(x = date, y = scale(VWC_10cm), 
+                   col = "10 cm")) +
+    # geom_point(data = met_in,
+    #            aes(x = date, y = scale(VWC_20cm), 
+    #                col = "20 cm")) +
+    geom_point(data = met_in,
+               aes(x = date, y = scale(VWC_50cm), 
+                   col = "50 cm")) +
+    geom_bar(data = met_in,
+             aes(x = date, y = Precip/10,
+                 col = "ppt"),
+             stat = "identity") +
+    geom_point(data = filter(psy_in, Tree == i),
+               aes(x = date, y = PD, shape = Logger,
+                   col = "PD")) +
+    theme_bw(base_size = 14)
+  
+  ggsave(filename = paste0("scripts/daily-model/plots/ts_met_pd_", i, ".png"),
+         height = 4,
+         width = 8, 
+         units = "in")
+  
+}
+
 
 # Plot with scale vars
 ggplot(psy_in, aes(x = scale(VPD_max), y = PD)) +
@@ -43,7 +70,7 @@ ggplot(psy_in, aes(x = scale(VPD_max), y = PD)) +
   theme_bw(base_size = 14) +
   theme(strip.background = element_blank())
 
-ggplot(psy_in, aes(x = scale(VWC_5cm), y = PD)) +
+ggplot(psy_in, aes(x = scale(VWC_10cm), y = PD)) +
   geom_vline(xintercept = 0) +
   geom_point(aes(color = as.factor(branch_fixed))) +
   geom_smooth(aes(color = as.factor(branch_fixed)),
@@ -58,7 +85,7 @@ ggplot(psy_in, aes(x = scale(VWC_5cm), y = PD)) +
   theme_bw(base_size = 14) +
   theme(strip.background = element_blank())
 
-ggplot(psy_in, aes(x = scale(VWC_50cm), y = PD)) +
+ggplot(psy_in, aes(x = scale(Precip), y = PD)) +
   geom_vline(xintercept = 0) +
   geom_point(aes(color = as.factor(branch_fixed))) +
   geom_smooth(aes(color = as.factor(branch_fixed)),
@@ -103,11 +130,10 @@ dat_list <- list(N = nrow(psy_in),
                  alphaC = rep(1, 7),
                  doy = psy_in$doy,
                  Dmax = as.vector(Dmax),
-                 VWC5 = as.vector(VWC5),
-                 VWC50 = as.vector(VWC50),
-                 # Dmax = met_in$VPD_max,
-                 # VWC5 = met_in$VWC_5cm,
-                 # VWC50 = met_in$VWC_50cm,
+                 # VWC5 = as.vector(VWC5),
+                 # VWC50 = as.vector(VWC50),
+                 VWC10 = as.vector(VWC10),
+                 Precip = as.vector(Precip),
                  NBranch = nrow(branch_in),
                  NParam = 7,
                  tree = branch_in$tree,
@@ -136,11 +162,11 @@ inits_list <- list(init(), init(), init())
 load("scripts/daily-model/inits/saved_state.Rdata")
 
 # Initialize model
-jm <- jags.model("scripts/daily-model/modelb.jags",
+jm <- jags.model("scripts/daily-model/modelc.jags",
                  data = dat_list,
                  inits = list(saved_state[[2]][[2]],
-                              saved_state[[2]][[1]],
-                              saved_state[[2]][[2]]),
+                              saved_state[[2]][[3]],
+                              saved_state[[2]][[3]]),
                  n.chains = 3)
 
 update(jm, n.iter = 10000)
@@ -156,8 +182,8 @@ params <- c("deviance", "Dsum",
             )
 coda.out <- coda.samples(jm,
                          variable.names = params,
-                         n.iter = 1000,
-                         n.thin = 20)
+                         n.iter = 3000,
+                         n.thin = 5)
 
 # save(coda.out, file = "scripts/daily-model/coda/coda.Rdata")
 
