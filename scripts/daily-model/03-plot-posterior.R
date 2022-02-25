@@ -19,7 +19,8 @@ load("scripts/daily-model/coda/codarep.Rdata")
 # Summarize parameters
 coda.param <- tidyMCMC(coda.out,
                        conf.int = TRUE,
-                       conf.method = "HPDinterval")
+                       conf.method = "HPDinterval",
+                       drop.pars = NA)
 
 # Plotting tree and population level means
 tree.param <- coda.param %>%
