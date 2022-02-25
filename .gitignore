@@ -6,6 +6,8 @@
 *.Rdata
 data_raw/
 data_cleaned/
+docs/
+scripts/daily-model/plots/
 
 # Suppress html and rsconnect files
 *.html
