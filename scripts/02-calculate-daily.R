@@ -81,8 +81,7 @@ met <- read_csv("data_raw/Other-tower-data.csv",
          doy = lubridate::yday(dt),
          VPD_Avg = RHtoVPD(RH_Avg, AirTemp_Avg)) %>%
   select(date, doy, dt, AirTemp_Avg, RH_Avg, VPD_Avg, 
-         Precip_Tot, contains("VWC")) %>%
-  filter(date >= as.Date("2021-01-01"))
+         Precip_Tot, contains("VWC")) 
 
 # Summarize to daily
 met_daily <- met %>%
