@@ -12,6 +12,22 @@ load("scripts/daily-model/met_in.Rdata")
 load("scripts/daily-model/psy_in.Rdata")
 load("scripts/daily-model/branch_in.Rdata")
 
+# Van Genuchten function for these soils
+# vg <- function(x) {
+#   theta.s <- -12.211
+#   theta.r <- 91.395
+#   alpha <- 33.772
+#   n <- 1.0205
+#   sat <- (1/(1 + ((alpha*x)^n)))^(1 - (1/n))
+#   wp <- theta.r + (theta.s - theta.r)*sat
+#   return(wp)
+# }
+# 
+# # add SWP to met data
+# met_in <- met_in %>%
+#   mutate(SWP_10cm = vg(VWC_10cm),
+#          SWP_50cm = vg(VWC_50cm))
+
 # Limit psy_in to PD only
 psy_in <- psy_in %>%
   filter(!is.na(PD))
@@ -23,6 +39,7 @@ VWC10 <- scale(met_in$VWC_10cm)
 VWC50 <- scale(met_in$VWC_50cm)
 Precip <- scale(met_in$Precip)
 
+# Plotting for each tree
 for(i in 1:7) {
   ggplot() +
     geom_point(data = met_in,
@@ -31,9 +48,6 @@ for(i in 1:7) {
     geom_point(data = met_in,
                aes(x = date, y = scale(VWC_10cm), 
                    col = "10 cm")) +
-    # geom_point(data = met_in,
-    #            aes(x = date, y = scale(VWC_20cm), 
-    #                col = "20 cm")) +
     geom_point(data = met_in,
                aes(x = date, y = scale(VWC_50cm), 
                    col = "50 cm")) +
@@ -44,61 +58,74 @@ for(i in 1:7) {
     geom_point(data = filter(psy_in, Tree == i),
                aes(x = date, y = PD, shape = Logger,
                    col = "PD")) +
-    theme_bw(base_size = 14)
+    scale_y_continuous("Variables", limits = c(-9, 4)) +
+    facet_wrap(~branch_fixed, nrow = 2) +
+    theme_bw(base_size = 12)
   
   ggsave(filename = paste0("scripts/daily-model/plots/ts_met_pd_", i, ".png"),
-         height = 4,
-         width = 8, 
+         height = 6,
+         width = 12, 
          units = "in")
-  
 }
 
 
 # Plot with scale vars
 ggplot(psy_in, aes(x = scale(VPD_max), y = PD)) +
   geom_vline(xintercept = 0) +
-  geom_point(aes(color = as.factor(branch_fixed))) +
+  geom_point(aes(color = as.factor(branch_fixed),
+                 shape = Logger)) +
   geom_smooth(aes(color = as.factor(branch_fixed)),
-             method = lm,
-             se = FALSE) +
-  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
-                     limits = c(-10, 0),
-                     breaks = seq(-9, 0, 3)) +
-  scale_x_continuous(expression(paste(D[max], " (kPa)"))) +
-  facet_wrap(~Tree, nrow = 1) +
-  guides(color = "none") +
-  theme_bw(base_size = 14) +
+              method = lm,
+              se = FALSE) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)"))) +
+  scale_x_continuous(expression(paste("Scaled ", D[max], " (kPa)"))) +
+  facet_grid(rows = vars(Tree), 
+             cols = vars(Logger),
+             scales = "free") +
+  theme_bw(base_size = 12) +
   theme(strip.background = element_blank())
+ggsave(filename = "scripts/daily-model/plots/PD_Dmax.png",
+       height = 8,
+       width = 6, 
+       units = "in")
 
 ggplot(psy_in, aes(x = scale(VWC_10cm), y = PD)) +
   geom_vline(xintercept = 0) +
-  geom_point(aes(color = as.factor(branch_fixed))) +
+  geom_point(aes(color = as.factor(branch_fixed),
+                 shape = Logger)) +
   geom_smooth(aes(color = as.factor(branch_fixed)),
               method = lm,
               se = FALSE) +
-  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
-                     limits = c(-10, 0),
-                     breaks = seq(-9, 0, 3)) +
-  scale_x_continuous(expression(paste(VWC[5]))) +
-  facet_wrap(~Tree, nrow = 1) +
-  guides(color = "none") +
-  theme_bw(base_size = 14) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)"))) +
+  scale_x_continuous(expression(paste("Scaled ", VWC[10]))) +
+  facet_grid(rows = vars(Tree), 
+             cols = vars(Logger),
+             scales = "free") +
+  theme_bw(base_size = 12) +
   theme(strip.background = element_blank())
+ggsave(filename = "scripts/daily-model/plots/PD_VWC10.png",
+       height = 8,
+       width = 6, 
+       units = "in")
 
-ggplot(psy_in, aes(x = scale(Precip), y = PD)) +
+ggplot(psy_in, aes(x = scale(VWC_50cm), y = PD)) +
   geom_vline(xintercept = 0) +
-  geom_point(aes(color = as.factor(branch_fixed))) +
+  geom_point(aes(color = as.factor(branch_fixed),
+                 shape = Logger)) +
   geom_smooth(aes(color = as.factor(branch_fixed)),
               method = lm,
               se = FALSE) +
-  scale_y_continuous(expression(paste(Psi[PD], " (MPa)")),
-                     limits = c(-10, 0),
-                     breaks = seq(-9, 0, 3)) +
-  scale_x_continuous(expression(paste(VWC[50]))) +
-  facet_wrap(~Tree, nrow = 1) +
-  guides(color = "none") +
-  theme_bw(base_size = 14) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)"))) +
+  scale_x_continuous(expression(paste("Scaled ", VWC[50]))) +
+  facet_grid(rows = vars(Tree), 
+             cols = vars(Logger),
+             scales = "free") +
+  theme_bw(base_size = 12) +
   theme(strip.background = element_blank())
+ggsave(filename = "scripts/daily-model/plots/PD_VWC50.png",
+       height = 8,
+       width = 6, 
+       units = "in")
 
 # Estimates of sd
 psy_in %>%
@@ -116,31 +143,31 @@ psy_in %>%
 dat_list <- list(N = nrow(psy_in),
                  pd = psy_in$PD,
                  branch = psy_in$branchID,
+                 logger = psy_in$Logger,
                  # time step number
                  nlagA = 7,
                  nlagB = 7,
-                 nlagC = 7,
-                 # time step size,
+                 nlagC = 10,
+                 # time step size (single value if modelb, vector of values if modeld),
                  pA = 1,
                  pB = 1,
-                 pC = 3,
+                 pC = 5,
                  # weights, of length nlag
                  alphaA = rep(1, 7), 
                  alphaB = rep(1, 7),
-                 alphaC = rep(1, 7),
+                 alphaC = rep(1, 10),
                  doy = psy_in$doy,
                  Dmax = as.vector(Dmax),
-                 # VWC5 = as.vector(VWC5),
-                 # VWC50 = as.vector(VWC50),
                  VWC10 = as.vector(VWC10),
-                 Precip = as.vector(Precip),
+                 VWC50 = as.vector(VWC50),
                  NBranch = nrow(branch_in),
+                 NLogger = length(unique(psy_in$Logger)),
                  NParam = 7,
                  tree = branch_in$tree,
                  NTree = length(unique(branch_in$tree)),
                  Sa = matrix(rep(4, 7*7), nrow = 7), # NParam x NTree matrix
                  Salpha = rep(2, 7) # vector of NParam
-                 )
+)
 
 # Function to generate initials
 init <- function() {
@@ -162,9 +189,9 @@ inits_list <- list(init(), init(), init())
 load("scripts/daily-model/inits/saved_state.Rdata")
 
 # Initialize model
-jm <- jags.model("scripts/daily-model/modelc.jags",
+jm <- jags.model("scripts/daily-model/modelb.jags",
                  data = dat_list,
-                 inits = list(saved_state[[2]][[2]],
+                 inits = list(saved_state[[2]][[3]],
                               saved_state[[2]][[3]],
                               saved_state[[2]][[3]]),
                  n.chains = 3)
@@ -179,11 +206,11 @@ params <- c("deviance", "Dsum",
             "tau.eps.alpha", "tau.eps.a",
             "wA", "wB", "wC",
             "deltaA", "deltaB", "deltaC"
-            )
+)
 coda.out <- coda.samples(jm,
                          variable.names = params,
                          n.iter = 3000,
-                         n.thin = 5)
+                         n.thin = 15)
 
 # save(coda.out, file = "scripts/daily-model/coda/coda.Rdata")
 
@@ -207,15 +234,26 @@ caterplot(coda.out, regex = "mu.a\\[4", reorder = FALSE)
 caterplot(coda.out, regex = "mu.a\\[5", reorder = FALSE)
 caterplot(coda.out, regex = "mu.a\\[6", reorder = FALSE)
 caterplot(coda.out, regex = "mu.a\\[7", reorder = FALSE)
+caterplot(coda.out, regex = "^a\\[2", reorder = FALSE)
 caterplot(coda.out, parms = "wA", reorder = FALSE)
 caterplot(coda.out, parms = "wB", reorder = FALSE)
 caterplot(coda.out, parms = "wC", reorder = FALSE)
+
+foo <- psy_in %>%
+  ungroup() %>%
+  count(branchID)
+
+psy_in %>%
+  ungroup() %>%
+  group_by(Tree, Logger) %>%
+  summarize(min_PD = min(PD, na.rm = TRUE))
 
 # Check convergence diagnostic
 gel <- gelman.diag(coda.out, multivariate = FALSE)
 gel$psrf %>%
   data.frame() %>%
-  head(1)
+  tibble::rownames_to_column() %>%
+  filter(grepl("Dsum", rowname) |grepl("deviance", rowname))
 
 gel$psrf %>%
   data.frame() %>%
@@ -237,10 +275,15 @@ final <- initfind(coda.out, OpenBUGS = FALSE)
 final[[1]]
 saved_state <- removevars(final, variables = c(1:2, 6, 8:10, 14:16))
 saved_state[[1]]
+which(colnames(coda.out[[1]]) == "deviance")
 
 mean(coda.out[[1]][,1])
 mean(coda.out[[2]][,1])
 mean(coda.out[[3]][,1])
+
+mean(coda.out[[1]][,453])
+mean(coda.out[[2]][,453])
+mean(coda.out[[3]][,453])
 
 save(saved_state, file = "scripts/daily-model/inits/saved_state.Rdata")
 
@@ -248,10 +291,10 @@ save(saved_state, file = "scripts/daily-model/inits/saved_state.Rdata")
 # Run model for replicated data
 coda.rep <- coda.samples(jm, 
                          variable.names = "pd.rep",
-                         n.iter = 1000,
-                         n.thin = 20)
+                         n.iter = 3000,
+                         n.thin = 15)
 
-save(coda.rep, file = "scripts/daily-model/coda/codarep.Rdata")
+# save(coda.rep, file = "scripts/daily-model/coda/codarep.Rdata")
 
 
 # Summarize replicated output

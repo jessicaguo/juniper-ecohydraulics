@@ -157,23 +157,27 @@ weight.param <- coda.param %>%
   mutate(Param = str_match(term, "^w(.)\\[")[,2],
          step.num = str_match(term, "^w[ABC]\\[(.)")[,2],
          labs = case_when(Param == "A" ~ "D^ant",
-                          Param == "B" ~ "W[5]^ant",
+                          Param == "B" ~ "W[10]^ant",
                           Param == "C" ~ "W[50]^ant"),
          step.size = case_when(Param %in% c("A", "B") ~ step.num,
-                               Param == "C" & step.num == "1" ~ "1-3",
-                               Param == "C" & step.num == "2" ~ "4-6",
-                               Param == "C" & step.num == "3" ~ "7-9",
-                               Param == "C" & step.num == "4" ~ "10-12",
-                               Param == "C" & step.num == "5" ~ "13-15",
-                               Param == "C" & step.num == "6" ~ "16-18",
-                               Param == "C" & step.num == "7" ~ "19-21"))
+                               Param == "C" & step.num == "1" ~ "8-12",
+                               Param == "C" & step.num == "2" ~ "13-17",
+                               Param == "C" & step.num == "3" ~ "18-22",
+                               Param == "C" & step.num == "4" ~ "23-27",
+                               Param == "C" & step.num == "5" ~ "28-32",
+                               Param == "C" & step.num == "6" ~ "33-37",
+                               Param == "C" & step.num == "7" ~ "38-42",
+                               Param == "C" & step.num == "8" ~ "43-47",
+                               Param == "C" & step.num == "9" ~ "48-52",
+                               Param == "C" & step.num == "10" ~ "53-57"))
 
 # scales that vary by facet
 scales <- list(scale_x_discrete(),
                scale_x_discrete(),
-               scale_x_discrete(labels = c("1-3", "4-6", "7-9",
-                                           "10-12", "13-15", "16-18",
-                                           "19-21")))
+               scale_x_discrete(labels = c("8-12", "13-17", "18-22",
+                                           "23-27", "28-32", "33-37",
+                                           "38-42", "43-47", "48-52", 
+                                           "53-57")))
 ggplot(weight.param, 
        aes(x = step.num,
            y = estimate)) +

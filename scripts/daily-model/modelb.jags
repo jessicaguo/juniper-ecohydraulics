@@ -9,15 +9,15 @@ model{
     # Linear model - branch level
     mu[i] = a[1, branch[i]] + 
       a[2, branch[i]] * Dant[i] +
-      a[3, branch[i]] * W5ant[i] +
+      a[3, branch[i]] * W10ant[i] +
       a[4, branch[i]] * W50ant[i] +
-      a[5, branch[i]] * Dant[i] * W5ant[i] +
+      a[5, branch[i]] * Dant[i] * W10ant[i] +
       a[6, branch[i]] * Dant[i] * W50ant[i] +
-      a[7, branch[i]] * W5ant[i] * W50ant[i]
+      a[7, branch[i]] * W10ant[i] * W50ant[i]
       
     # Antecedent variable is the sum across all timesteps
     Dant[i] <- sum(DTemp[i,])
-    W5ant[i] <- sum(w5Temp[i,])
+    W10ant[i] <- sum(w10Temp[i,])
     W50ant[i] <- sum(w50Temp[i,])
     
     # Multiply weight by each timestep of covariate
@@ -27,10 +27,10 @@ model{
       DTemp[i,k] <- mean(Dmax[(doy[i]-k*pA+1):(doy[i]-k*pA+pA)])*wA[k]
     }
     for(k in 1:nlagB){
-      w5Temp[i,k] <- mean(VWC5[(doy[i]-k*pB+1):(doy[i]-k*pB+pB)])*wB[k]
+      w10Temp[i,k] <- mean(VWC10[(doy[i]-k*pB+1):(doy[i]-k*pB+pB)])*wB[k]
     }
     for(k in 1:nlagC){
-      w50Temp[i,k] <- mean(VWC50[(doy[i]-k*pC+1):(doy[i]-k*pC+pC)])*wC[k]
+      w50Temp[i,k] <- mean(VWC50[(doy[i]-k*pC+1-nlagB):(doy[i]-k*pC+pC-nlagB)])*wC[k]
     }  
       
     #Part of the calculation of the posterior predictive loss	
