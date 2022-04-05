@@ -81,6 +81,6 @@ branch_in <- psy %>%
   group_by(branchID) %>%
   summarize(tree = unique(Tree))
 
-save(met_in, file = "scripts/daily-model/met_in.Rdata")
-save(psy_in, file = "scripts/daily-model/psy_in.Rdata")
-save(branch_in, file = "scripts/daily-model/branch_in.Rdata")
+save(met_in, file = "scripts/model-daily/met_in.Rdata")
+save(psy_in, file = "scripts/model-daily/psy_in.Rdata")
+save(branch_in, file = "scripts/model-daily/branch_in.Rdata")

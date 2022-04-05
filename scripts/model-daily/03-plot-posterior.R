@@ -10,11 +10,11 @@ library(ggh4x)
 library(data.table)
 
 # Load input data
-load("scripts/daily-model/psy_in.Rdata")
+load("scripts/model-daily/psy_in.Rdata")
 
 # Load posterior chains
-load("scripts/daily-model/coda/coda.Rdata")
-load("scripts/daily-model/coda/codarep.Rdata")
+load("scripts/model-daily/coda/coda.Rdata")
+load("scripts/model-daily/coda/codarep.Rdata")
 
 # Summarize parameters
 coda.param <- tidyMCMC(coda.out,

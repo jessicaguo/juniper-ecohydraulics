@@ -8,9 +8,9 @@ library(postjags)
 library(broom.mixed)
 library(ggplot2)
 
-load("scripts/daily-model/met_in.Rdata")
-load("scripts/daily-model/psy_in.Rdata")
-load("scripts/daily-model/branch_in.Rdata")
+load("scripts/model-daily/met_in.Rdata")
+load("scripts/model-daily/psy_in.Rdata")
+load("scripts/model-daily/branch_in.Rdata")
 
 # Van Genuchten function for these soils
 # vg <- function(x) {
@@ -56,7 +56,7 @@ for(i in 1:7) {
     scale_y_continuous("Variables", limits = c(-9, 4)) +
     theme_bw(base_size = 12)
   
-  ggsave(filename = paste0("scripts/daily-model/plots/ts_met_pd_", i, ".png"),
+  ggsave(filename = paste0("scripts/model-daily/plots/ts_met_pd_", i, ".png"),
          height = 4,
          width = 8, 
          units = "in")
@@ -79,7 +79,7 @@ ggplot(psy2, aes(x = Dmax, y = PD)) +
              scales = "free") +
   theme_bw(base_size = 12) +
   theme(strip.background = element_blank())
-ggsave(filename = "scripts/daily-model/plots/PD_Dmax.png",
+ggsave(filename = "scripts/model-daily/plots/PD_Dmax.png",
        height = 8,
        width = 6, 
        units = "in")
@@ -98,7 +98,7 @@ ggplot(psy2, aes(x = VWC10, y = PD)) +
              scales = "free") +
   theme_bw(base_size = 12) +
   theme(strip.background = element_blank())
-ggsave(filename = "scripts/daily-model/plots/PD_VWC10.png",
+ggsave(filename = "scripts/model-daily/plots/PD_VWC10.png",
        height = 8,
        width = 6, 
        units = "in")
@@ -117,7 +117,7 @@ ggplot(psy2, aes(x = VWC50, y = PD)) +
              scales = "free") +
   theme_bw(base_size = 12) +
   theme(strip.background = element_blank())
-ggsave(filename = "scripts/daily-model/plots/PD_VWC50.png",
+ggsave(filename = "scripts/model-daily/plots/PD_VWC50.png",
        height = 8,
        width = 6, 
        units = "in")
@@ -195,10 +195,10 @@ init <- function() {
 inits_list <- list(init(), init(), init())
 
 # Alternative, start from saved state
-load("scripts/daily-model/inits/saved_state.Rdata")
+load("scripts/model-daily/inits/saved_state.Rdata")
 
 # Initialize model
-jm <- jags.model("scripts/daily-model/modelb.jags",
+jm <- jags.model("scripts/model-daily/modelb.jags",
                  data = dat_list,
                  inits = inits_list,
                  n.chains = 3)
@@ -219,7 +219,7 @@ coda.out <- coda.samples(jm,
                          n.iter = 3000,
                          n.thin = 5)
 
-# save(coda.out, file = "scripts/daily-model/coda/coda.Rdata")
+# save(coda.out, file = "scripts/model-daily/coda/coda.Rdata")
 
 # Inspect chains visually
 mcmcplot(coda.out, parms = c("deviance", "Dsum", "mu.alpha", 
@@ -292,7 +292,7 @@ mean(coda.out[[1]][,453])
 mean(coda.out[[2]][,453])
 mean(coda.out[[3]][,453])
 
-save(saved_state, file = "scripts/daily-model/inits/saved_state.Rdata")
+save(saved_state, file = "scripts/model-daily/inits/saved_state.Rdata")
 
 
 # Run model for replicated data
@@ -301,7 +301,7 @@ coda.rep <- coda.samples(jm,
                          n.iter = 3000,
                          n.thin = 15)
 
-# save(coda.rep, file = "scripts/daily-model/coda/codarep.Rdata")
+# save(coda.rep, file = "scripts/model-daily/coda/codarep.Rdata")
 
 
 # Summarize replicated output
