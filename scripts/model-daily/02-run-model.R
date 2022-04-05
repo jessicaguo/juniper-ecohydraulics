@@ -32,24 +32,19 @@ load("scripts/daily-model/branch_in.Rdata")
 psy_in <- psy_in %>%
   filter(!is.na(PD))
 
-# Center and scale env vars
-Dmax <- scale(met_in$VPD_max)
-VWC5 <- scale(met_in$VWC_5cm)
-VWC10 <- scale(met_in$VWC_10cm)
-VWC50 <- scale(met_in$VWC_50cm)
-Precip <- scale(met_in$Precip)
+# Dmax, VWC5, VWC10, VWC50 are already scaled to entire record
 
 # Plotting for each tree
 for(i in 1:7) {
   ggplot() +
     geom_point(data = met_in,
-               aes(x = date, y = scale(VPD_max), 
+               aes(x = date, y = Dmax, 
                    col = "Dmax")) +
     geom_point(data = met_in,
-               aes(x = date, y = scale(VWC_10cm), 
+               aes(x = date, y = VWC10, 
                    col = "10 cm")) +
     geom_point(data = met_in,
-               aes(x = date, y = scale(VWC_50cm), 
+               aes(x = date, y = VWC50, 
                    col = "50 cm")) +
     geom_bar(data = met_in,
              aes(x = date, y = Precip/10,
@@ -59,18 +54,18 @@ for(i in 1:7) {
                aes(x = date, y = PD, shape = Logger,
                    col = "PD")) +
     scale_y_continuous("Variables", limits = c(-9, 4)) +
-    facet_wrap(~branch_fixed, nrow = 2) +
     theme_bw(base_size = 12)
   
   ggsave(filename = paste0("scripts/daily-model/plots/ts_met_pd_", i, ".png"),
-         height = 6,
-         width = 12, 
+         height = 4,
+         width = 8, 
          units = "in")
 }
 
-
-# Plot with scale vars
-ggplot(psy_in, aes(x = scale(VPD_max), y = PD)) +
+# Plot with scaled vars
+psy2 <- psy_in %>%
+  left_join(met_in)
+ggplot(psy2, aes(x = Dmax, y = PD)) +
   geom_vline(xintercept = 0) +
   geom_point(aes(color = as.factor(branch_fixed),
                  shape = Logger)) +
@@ -89,7 +84,7 @@ ggsave(filename = "scripts/daily-model/plots/PD_Dmax.png",
        width = 6, 
        units = "in")
 
-ggplot(psy_in, aes(x = scale(VWC_10cm), y = PD)) +
+ggplot(psy2, aes(x = VWC10, y = PD)) +
   geom_vline(xintercept = 0) +
   geom_point(aes(color = as.factor(branch_fixed),
                  shape = Logger)) +
@@ -108,7 +103,7 @@ ggsave(filename = "scripts/daily-model/plots/PD_VWC10.png",
        width = 6, 
        units = "in")
 
-ggplot(psy_in, aes(x = scale(VWC_50cm), y = PD)) +
+ggplot(psy2, aes(x = VWC50, y = PD)) +
   geom_vline(xintercept = 0) +
   geom_point(aes(color = as.factor(branch_fixed),
                  shape = Logger)) +
@@ -126,6 +121,20 @@ ggsave(filename = "scripts/daily-model/plots/PD_VWC50.png",
        height = 8,
        width = 6, 
        units = "in")
+
+ggplot(psy2, aes(x = VWC10, y = PD)) +
+  geom_vline(xintercept = 0) +
+  geom_point(aes(color = as.factor(Logger))) +
+  geom_smooth(aes(color = as.factor(Logger)),
+              method = lm,
+              se = FALSE) +
+  scale_y_continuous(expression(paste(Psi[PD], " (MPa)"))) +
+  scale_x_continuous(expression(paste("Scaled ", D[max], " (kPa)"))) +
+  facet_grid(rows = vars(Tree), 
+             cols = vars(Logger),
+             scales = "free") +
+  theme_bw(base_size = 12) +
+  theme(strip.background = element_blank())
 
 # Estimates of sd
 psy_in %>%
@@ -147,7 +156,7 @@ dat_list <- list(N = nrow(psy_in),
                  # time step number
                  nlagA = 7,
                  nlagB = 7,
-                 nlagC = 10,
+                 nlagC = 7,
                  # time step size (single value if modelb, vector of values if modeld),
                  pA = 1,
                  pB = 1,
@@ -155,11 +164,11 @@ dat_list <- list(N = nrow(psy_in),
                  # weights, of length nlag
                  alphaA = rep(1, 7), 
                  alphaB = rep(1, 7),
-                 alphaC = rep(1, 10),
+                 alphaC = rep(1, 7),
                  doy = psy_in$doy,
-                 Dmax = as.vector(Dmax),
-                 VWC10 = as.vector(VWC10),
-                 VWC50 = as.vector(VWC50),
+                 Dmax = as.vector(met_in$Dmax),
+                 VWC10 = as.vector(met_in$VWC10),
+                 VWC50 = as.vector(met_in$VWC50),
                  NBranch = nrow(branch_in),
                  NLogger = length(unique(psy_in$Logger)),
                  NParam = 7,
@@ -191,9 +200,7 @@ load("scripts/daily-model/inits/saved_state.Rdata")
 # Initialize model
 jm <- jags.model("scripts/daily-model/modelb.jags",
                  data = dat_list,
-                 inits = list(saved_state[[2]][[3]],
-                              saved_state[[2]][[3]],
-                              saved_state[[2]][[3]]),
+                 inits = inits_list,
                  n.chains = 3)
 
 update(jm, n.iter = 10000)
@@ -210,7 +217,7 @@ params <- c("deviance", "Dsum",
 coda.out <- coda.samples(jm,
                          variable.names = params,
                          n.iter = 3000,
-                         n.thin = 15)
+                         n.thin = 5)
 
 # save(coda.out, file = "scripts/daily-model/coda/coda.Rdata")
 
