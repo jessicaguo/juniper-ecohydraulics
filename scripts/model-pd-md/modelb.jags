@@ -1,0 +1,121 @@
+model{
+  for(i in 1:N){ # Number of observations
+    #Likelihood
+    md[i] ~ dnorm(mu[i], tau)
+    md.rep[i] ~ dnorm(mu[i], tau)
+    
+    # Martinez-Vilalta model
+    mu[i] = sigma[i] * pd[i] + lambda[i]
+    
+    # Slope and intercept as linear functions of env variables
+    sigma[i] = B[1] + 
+      B[2] * Dant[i] +
+      B[3] * W10ant[i] +
+      B[4] * W50ant[i] +
+      B[5] * Dant[i] * W10ant[i] +
+      B[6] * Dant[i] * W50ant[i] +
+      B[7] * W10ant[i] * W50ant[i] +
+      Eps.sig[tree[i]]
+    
+    lambda[i] = A[1] + 
+      A[2] * Dant[i] +
+      A[3] * W10ant[i] +
+      A[4] * W50ant[i] +
+      A[5] * Dant[i] * W10ant[i] +
+      A[6] * Dant[i] * W50ant[i] +
+      A[7] * W10ant[i] * W50ant[i] +
+      Eps.lam[tree[i]]
+    
+    # Antecedent variable is the sum across all timesteps
+    Dant[i] <- sum(DTemp[i,])
+    W10ant[i] <- sum(w10Temp[i,])
+    W50ant[i] <- sum(w50Temp[i,])
+    
+     # Multiply weight by each timestep of covariate
+    # Indexing tricks used to accomodate flexible time step size pA - pC
+    for(k in 1:nlagA){
+      DTemp[i,k] <- mean(Dmax[(doy[i]-k*pA+1):(doy[i]-k*pA+pA)])*wA[k]
+    }
+    for(k in 1:nlagB){
+      w10Temp[i,k] <- mean(VWC10[(doy[i]-k*pB+1):(doy[i]-k*pB+pB)])*wB[k]
+    }
+    for(k in 1:nlagC){
+      w50Temp[i,k] <- mean(VWC50[(doy[i]-k*pC+1):(doy[i]-k*pC+pC)])*wC[k]
+    }  
+    
+    # Part of the calculation of the posterior predictive loss	
+    Sqdiff[i] <- pow(md.rep[i] - md[i],2)
+  }
+  
+  # Sum of the deltas for each covariate
+  sumA <- sum(deltaA[])
+  sumB <- sum(deltaB[])
+  sumC <- sum(deltaC[])
+  
+  # Priors for weights using the delta trick
+  # Daily variable weights
+  for(k in 1:nlagA){
+    wA[k] <- deltaA[k] / sumA
+    deltaA[k] ~ dgamma(alphaA[k], 1)
+  }
+  
+  for(k in 1:nlagB){
+    wB[k] <- deltaB[k] / sumB
+    deltaB[k] ~ dgamma(alphaB[k], 1)
+  }
+  
+  for(k in 1:nlagC){
+    wC[k] <- deltaC[k]/sumC
+    deltaC[k] ~ dgamma(alphaC[k], 1)
+  }
+  
+  # Hierarchical normal priors for regression parameters
+  for(j in 2:NParam) { # Number of parameters in linear models
+  # Sigma coefs
+    B[j] ~ dnorm(0, 0.001)
+  # Lambda coefs
+    A[j] ~ dnorm(0, 0.001)
+  }
+  B[1] ~ dunif(0, 2)
+  A[1] ~ dunif(-2, 0)
+    
+  for(j in 1:NParam) { # Number of parameters in linear models
+  # Identifiable regression params
+    Bstar[j] <- B[j] + equals(j, 1) * mean.eps.sig
+    Astar[j] <- A[j] + equals(j, 1) * mean.eps.lam
+  }
+  
+  # Conjugate normal priors for tree random effects, post-sweeping option
+  for(g in 1:NTree){ # Number of trees
+    # Non-identifiable random effects
+    Eps.sig[g] ~ dnorm(0, tau.eps.sig)
+    Eps.lam[g] ~ dnorm(0, tau.eps.lam)
+    
+    # Identifiable random effects
+    Estar.sig[g] <- Eps.sig[g]-mean.eps.sig
+    Estar.lam[g] <- Eps.lam[g]-mean.eps.lam
+  }
+  
+  # Uniformm prior for among-tree standard deviation
+  sig.eps.sig ~ dunif(0, 1)
+  sig.eps.lam ~ dunif(0, 1)
+  tau.eps.sig <- 1/pow(sig.eps.sig, 2)
+  tau.eps.lam <- 1/pow(sig.eps.lam, 2)
+  
+  #calculate and monitor posterior mean of average Eps value and standard deviation
+  mean.eps.sig<-mean(Eps.sig[])
+  mean.eps.lam<-mean(Eps.lam[])
+  
+  # Priors for variance terms
+  tau ~ dgamma(0.1, 0.1)
+  sig <- pow(tau, -0.5)
+  
+  # Monitor all sigs
+  Sigs[1] <- sig
+  Sigs[2] <- sig.eps.sig
+  Sigs[3] <- sig.eps.lam
+  
+  # Posterior predictive loss is the posterior mean of Dsum, must monitor Dsum
+  Dsum <- sum(Sqdiff[])
+  
+}
