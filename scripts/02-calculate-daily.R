@@ -81,12 +81,14 @@ met <- read_csv("data_raw/Other-tower-data.csv",
          doy = lubridate::yday(dt),
          VPD_Avg = RHtoVPD(RH_Avg, AirTemp_Avg)) %>%
   select(date, doy, dt, AirTemp_Avg, RH_Avg, VPD_Avg, 
-         Precip_Tot, contains("VWC")) 
+         Precip_Tot, contains("VWC")) %>%
+  distinct()
 
 # Summarize to daily
 met_daily <- met %>%
   group_by(date) %>%
-  summarize(VPD_mean = mean(VPD_Avg, na.rm = TRUE),
+  summarize(n = n(),
+            VPD_mean = mean(VPD_Avg, na.rm = TRUE),
             VPD_max = max(VPD_Avg, na.rm = TRUE),
             T_min = min(AirTemp_Avg, na.rm = TRUE),
             T_mean = mean(AirTemp_Avg, na.rm = TRUE),
@@ -96,8 +98,7 @@ met_daily <- met %>%
             VWC_10cm = mean(VWC_10cm_Avg, na.rm = TRUE),
             VWC_20cm = mean(VWC_20cm_Avg, na.rm = TRUE),
             VWC_50cm = mean(VWC_50cm_Avg, na.rm = TRUE),
-            VWC_100cm = mean(VWC_100cm_Avg, na.rm = TRUE),
-            n = n()) %>%
+            VWC_100cm = mean(VWC_100cm_Avg, na.rm = TRUE)) %>%
   arrange(date)
 
 # Quick plots
