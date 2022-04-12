@@ -61,8 +61,19 @@ flux_daily <- flux_daily %>%
 ggplot(flux_daily) +
   geom_point(aes(x = date, y = ET, col = "ET")) +
   geom_point(aes(x = date, y = VPD_max, col = "VPD_max")) +
-  geom_point(aes(x = date, y = VWC_10cm, col = "VWC 10cm")) +
-  scale_y_continuous(expression(paste("ET (mm ", day^-1, ")"))) 
+  geom_point(aes(x = date, y = VWC_10cm, col = "VWC 10 cm")) +
+  geom_point(aes(x = date, y = VWC_50cm, col = "VWC 50 cm")) +
+  scale_y_continuous(expression(paste("ET (mm ", day^-1, ")"))) +
+  scale_color_manual(values = c("cornflowerblue",
+                                "coral",
+                                "sienna",
+                                "brown"))
 
 ggplot(flux_daily, aes(x = VPD_max, y = ET)) +
-  geom_point(aes(col = VWC_10cm))
+  geom_point(aes(col = VWC_10cm)) 
+# VPD drives ET much more strongly when shallow soil is wet
+
+
+ggplot(flux_daily, aes(x = VPD_max, y = ET)) +
+  geom_point(aes(col = VWC_50cm)) 
+# VPD drives ET much more variables with deep soil is not wet
