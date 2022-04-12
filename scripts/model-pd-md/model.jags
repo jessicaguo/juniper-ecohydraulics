@@ -12,17 +12,19 @@ model{
       B[2] * Dant[i] +
       B[3] * W10ant[i] +
       #B[4] * W50ant[i] +
-      B[4] * Dant[i] * W10ant[i]
+      B[4] * Dant[i] * W10ant[i] +
       #B[6] * Dant[i] * W50ant[i] +
       #B[7] * W10ant[i] * W50ant[i] 
-    
+      Eps.sig[tree[i]]
+      
     lambda[i] = A[1] + 
       A[2] * Dant[i] +
       A[3] * W10ant[i] +
       #A[4] * W50ant[i] +
-      A[4] * Dant[i] * W10ant[i]
+      A[4] * Dant[i] * W10ant[i] +
       #A[6] * Dant[i] * W50ant[i] +
       #A[7] * W10ant[i] * W50ant[i]
+      Eps.lam[tree[i]]
     
     # Antecedent variable is the sum across all timesteps
     Dant[i] <- sum(DTemp[i,])
@@ -67,15 +69,47 @@ model{
     #deltaC[k] ~ dgamma(alphaC[k], 1)
   #}
   
-  # Priors for parameters
+  # Hierarchical normal priors for regression parameters
   for(j in 1:NParam) { # Number of parameters in linear models
+  # Sigma coefs
     B[j] ~ dnorm(0, 0.001)
+  # Lambda coefs
     A[j] ~ dnorm(0, 0.001)
+    
+  # Identifiable regression params
+  Bstar[j] <- B[j] + equals(j, 1) * mean.eps.sig
+  Astar[j] <- A[j] + equals(j, 1) * mean.eps.lam
   }
+  
+  # Conjugate normal priors for tree random effects, post-sweeping option
+  for(g in 1:NTree){ # Number of trees
+    # Non-identifiable random effects
+    Eps.sig[g] ~ dnorm(0, tau.eps.sig)
+    Eps.lam[g] ~ dnorm(0, tau.eps.lam)
+    
+    # Identifiable random effects
+    Estar.sig[g] <- Eps.sig[g]-mean.eps.sig
+    Estar.lam[g] <- Eps.lam[g]-mean.eps.lam
+  }
+  
+  # Uniformm prior for among-tree standard deviation
+  sig.eps.sig ~ dunif(0, 1)
+  sig.eps.lam ~ dunif(0, 1)
+  tau.eps.sig <- 1/pow(sig.eps.sig, 2)
+  tau.eps.lam <- 1/pow(sig.eps.lam, 2)
+  
+  #calculate and monitor posterior mean of average Eps value and standard deviation
+  mean.eps.sig<-mean(Eps.sig[])
+  mean.eps.lam<-mean(Eps.lam[])
   
   # Priors for variance terms
   tau ~ dgamma(0.1, 0.1)
-  sig = pow(tau, -0.5)
+  sig <- pow(tau, -0.5)
+  
+  # Monitor all sigs
+  Sigs[1] <- sig
+  Sigs[2] <- sig.eps.sig
+  Sigs[3] <- sig.eps.lam 
   
   # Posterior predictive loss is the posterior mean of Dsum, must monitor Dsum
   Dsum <- sum(Sqdiff[])
