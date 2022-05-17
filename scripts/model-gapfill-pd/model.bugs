@@ -1,0 +1,48 @@
+model{
+  for(i in 1:N){#N number of observations
+    pd[i,1:7] ~ dmnorm(quant[i,1:7], omega[1:7,1:7])
+    pd.rep[i,1:7] ~ dmnorm(quant[i,1:7], omega[1:7,1:7])
+    
+    for(j in 1:7){#j number of trees
+      quant[i,j] <- mpd[i,1]*eps[j]
+    }
+    
+    #Part of the calculation of the posterior predictive loss	
+    for(j in 1:7){#j number of trees
+      Sqdiff[i, j] <- pow(pd.rep[i, j] - pd[i, j],2)
+    }
+  }
+  
+  #shrub random effect, multiplicative on the log scale
+  for(j in 1:7){#j number of trees
+    log.eps[j] ~ dnorm(0, tau.eps)#on the log scale, centered at 0
+    eps[j] <- exp(log.eps[j])#will be centered at 1 on normal scale
+  }
+  
+  #root nodes
+  #gamma prior for shrub random effect precision 
+  tau.eps ~ dgamma(0.01, 0.01)
+  sig.eps <- 1/sqrt(tau.eps)
+  
+  
+  for(j in 1:7){#j number of trees
+    #Posterior predictive loss is the posterior mean of Dsum, must monitor Dsum
+    Dsum[j] <- sum(Sqdiff[,j])
+    #define covariance matrix
+    #off-diagonals (covariances)
+    for(l in 1:(j-1)){#l number of trees
+      Sigma[j,l] <- rho_pd*var_pd
+      Sigma[l,j] <- Sigma[j,l]
+    }
+    #diagonals (variances)
+    Sigma[j,j] <- var_pd
+  }
+  
+  #priors for var_pd and rho_pd (does not vary by shrub)
+  sd_pd ~ dunif(0.5, 10)#actual range of sd from 0.74 to 2.01
+  var_pd <- pow(sd_pd, 2)
+  rho_pd ~ dbeta(2,2)
+  
+  #compute precision matrix for likelihood:
+  omega[1:7, 1:7]<-inverse(Sigma[1:7, 1:7])
+}
