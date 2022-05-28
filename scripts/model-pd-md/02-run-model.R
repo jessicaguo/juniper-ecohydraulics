@@ -190,7 +190,7 @@ coda.rep <- coda.samples(jm,
                          n.thin = 50)
 
 # save(coda.rep, file = "scripts/model-pd-md/coda/codarep.Rdata")
-
+load(file = "scripts/model-pd-md/coda/codarep.Rdata")
 
 # Summarize replicated output
 coda_sum <- tidyMCMC(coda.rep,

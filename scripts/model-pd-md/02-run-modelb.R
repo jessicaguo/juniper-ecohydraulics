@@ -54,7 +54,7 @@ dat_list <- list(N = nrow(psy_in),
                  tree = as.numeric(psy_in$Tree),
                  NTree = length(unique(psy_in$Tree)),
                  nlagA = 7,
-                 nlagB = 7,
+                 nlagB = 10,
                  nlagC = 7,
                  # time step size (single value if modelb, vector of values if modeld),
                  pA = 1,
@@ -62,7 +62,7 @@ dat_list <- list(N = nrow(psy_in),
                  pC = 3,
                  # weights, of length nlag
                  alphaA = rep(1, 7), 
-                 alphaB = rep(1, 7),
+                 alphaB = rep(1, 10),
                  alphaC = rep(1, 7),
                  doy = psy_in$doy,
                  Dmax = as.vector(met_in$Dmax),
@@ -93,7 +93,7 @@ init <- function() {
 inits_list <- list(init(), init(), init())
 
 # Alternative, start from saved state
-load("scripts/model-pd-md/inits/saved_state.Rdata")
+load("scripts/model-pd-md/inits/saved_stateb.Rdata")
 
 updated_inits <- saved_state[[2]]
 for(i in 1:3){
@@ -102,10 +102,14 @@ for(i in 1:3){
   updated_inits[[i]]$deltaC <- runif(dat_list$nlagC, 0, 1)
 }
 
+updated_inits <- list(saved_state[[2]][[1]], 
+                      saved_state[[2]][[1]],
+                      saved_state[[2]][[1]])
+
 # Initialize model
 jm <- jags.model("scripts/model-pd-md/modelb.jags",
                  data = dat_list,
-                 inits = inits_list,
+                 inits = updated_inits,
                  n.chains = 3)
 
 update(jm, n.iter = 10000)
@@ -124,7 +128,7 @@ coda.out <- coda.samples(jm,
                          n.iter = 3000,
                          n.thin = 5)
 
-# save(coda.out, file = "scripts/model-pd-md/coda/coda.Rdata")
+save(coda.out, file = "scripts/model-pd-md/coda/codab.Rdata")
 
 # Inspect chains visually
 mcmcplot(coda.out, parms = c("deviance", "Dsum", 
@@ -166,9 +170,9 @@ gel$psrf %>%
 # Save state
 final <- initfind(coda.out, OpenBUGS = FALSE)
 final[[1]]
-saved_state <- removevars(final, variables = c(2, 4:6, 12:13))
+saved_state <- removevars(final, variables = c(2, 4:6, 13:15))
 saved_state[[1]]
-ind <- which(colnames(coda.out[[1]]) == "deviance")
+ind <- which(colnames(coda.out[[1]]) == "A[1]")
 
 mean(coda.out[[1]][,ind])
 mean(coda.out[[2]][,ind])
@@ -177,7 +181,7 @@ mean(coda.out[[3]][,ind])
 if(!dir.exists("scripts/model-pd-md/inits")) {
   dir.create("scripts/model-pd-md/inits")
 }
-save(saved_state, file = "scripts/model-pd-md/inits/saved_state.Rdata")
+save(saved_state, file = "scripts/model-pd-md/inits/saved_stateb.Rdata")
 
 
 # Run model for replicated data, time series of sigma and lambda
