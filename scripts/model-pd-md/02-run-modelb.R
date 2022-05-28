@@ -35,6 +35,7 @@ psy_in <- psy_in %>%
 # Plotting sigma for each tree
 psy_in %>%
   ggplot(aes(x = PD, y = MD)) +
+  geom_abline(slope = 1, intercept = 0, lty = 2) +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 0) +
   geom_point(aes(color = VPD_max)) +
@@ -43,6 +44,32 @@ psy_in %>%
                        high = "coral") +
   theme_bw()
 
+psy_in %>%
+  ggplot(aes(x = PD, y = MD)) +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_point(aes(color = VWC_10cm)) +
+  facet_wrap(~Tree) +
+  scale_color_gradient(low = "cornflowerblue",
+                       high = "coral") +
+  theme_bw()
+
+psy_in %>%
+  ggplot(aes(x = PD, y = MD)) +
+  geom_hline(yintercept = 0) +
+  geom_vline(xintercept = 0) +
+  geom_point(aes(color = VWC_50cm)) +
+  facet_wrap(~Tree) +
+  scale_color_gradient(low = "cornflowerblue",
+                       high = "coral") +
+  theme_bw()
+
+met_in %>%
+  filter(date >= min(psy_in$date)) %>%
+  ggplot(aes(x = VWC10, y = VWC50)) +
+  geom_point(aes(color = T_max))
+
+cor(met_in$VWC5, met_in$VWC50)
 
 # Prepare data list
 dat_list <- list(N = nrow(psy_in),
@@ -190,7 +217,7 @@ coda.rep <- coda.samples(jm,
                          n.iter = 3000,
                          n.thin = 15)
 
-# save(coda.rep, file = "scripts/model-pd-md/coda/codarep.Rdata")
+# save(coda.rep, file = "scripts/model-pd-md/coda/codarepb.Rdata")
 
 
 # Summarize replicated output

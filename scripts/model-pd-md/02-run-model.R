@@ -35,6 +35,7 @@ psy_in <- psy_in %>%
 # Plotting sigma for each tree
 psy_in %>%
   ggplot(aes(x = PD, y = MD)) +
+  geom_abline(slope = 1, intercept = 0, lty = 2) +
   geom_hline(yintercept = 0) +
   geom_vline(xintercept = 0) +
   geom_point(aes(color = VPD_max)) +
@@ -53,12 +54,12 @@ dat_list <- list(N = nrow(psy_in),
                  # time step number
                  tree = as.numeric(psy_in$Tree),
                  NTree = length(unique(psy_in$Tree)),
-                 nlagA = 7,
-                 nlagB = 10,
+                 nlagA = 5,
+                 nlagB = 7,
                  # nlagC = 7,
                  # time step size (single value if modelb, vector of values if modeld),
                  pA = 1,
-                 pB = 2,
+                 pB = 3,
                  # pC = 3,
                  # weights, of length nlag
                  alphaA = rep(1, 10), 
@@ -97,7 +98,8 @@ load("scripts/model-pd-md/inits/saved_state.Rdata")
 
 # updated_inits <- saved_state[[2]]
 # for(i in 1:3){
-#   updated_inits[[i]]$deltaB <- c(updated_inits[[i]]$deltaB, runif(3, 0, 1))
+#   updated_inits[[i]]$deltaA <- updated_inits[[i]]$deltaA[1:5]
+#   updated_inits[[i]]$deltaB <- updated_inits[[i]]$deltaB[1:7]
 #   # updated_inits[[i]]$deltaB <- c(updated_inits[[i]]$deltaB, runif(3, 0, 1))
 # }
 
@@ -107,7 +109,7 @@ jm <- jags.model("scripts/model-pd-md/model.jags",
                  inits = saved_state[[2]],
                  n.chains = 3)
 
-update(jm, n.iter = 10000)
+update(jm, n.iter = 5000)
 
 # Monitor
 params <- c("deviance", "Dsum",
@@ -116,7 +118,8 @@ params <- c("deviance", "Dsum",
             "tau", "sig.eps.sig", "sig.eps.lam",
             "wA", "wB", 
             "Sigs",
-            "deltaA", "deltaB"
+            "deltaA", "deltaB", 
+            "Estar.sig", "Estar.lam"
 )
 coda.out <- coda.samples(jm,
                          variable.names = params,
@@ -124,15 +127,19 @@ coda.out <- coda.samples(jm,
                          n.thin = 50)
 
 # save(coda.out, file = "scripts/model-pd-md/coda/coda.Rdata")
+load(file = "scripts/model-pd-md/coda/coda.Rdata")
 
 # Inspect chains visually
 mcmcplot(coda.out, parms = c("deviance", "Dsum", 
                              "Astar", "Bstar", "Sigs",
-                             "wA", "wB"))
+                             "wA", "wB",
+                             "Estar.sig", "Estar.lam"))
 caterplot(coda.out, regex = "^Astar\\[", reorder = FALSE)
 caterplot(coda.out, regex = "^Bstar\\[", reorder = FALSE)
 caterplot(coda.out, parms = "wA", reorder = FALSE)
 caterplot(coda.out, parms = "wB", reorder = FALSE)
+caterplot(coda.out, parms = "Estar.sig", reorder = FALSE)
+caterplot(coda.out, parms = "Estar.lam", reorder = FALSE)
 
 # Check convergence diagnostic
 gel <- gelman.diag(coda.out, multivariate = FALSE)
@@ -167,20 +174,20 @@ gel$psrf %>%
   filter(grepl("^wB", rowname))
 
 # Save state
-final <- initfind(coda.out, OpenBUGS = FALSE)
-final[[1]]
-saved_state <- removevars(final, variables = c(2, 4:6, 12:13))
-saved_state[[1]]
-
+# final <- initfind(coda.out, OpenBUGS = FALSE)
+# final[[1]]
+# saved_state <- removevars(final, variables = c(2, 4:8, 14:15))
+# saved_state[[1]]
+# 
 # ind <- which(colnames(coda.out[[1]]) == "deviance")
 # mean(coda.out[[1]][,ind])
 # mean(coda.out[[2]][,ind])
 # mean(coda.out[[3]][,ind])
-
-if(!dir.exists("scripts/model-pd-md/inits")) {
-  dir.create("scripts/model-pd-md/inits")
-}
-save(saved_state, file = "scripts/model-pd-md/inits/saved_state.Rdata")
+# 
+# if(!dir.exists("scripts/model-pd-md/inits")) {
+#   dir.create("scripts/model-pd-md/inits")
+# }
+# save(saved_state, file = "scripts/model-pd-md/inits/saved_state.Rdata")
 
 
 # Run model for replicated data, time series of sigma and lambda
@@ -189,8 +196,8 @@ coda.rep <- coda.samples(jm,
                          n.iter = 3000,
                          n.thin = 50)
 
-# save(coda.rep, file = "scripts/model-pd-md/coda/codarep.Rdata")
-load(file = "scripts/model-pd-md/coda/codarep.Rdata")
+save(coda.rep, file = "scripts/model-pd-md/coda/codarep.Rdata")
+# load(file = "scripts/model-pd-md/coda/codarep.Rdata")
 
 # Summarize replicated output
 coda_sum <- tidyMCMC(coda.rep,
