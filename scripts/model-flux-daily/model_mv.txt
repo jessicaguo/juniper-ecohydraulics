@@ -1,0 +1,105 @@
+model{
+  for(i in 1:N){
+    # Likelihood
+    flux[i,1:3] ~ dmnorm(mu[i,1:3], omega[1:3,1:3])
+    flux.rep[i,1:3] ~ dmnorm(mu[i,1:3], omega[1:3,1:3])
+    
+    # Mean model
+    for(j in 1:3){ # Three types of fluxes: NEE, GPP, and ET
+      mu[i,j] <- B[1,j] + 
+        B[2,j] * W5ant[i,j] +
+        B[3,j] * PDant[i,j] +
+        B[4,j] * Dant[i,j] +
+        B[5,j] * PPFDant[i,j] +
+        B[6,j] * W5ant[i,j] * PDant[i,j] +
+        B[7,j] * W5ant[i,j] * Dant[i,j] +
+        B[8,j] * W5ant[i,j] * PPFDant[i,j] +
+        B[9,j] * PDant[i,j] * Dant[i,j] +
+        B[10,j] * PDant[i,j] * PPFDant[i,j] +
+        B[11,j] * Dant[i,j] * PPFDant[i,j]
+      
+      # Antecedent variable is the sum across all timesteps
+      W5ant[i,j] <- sum(w5Temp[i,,j])
+      PDant[i,j] <- sum(PDTemp[i,,j])
+      Dant[i,j] <- sum(DTemp[i,,j])
+      PPFDant[i,j] <- sum(PPFDTemp[i,,j])
+      
+      # Multiply weight by each timestep of covariate
+      # Indexing tricks used to accomodate flexible time step size pA - pD
+      # Time steps for PDant are offset by nlagA
+      
+      for(t in 1:nlagA){
+        w5Temp[i,t,j] <- mean(VWC5[(doy[i]-t*pA+1):(doy[i]-t*pA+pA)])*wA[t,j]
+      }
+
+      for(t in 1:nlagB){
+        PDTemp[i,t,j] <- mean(PD[(doy[i]-t*pB+1):(doy[i]-t*pB+pB)])*wB[t,j]
+      }
+      
+      for(t in 1:nlagC){
+        DTemp[i,t,j] <- mean(Dmax[(doy[i]-t*pC+1):(doy[i]-t*pC+pC)])*wC[t,j]
+      }
+      
+      for(t in 1:nlagD){
+        PPFDTemp[i,t,j] <- mean(PPFD[(doy[i]-t*pD+1):(doy[i]-t*pD+pD)])*wD[t,j]
+      }
+     
+      # Part of the calculation of the posterior predictive loss	
+      Sqdiff[i,j] <- pow(flux.rep[i,j] - flux[i,j], 2) 
+    }
+    
+  }
+  for(j in 1:3){ # Three types of fluxes: NEE, GPP, and ET
+    # Sum of the deltas for each covariate
+    sumA[j] <- sum(deltaA[,j])
+    sumB[j] <- sum(deltaB[,j])
+    sumC[j] <- sum(deltaC[,j])
+    sumD[j] <- sum(deltaD[,j])
+    
+    # Priors for weights using the delta trick
+    # Daily variable weights
+    for(t in 1:nlagA){
+      wA[t,j] <- deltaA[t,j] / sumA[j]
+      deltaA[t,j] ~ dgamma(alphaA[t,j], 1)
+    }
+    
+    for(t in 1:nlagB){
+      wB[t,j] <- deltaB[t,j] / sumB[j]
+      deltaB[t,j] ~ dgamma(alphaB[t,j], 1)
+    }
+    
+    for(t in 1:nlagC){
+      wC[t,j] <- deltaC[t,j] / sumC[j]
+      deltaC[t,j] ~ dgamma(alphaC[t,j], 1)
+    }
+    
+    for(t in 1:nlagD){
+      wD[t,j] <- deltaD[t,j] / sumD[j]
+      deltaD[t,j] ~ dgamma(alphaD[t,j], 1)
+    }
+    
+    # Normal priors for regression parameters
+    for(k in 1:NParam) { # Number of parameters in linear models
+      B[k,j] ~ dnorm(0, 0.001)
+    }
+    
+    # Posterior predictive loss is the posterior mean of Dsum
+    Dsum[j] <- sum(Sqdiff[,j])
+  }
+  
+  # Paramterize precision matrices with wishart distributions
+  omega[1:3, 1:3] ~ dwish(R[1:3,1:3], 4)
+  # Variance-covariance matrix
+  Sig2[1:3, 1:3] <- inverse(omega[1:3, 1:3])
+  # Extracting standard deviations
+  for(i in 1:3){
+    Sig[i]<-sqrt(Sig2[i,i])#std dev of each trait
+  }
+  
+  # Calculating correlation between traits
+  for(i in 2:3){
+    for(j in 1:(i-1)){
+      Rho[i,j]<-Sig2[i,j]/(sqrt(Sig2[i,i])*sqrt(Sig2[j,j]))
+    }
+  }
+}
