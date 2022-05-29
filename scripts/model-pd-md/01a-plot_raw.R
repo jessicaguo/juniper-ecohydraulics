@@ -21,7 +21,7 @@ rect <- data.frame(xmin = min(man$date, na.rm = TRUE),
 met_ppt <- met_in %>%
   mutate(ppt = case_when(Precip > 0 ~ Precip)) 
 
-ggplot() +
+fig1 <- ggplot() +
   geom_rect(data = rect, aes(ymin = -Inf, ymax = Inf,
                              xmin = xmin, xmax = xmax),
             alpha = 0.1) +
@@ -44,11 +44,15 @@ ggplot() +
         axis.text.y = element_text(colour = "black"),
         axis.title.x = element_blank(),
         legend.title = element_blank(),
-        legend.position = c(0.1, 0.92),
+        legend.position = c(0.07, 0.92),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(0.4, "cm"),
         ggh4x.axis.ticks.length.minor = rel(1))
 
+ggsave(filename = "scripts/model-pd-md/figs/fig_1.png",
+       plot = fig1,
+       width = 8, height = 3,
+       units = "in")
 
 # Summarize PD and MD across trees
 mean_psy <- psy_in %>%
@@ -65,23 +69,23 @@ mean_man <- man %>%
   summarize(Psi_mean = mean(Psi, na.rm = TRUE),
             Psi_sd = sd(Psi, na.rm = TRUE),
             n = n())
-ggplot() +
+fig2 <- ggplot() +
   geom_errorbar(data = mean_psy,
                 aes(x = date, 
                     ymin = PD_mean - PD_sd,
                     ymax = PD_mean + PD_sd, color = "PD"),
                 alpha = 0.5,
                 width = 0) +
-  geom_point(data = mean_psy,
-             aes(x = date, 
-                 y = PD_mean, 
-                 color = "PD")) +
   geom_errorbar(data = mean_psy,
                 aes(x = date, 
                     ymin = MD_mean - MD_sd,
                     ymax = MD_mean + MD_sd, color = "MD"),
                 alpha = 0.5,
                 width = 0) +
+  geom_point(data = mean_psy,
+             aes(x = date, 
+                 y = PD_mean, 
+                 color = "PD")) +
   geom_point(data = mean_psy,
              aes(x = date, 
                  y = MD_mean,
@@ -108,10 +112,15 @@ ggplot() +
         axis.text.y = element_text(colour = "black"),
         axis.title.x = element_blank(),
         legend.title = element_blank(),
-        legend.position = c(0.1, 0.92),
+        legend.position = c(0.07, 0.92),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(0.4, "cm"),
-        ggh4x.axis.ticks.length.minor = rel(1))
+        ggh4x.axis.ticks.length.minor = rel(1)) +
+  guides(color = guide_legend(override.aes = list(shape = c(15, 16, 16),
+                                                  linetype = c(0, 0, 0))))
 
-
+ggsave(filename = "scripts/model-pd-md/figs/fig_2.png",
+       plot = fig2,
+       width = 8, height = 3,
+       units = "in")
 
