@@ -62,13 +62,13 @@ dat_list <- list(N = nrow(psy_in),
                  pB = 3,
                  # pC = 3,
                  # weights, of length nlag
-                 alphaA = rep(1, 10), 
-                 alphaB = rep(1, 10),
-                 alphaC = rep(1, 10),
+                 alphaA = rep(1, 5), 
+                 alphaB = rep(1, 7),
+                 # alphaC = rep(1, 10),
                  doy = psy_in$doy,
                  Dmax = as.vector(met_in$Dmax),
                  VWC10 = as.vector(met_in$VWC10),
-                 VWC50 = as.vector(met_in$VWC50),
+                 # VWC50 = as.vector(met_in$VWC50),
                  # NBranch = nrow(branch_in),
                  # NLogger = length(unique(psy_in$Logger)),
                  NParam = 4
@@ -96,12 +96,12 @@ inits_list <- list(init(), init(), init())
 # Alternative, start from saved state
 load("scripts/model-pd-md/inits/saved_state.Rdata")
 
-# updated_inits <- saved_state[[2]]
-# for(i in 1:3){
-#   updated_inits[[i]]$deltaA <- updated_inits[[i]]$deltaA[1:5]
-#   updated_inits[[i]]$deltaB <- updated_inits[[i]]$deltaB[1:7]
-#   # updated_inits[[i]]$deltaB <- c(updated_inits[[i]]$deltaB, runif(3, 0, 1))
-# }
+updated_inits <- saved_state[[2]]
+for(i in 1:3){
+  updated_inits[[i]]$deltaA <- updated_inits[[i]]$deltaA[1:5]
+  updated_inits[[i]]$deltaB <- updated_inits[[i]]$deltaB[1:7]
+  # updated_inits[[i]]$deltaB <- c(updated_inits[[i]]$deltaB, runif(3, 0, 1))
+}
 
 # Initialize model
 jm <- jags.model("scripts/model-pd-md/model.jags",
@@ -126,8 +126,8 @@ coda.out <- coda.samples(jm,
                          n.iter = 3000,
                          n.thin = 50)
 
-# save(coda.out, file = "scripts/model-pd-md/coda/coda.Rdata")
-load(file = "scripts/model-pd-md/coda/coda.Rdata")
+save(coda.out, file = "scripts/model-pd-md/coda/coda.Rdata")
+# load(file = "scripts/model-pd-md/coda/coda.Rdata")
 
 # Inspect chains visually
 mcmcplot(coda.out, parms = c("deviance", "Dsum", 
@@ -174,16 +174,16 @@ gel$psrf %>%
   filter(grepl("^wB", rowname))
 
 # Save state
-# final <- initfind(coda.out, OpenBUGS = FALSE)
-# final[[1]]
-# saved_state <- removevars(final, variables = c(2, 4:8, 14:15))
-# saved_state[[1]]
-# 
-# ind <- which(colnames(coda.out[[1]]) == "deviance")
-# mean(coda.out[[1]][,ind])
-# mean(coda.out[[2]][,ind])
-# mean(coda.out[[3]][,ind])
-# 
+final <- initfind(coda.out, OpenBUGS = FALSE)
+final[[1]]
+saved_state <- removevars(final, variables = c(2, 4:8, 14:15))
+saved_state[[1]]
+
+ind <- which(colnames(coda.out[[1]]) == "deviance")
+mean(coda.out[[1]][,ind])
+mean(coda.out[[2]][,ind])
+mean(coda.out[[3]][,ind])
+
 # if(!dir.exists("scripts/model-pd-md/inits")) {
 #   dir.create("scripts/model-pd-md/inits")
 # }
