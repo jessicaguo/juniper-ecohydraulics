@@ -91,7 +91,48 @@ ggplot() +
         strip.text.y = element_text(size = 16),
         panel.grid = element_blank(),
         axis.title.x = element_blank(),
-        axis.text.x = element_text(colour = "black"))
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"))
+
+# Plot weights
+wAB <- param_sum %>%
+  filter(grepl("wA", term) | grepl("wB", term)) %>%
+  tidyr::separate(term, 
+                  into = c("Parameter", "ts")) %>%
+  mutate(Timestep = case_when(Parameter == "wA" ~ ts,
+                              Parameter == "wB"  & ts == 1 ~ "1-3",
+                              Parameter == "wB"  & ts == 2 ~ "4-6",
+                              Parameter == "wB"  & ts == 3 ~ "7-9",
+                              Parameter == "wB"  & ts == 4 ~ "10-12",
+                              Parameter == "wB"  & ts == 5 ~ "13-15",
+                              Parameter == "wB"  & ts == 6 ~ "16-18",
+                              Parameter == "wB"  & ts == 7 ~ "19-21",
+                              Parameter == "wB"  & ts == 8 ~ "22-24",
+                              Parameter == "wB"  & ts == 9 ~ "25-27",
+                              Parameter == "wB"  & ts == 10 ~ "28-30"),
+         Timestep = factor(Timestep, levels = c("1", "2", "3", "4", "5", "6", "7",
+                                                "1-3", "4-6", "7-9", "10-12",
+                                                "13-15", "16-18", "19-21",
+                                                "22-24", "25-27", "28-30")),
+         Covariate = case_when(Parameter == "wA" ~ "D^ant",
+                               Parameter == "wB" ~ "W[10]^ant"))
+
+ggplot(wAB, aes(x = Timestep, y = pred.mean)) +
+  geom_errorbar(aes(ymin = pred.lower,
+                    ymax = pred.upper),
+                width = 0) +
+  geom_point() +
+  scale_y_continuous("Antecedent weights") +
+  scale_x_discrete("Timesteps (days)") +
+  facet_wrap(~Covariate, ncol = 1,
+             scales = "free_x",
+             labeller = label_parsed) +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank(),
+        strip.text.y = element_text(size = 16, colour = "black"),
+        panel.grid = element_blank(),
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"))
 
 # Summarize replicated output
 coda_sum <- tidyMCMC(coda.rep,
@@ -120,9 +161,11 @@ pred %>%
                     color = Tree),
                 alpha = 0.25) +
   geom_point(aes(color = Tree)) +
-  scale_x_continuous("Observed", breaks = seq(-9, 0, 3)) +
-  scale_y_continuous("Predicted", breaks = seq(-9, 0, 3)) +
+  scale_x_continuous(expression(paste("Observed ", Psi[MD])), breaks = seq(-9, 0, 3)) +
+  scale_y_continuous(expression(paste("Predicted ", Psi[MD])), breaks = seq(-9, 0, 3)) +
   scale_colour_hp_d(option = "LunaLovegood", name = "Tree") +
   theme_bw(base_size = 14) +
   coord_equal() +
-  theme(panel.grid = element_blank())
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"))
