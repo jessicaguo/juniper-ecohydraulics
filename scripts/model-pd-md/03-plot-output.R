@@ -55,12 +55,13 @@ dummy <- data.frame(Panel = c(rep("Effects", 2), "Intercept"),
 labs <- c(
           expression(D^ant),
           expression(W[10]^ant),
-          expression(D^ant * W[10]^ant))
+          expression(D^ant %*% W[10]^ant))
 
-ggplot() +
+fig3 <- ggplot() +
   geom_hline(data = dummy, 
              aes(yintercept = intercept),
-             size = 1) +
+             size = 1, 
+             color = "gray") +
   geom_errorbar(data = AB, 
                 aes(x = Covariate,
                     ymin = pred.lower,
@@ -94,34 +95,45 @@ ggplot() +
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
 
+ggsave(filename = "scripts/model-pd-md/figs/fig_3.png",
+       plot = fig3,
+       width = 8, height = 3,
+       units = "in")
+
 # Plot weights
 wAB <- param_sum %>%
   filter(grepl("wA", term) | grepl("wB", term)) %>%
   tidyr::separate(term, 
                   into = c("Parameter", "ts")) %>%
-  mutate(Timestep = case_when(Parameter == "wA" ~ ts,
-                              Parameter == "wB"  & ts == 1 ~ "1-3",
-                              Parameter == "wB"  & ts == 2 ~ "4-6",
-                              Parameter == "wB"  & ts == 3 ~ "7-9",
-                              Parameter == "wB"  & ts == 4 ~ "10-12",
-                              Parameter == "wB"  & ts == 5 ~ "13-15",
-                              Parameter == "wB"  & ts == 6 ~ "16-18",
-                              Parameter == "wB"  & ts == 7 ~ "19-21",
-                              Parameter == "wB"  & ts == 8 ~ "22-24",
-                              Parameter == "wB"  & ts == 9 ~ "25-27",
-                              Parameter == "wB"  & ts == 10 ~ "28-30"),
-         Timestep = factor(Timestep, levels = c("1", "2", "3", "4", "5", "6", "7",
-                                                "1-3", "4-6", "7-9", "10-12",
-                                                "13-15", "16-18", "19-21",
-                                                "22-24", "25-27", "28-30")),
+  mutate(Timestep = case_when(Parameter == "wA" ~ as.character(as.numeric(ts) - 1),
+                              Parameter == "wB"  & ts == 1 ~ "0-2",
+                              Parameter == "wB"  & ts == 2 ~ "3-5",
+                              Parameter == "wB"  & ts == 3 ~ "6-8",
+                              Parameter == "wB"  & ts == 4 ~ "9-11",
+                              Parameter == "wB"  & ts == 5 ~ "12-14",
+                              Parameter == "wB"  & ts == 6 ~ "15-17",
+                              Parameter == "wB"  & ts == 7 ~ "18-20",),
+         Timestep = factor(Timestep, levels = c("0", "1", "2", "3", "4", 
+                                                "0-2", "3-5", "6-8", "9-11",
+                                                "12-14", "15-17", "18-20")),
          Covariate = case_when(Parameter == "wA" ~ "D^ant",
                                Parameter == "wB" ~ "W[10]^ant"))
 
-ggplot(wAB, aes(x = Timestep, y = pred.mean)) +
-  geom_errorbar(aes(ymin = pred.lower,
+dummy2 <- data.frame(Covariate = c("D^ant", "W[10]^ant"),
+                    intercept = c(1/5, 1/7)) 
+
+fig4 <- ggplot() +
+  geom_hline(data = dummy2, 
+             aes(yintercept = intercept),
+             size = 1, 
+             color = "gray") +
+  geom_errorbar(data = wAB,
+                aes(x = Timestep,
+                    ymin = pred.lower,
                     ymax = pred.upper),
                 width = 0) +
-  geom_point() +
+  geom_point(data = wAB,
+             aes(x = Timestep, y = pred.mean)) +
   scale_y_continuous("Antecedent weights") +
   scale_x_discrete("Timesteps (days)") +
   facet_wrap(~Covariate, ncol = 1,
@@ -133,6 +145,11 @@ ggplot(wAB, aes(x = Timestep, y = pred.mean)) +
         panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
+
+ggsave(filename = "scripts/model-pd-md/figs/fig_4.png",
+       plot = fig4,
+       width = 6, height = 4,
+       units = "in")
 
 # Summarize replicated output
 coda_sum <- tidyMCMC(coda.rep,
@@ -149,7 +166,7 @@ pred <- cbind.data.frame(psy_in, coda_sum)
 m1 <- lm(pred.mean ~ MD, data = pred)
 sm <- summary(m1) # R2 = 0.8985; w/ RE R2 = 0.9198
 
-pred %>%
+fig5 <- pred %>%
   ggplot(aes(x = MD, y =pred.mean)) +
   geom_abline(intercept = 0, slope = 1, col = "black",
               size = 1) +
@@ -169,3 +186,9 @@ pred %>%
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
+
+
+ggsave(filename = "scripts/model-pd-md/figs/fig_5.png",
+       plot = fig5,
+       width = 4, height = 4,
+       units = "in")
