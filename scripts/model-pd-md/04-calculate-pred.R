@@ -89,10 +89,11 @@ hydry_pred <- df %>%
 
 
 fig6 <- ggplot(hydry_pred, aes(x = Dmax_orig, y = W10_orig)) +
-  geom_tile(aes(fill = strategy)) +
-  scale_x_continuous(expression(paste(D[max]^ant)), 
+  geom_tile(aes(fill = strategy),
+            alpha = 0.8) +
+  scale_x_continuous(expression(paste(D[max]^ant, " (kPa)")), 
                      guide = "axis_minor") +
-  scale_y_continuous(expression(paste(W[10]^ant)), 
+  scale_y_continuous(expression(paste(W[10]^ant, " (%)")), 
                      guide = "axis_minor") +
   scale_fill_hp_d(option = "HermioneGranger", direction = -1) +
   theme_bw(base_size = 14) +
@@ -104,11 +105,12 @@ fig6 <- ggplot(hydry_pred, aes(x = Dmax_orig, y = W10_orig)) +
         plot.title = element_text(size = 16, face = 'bold'), 
         axis.title = element_text(face = 'bold'),
         ggh4x.axis.ticks.length.minor = rel(1),
-        legend.title = element_blank()) 
+        legend.title = element_blank(),
+        legend.position = "top") 
 
 ggsave(filename = "scripts/model-pd-md/figs/fig_6.jpg",
        plot = fig6, 
-       width = 6, height = 3,
+       width = 6, height = 5,
        units = "in")
 
 min(df$W10)
