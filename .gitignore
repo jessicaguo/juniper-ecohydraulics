@@ -7,7 +7,8 @@
 data_raw/
 data_cleaned/
 docs/
-scripts/daily-model/plots/
+scripts/model-pd-daily/plots/
+scripts/model-pd-md/figs/
 
 # Suppress html and rsconnect files
 *.html
