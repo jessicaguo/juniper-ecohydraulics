@@ -66,8 +66,8 @@ out <- matrix(NA, nrow = nrow(df),  ncol = nrow(Bstars))
 for(b in 1:nrow(Bstars)){
   out[,b] <- apply(df, MARGIN = 1, FUN = pred_sigma, vec = Bstars[b,])
 }
-# save(out, file = "scripts/model-pd-md/calculated.Rdata")
-load(file = "scripts/model-pd-md/calculated.Rdata")
+# save(out, file = "scripts/model-pd-md/products/sigma_mat.Rdata")
+load(file = "scripts/model-pd-md/products/sigma_mat.Rdata")
 
 df$pred.mean <- apply(out, 1, FUN = mean)
 df$pred.lower <- apply(out, 1, FUN = quantile, probs = 0.025)
@@ -87,6 +87,8 @@ hydry_pred <- df %>%
                                                 "anisohydry", 
                                                 "extreme anisohydry")))
 
+# save(hydry_pred, file = "scripts/model-pd-md/products/hydry_pred.Rdata")
+load(file = "scripts/model-pd-md/products/hydry_pred.Rdata")
 
 fig6 <- ggplot(hydry_pred, aes(x = Dmax_orig, y = W10_orig)) +
   geom_tile(aes(fill = strategy),

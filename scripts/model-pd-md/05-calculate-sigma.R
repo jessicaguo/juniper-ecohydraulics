@@ -88,8 +88,8 @@ met_pred$W10ant.lower <- apply(W10ant_mat, 1, FUN = quantile, probs = 0.025)
 met_pred$W10ant.upper <- apply(W10ant_mat, 1, FUN = quantile, probs = 0.975)
 
 # Save/load as needed
-# save(met_pred, file = "scripts/model-pd-md/met_pred.Rdata")
-load(file = "scripts/model-pd-md/met_pred.Rdata")
+# save(met_pred, file = "scripts/model-pd-md/products/met_pred.Rdata")
+load(file = "scripts/model-pd-md/products/met_pred.Rdata")
 
 # Use Dant.mean and W10ant.mean to predict timeseries of sigma or lambda
 pred_param <- function(betas, covariates) {
@@ -122,8 +122,6 @@ param_pred$lambda.mean <- apply(lambda_mat, 1, FUN = mean)
 param_pred$lambda.lower <- apply(lambda_mat, 1, FUN = quantile, probs = 0.025)
 param_pred$lambda.upper <- apply(lambda_mat, 1, FUN = quantile, probs = 0.975)
 
-# save(param_pred, file = "scripts/model-pd-md/met_pred.Rdata")
-load(file = "scripts/model-pd-md/met_pred.Rdata")
 
 param_pred <- param_pred %>%
   mutate(strategy = case_when(sigma.lower > 1 ~ "extreme anisohydry",
@@ -133,6 +131,8 @@ param_pred <- param_pred %>%
                                                 "anisohydry", 
                                                 "extreme anisohydry")))
 
+# save(param_pred, file = "scripts/model-pd-md/products/param_pred.Rdata")
+load(file = "scripts/model-pd-md/products/param_pred.Rdata")
 
 fig7a <- ggplot(param_pred, aes(x = date)) +
   geom_hline(yintercept = 1, 
