@@ -1,0 +1,116 @@
+---
+title: Seasonally varying water use strategies in *Juniperus osteosperma* associated with GPP
+# poster_height: "35in"
+# poster_width: "42in"
+author:
+  - name: Jessica S. Guo
+    affil: 1
+    orcid: '0000-0002-9566-9182'
+  - name: Steven A. Kannenberg
+    affil: 2
+  - name: Mallory Barnes
+    affil: 3
+  - name: William R.L. Anderegg
+    affil: 2
+affiliation:
+  - num: 1
+    address: Arizona Experiment Station, University of Arizona
+  - num: 3
+    address: School of Public and Environmental Affairs
+  - num: 2
+    address: Department of Biological Sciences, University of Utah
+column_numbers: 3
+title_textsize: "70pt"
+author_textsize: "50pt"
+affiliation_textsize: "28pt"
+link_col: "#0b4545"
+logoleft_name: ua_logo2.png
+logoright_name: uu_logo.png
+output: 
+  posterdown::posterdown_html:
+    self_contained: true
+knit: pagedown::chrome_print
+bibliography: pericles.bib
+csl: elsevier-harvard-without-titles.csl
+---
+<style>
+p.caption {
+  font-size: 0.9em;
+}
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Introduction
+
+Plant species exhibit a range of water use strategies to manage the tradeoff between carbon gain and water loss. One metric of hydraulic regulation [@martinez2014] utilizes the slope between predawn and midday water potential ($\Psi$), wherein isohydry (slope \< 1) suggests a conservative approach to maintain water transport capacity and anisohydry (slope $\geq$ 1) suggests a profligate strategy to maximize carbon gain. However, recent evidence shows that some species can alter water use strategies seasonally [@guo2020], the detection of which has previously been limited by the frequency of $\Psi$ measurements. 
+
+## **Questions**
+1. Does the relationship between predawn and midday $\Psi$ vary over time in *J. osteosperma*?  
+2. Is the degree of iso/anisohydry affected by soil and atmospheric drivers?
+3. Is the degree of iso/anisohydry associated with site-level GPP?
+
+# Methods
+
+  - Seven mature *J. osteosperma* instrumented with 2 automated stem psychrometers during the 2021 growing season (Fig. \@ref(fig:pic))
+  - Co-located with Ameriflux site (US-CdM) in southeastern UT
+  - *J. osteosperma* comprises ~92% of tree basal area, other woody species include *Pinus edulis* and *Artemisia tridentata*
+  - Psychrometers cleaned and rotated ~monthly 
+  - $\Psi$ measured ~monthly with a manual pressure chamber
+```{r pic, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Steve installs a stem psychrometer, May 2021. Courtesy Avery Driscoll"}
+knitr::include_graphics("fieldwork2_32.jfif")
+```
+
+  - Daily predawn and midday $\Psi$ related to maximum daily VPD and VWC at 10 cm in a hierarchical Bayesian model: 
+
+$$
+\begin{aligned}
+\Psi_{MD_i} &= \lambda_i + \sigma_i \cdot \Psi_{PD_i}\\
+\lambda_i, \sigma_i &= \beta_1 + \beta_1 \cdot D_{i}^{ant} + \beta_2 \cdot W_{10_i}^{ant} + \beta_4 \cdot D_{i}^{ant} \cdot W_{10_i}^{ant}
+\end{aligned}
+$$
+
+```{r fig-env, echo=FALSE, out.width="100%", fig.cap="Site environmental characteristics in 2021. Gray box indicates period of psychrometer instrumentation"}
+knitr::include_graphics("../figs/fig_1.png")
+```
+
+# Results
+
+```{r fig-psy, echo=FALSE, out.width="100%", fig.cap="Automated and manual measurements of stem water potential during the 2021 growing season"}
+knitr::include_graphics("../figs/fig_2.png")
+```
+
+```{r fig-cov, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of covariate effect on $\\sigma$ and $\\lambda$"}
+knitr::include_graphics("../figs/fig_3.png")
+```
+
+   - Due to strong monsoon in 2021 (Fig. \@ref(fig:fig-env)), $\Psi_{PD}$ remained above -2 MPa for most of August and the first half of September (Fig. \@ref(fig:fig-psy))
+   
+   - Model fit was high ($R^2 = 0.92$), with low bias
+   
+   - Wet soil, dry air, and their combination are positively correlated with higher $\sigma$, or greater anisohydry (Fig. \@ref(fig:fig-cov))
+   
+   - *J. osteosperma* exhibited temporally variable hydraulic strategies, becoming extremely anisohydric following monsoon arrival (Fig. \@ref(fig:fig-hydry))
+   
+   - Iso/anisohydry, as indexed by $\sigma$, was positively correlated with site-level GPP ($p < 0.001$, $R = 0.6$, Fig. \@ref(fig:fig-gpp))
+   
+```{r fig-hydry, echo=FALSE, out.width="100%", fig.cap="Predicted timeseries of $\\sigma$ and $\\lambda$ (posterior mean and 95% CI) based on fitted model"}
+knitr::include_graphics("../figs/fig_7.png")
+```
+
+```{r fig-gpp, echo=FALSE, out.width="100%", fig.cap="Overlapping timeseries of predicted $\\sigma$ and site-level GPP in 2021 (left) and their correlation (right)"}
+knitr::include_graphics("../figs/fig_8.png")
+```
+
+# Discussion
+
+  - Although *J. osteosperma* is considered to have an anisohydric response to drought, we found extreme anisohydry associated with monsoon onset
+  - Aligns with previous findings of conservative drought responses of *J. monosperma* under experimental conditions [@garcia2016]
+  - Classically anisohydric species (e.g., *Larrea tridentata*, *Juniperus spp.*) may be more flexible and responsive in their hydraulic strategies, not necessarily associated with high embolism
+  - Iso/anisohydry is well-correlated with GPP, confirming that extreme anisohydry is a strategy for maximizing carbon uptake
+  - Next steps include some kind of model comparison for evaluating the added value of iso/anisohydry for predicting GPP, suggestions welcome!
+
+# References
+<font size="6.5"> <div id="refs"></div> </font>
