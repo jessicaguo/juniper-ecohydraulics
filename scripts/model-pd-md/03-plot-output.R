@@ -33,9 +33,13 @@ AB <- param_sum %>%
   mutate(Parameter = case_when(Parameter == "Astar" ~ "lambda",
                                Parameter == "Bstar" ~ "sigma"),
          Covariate = case_when(Covariate == 1 ~ "Intercept",
-                               Covariate == 2 ~ "Dant",
-                               Covariate == 3 ~ "W10ant",
-                               Covariate == 4 ~ "W10ant*Dant"),
+                               Covariate == 2 ~ "D^ant",
+                               Covariate == 3 ~ "W[10]^ant",
+                               Covariate == 4 ~ "D^ant%.%W[10]^ant"),
+         Covariate = factor(Covariate, levels = c("Intercept",
+                                                  "D^ant",
+                                                  "W[10]^ant",
+                                                  "D^ant%.%W[10]^ant")),
          Panel = case_when(Covariate == "Intercept" ~ "Intercept",
                             Covariate != "Intercept" ~ "Effects"),
          Panel = factor(Panel, levels = c("Intercept", "Effects")),
@@ -52,10 +56,10 @@ dummy <- data.frame(Panel = c(rep("Effects", 2), "Intercept"),
                     intercept = c(0, 0, 1)) %>%
   mutate(Panel = factor(Panel, levels = c("Intercept", "Effects")),
          Parameter = factor(Parameter, levels = c("sigma", "lambda")))
-labs <- c(
-          expression(D^ant),
-          expression(W[10]^ant),
-          expression(D^ant %*% W[10]^ant))
+# labs <- c(
+#           expression(D^ant),
+#           expression(W[10]^ant),
+#           expression(D^ant %*% W[10]^ant))
 
 fig3 <- ggplot() +
   geom_hline(data = dummy, 
@@ -79,7 +83,7 @@ fig3 <- ggplot() +
              pch = 8,
              col = "medium purple") +
   scale_y_continuous("Posterior mean") +
-  scale_x_discrete(labels = labs) +
+  scale_x_discrete(labels = scales::parse_format()) +
   facet_grid2(rows = vars(Parameter),
               cols = vars(Panel),
               scales = "free",
