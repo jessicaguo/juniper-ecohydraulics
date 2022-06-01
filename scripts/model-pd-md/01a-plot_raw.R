@@ -21,6 +21,7 @@ rect <- data.frame(xmin = min(man$date, na.rm = TRUE),
 met_ppt <- met_in %>%
   mutate(ppt = case_when(Precip > 0 ~ Precip)) 
 
+#  All together in single plot
 fig1 <- ggplot() +
   geom_rect(data = rect, aes(ymin = -Inf, ymax = Inf,
                              xmin = xmin, xmax = xmax),
@@ -54,6 +55,64 @@ ggsave(filename = "scripts/model-pd-md/figs/fig_1.png",
        width = 8, height = 3,
        units = "in")
 
+
+# Alternatively, separate VPD + precip from SWC
+
+fig1a <- ggplot() +
+  geom_rect(data = rect, aes(ymin = -Inf, ymax = Inf,
+                             xmin = xmin, xmax = xmax),
+            alpha = 0.1) +
+  geom_point(data = met_ppt,
+             aes(x = date, y = VPD_max)) +
+  geom_bar(data = met_ppt,
+           aes(x = date, y = ppt/10), stat = "identity",
+           color = "black") +
+  scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
+               guide = "axis_minor") +
+  scale_y_continuous("VPD (kPa) | ppt (cm)") +
+  scale_color_hp_d(option = "Mischief") +
+  theme_bw(base_size = 14) +
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"),
+        axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        legend.position = c(0.07, 0.92),
+        legend.background = element_rect(fill = "transparent"),
+        legend.key.size = unit(0.4, "cm"),
+        ggh4x.axis.ticks.length.minor = rel(1))
+  
+fig1b <- ggplot() +
+  geom_rect(data = rect, aes(ymin = -Inf, ymax = Inf,
+                             xmin = xmin, xmax = xmax),
+            alpha = 0.1) +
+   geom_point(data = met_ppt,
+             aes(x = date, y = VWC_5cm, color = "5 cm")) +
+  geom_point(data = met_ppt,
+             aes(x = date, y = VWC_10cm, color = "10 cm")) +
+  scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
+               guide = "axis_minor") +
+  scale_y_continuous("VWC (%)") +
+  scale_color_hp_d(option = "Mischief") +
+  theme_bw(base_size = 14) +
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"),
+        axis.title.x = element_blank(),
+        legend.title = element_blank(),
+        legend.position = c(0.07, 0.92),
+        legend.background = element_rect(fill = "transparent"),
+        legend.key.size = unit(0.4, "cm"),
+        ggh4x.axis.ticks.length.minor = rel(1))
+fig1b 
+
+fig1_all <- plot_grid(fig1a, fig1b, ncol = 1,
+                      align = "v")
+ggsave(filename = "scripts/model-pd-md/figs/fig_1_sep.png",
+       plot = fig1_all,
+       width = 8, height = 4,
+       units = "in")
+  
 # Summarize PD and MD across trees
 mean_psy <- psy_in %>%
   group_by(date) %>%

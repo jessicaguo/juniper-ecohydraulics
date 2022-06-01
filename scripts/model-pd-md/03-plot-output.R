@@ -77,11 +77,13 @@ fig3 <- ggplot() +
   geom_point(data = pos,
              aes(x = Covariate, y = max(pred.upper + 0.02)),
              pch = 8,
-             col = "coral") +
+             col = "coral",
+             stroke = 1.25) +
   geom_point(data = neg,
-             aes(x = Covariate, y = min(pred.lower - 0.02)),
+             aes(x = Covariate, y = min(pred.lower - 0.05)),
              pch = 8,
-             col = "medium purple") +
+             col = "medium purple", 
+             stroke = 1.25) +
   scale_y_continuous("Posterior mean") +
   scale_x_discrete(labels = scales::parse_format()) +
   facet_grid2(rows = vars(Parameter),
@@ -93,7 +95,7 @@ fig3 <- ggplot() +
   theme_bw(base_size = 14) +
   theme(strip.background = element_blank(),
         strip.text.x = element_blank(),
-        strip.text.y = element_text(size = 16),
+        strip.text.y = element_text(size = 16, face = "bold"),
         panel.grid = element_blank(),
         axis.title.x = element_blank(),
         axis.text.x = element_text(colour = "black"),
