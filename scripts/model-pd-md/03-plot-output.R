@@ -142,7 +142,7 @@ fig4 <- ggplot() +
              aes(x = Timestep, y = pred.mean)) +
   scale_y_continuous("Antecedent weights") +
   scale_x_discrete("Timesteps (days)") +
-  facet_wrap(~Covariate, ncol = 1,
+  facet_wrap(~Covariate, ncol = 2,
              scales = "free_x",
              labeller = label_parsed) +
   theme_bw(base_size = 14) +
@@ -154,7 +154,7 @@ fig4 <- ggplot() +
 
 ggsave(filename = "scripts/model-pd-md/figs/fig_4.png",
        plot = fig4,
-       width = 6, height = 4,
+       width = 8, height = 3,
        units = "in")
 
 # Summarize replicated output

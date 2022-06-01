@@ -58,20 +58,20 @@ Plant species exhibit a range of water use strategies to manage the tradeoff bet
 # Methods
 
   - Seven mature *J. osteosperma* instrumented with 2 automated stem psychrometers each during the 2021 growing season (Fig. \@ref(fig:pic))
-  - Co-located with Ameriflux site (US-CdM) in southeastern UT
-  - *J. osteosperma* comprises ~92% of tree basal area, other woody species include *Pinus edulis* and *Artemisia tridentata*
-  - Psychrometers cleaned and rotated ~monthly 
+  - Co-located with Ameriflux site (US-CdM) in southeastern UT, where *J. osteosperma* comprises ~92% of tree basal area
+  - Psychrometers cleaned and rotated ~monthly
   - $\Psi$ measured ~monthly with a manual pressure chamber
-```{r pic, echo=FALSE, out.width="80%", fig.align="center", fig.cap="Steve installs a stem psychrometer, May 2021. Courtesy Avery Driscoll"}
+```{r pic, echo=FALSE, out.width="75%", fig.align="center", fig.cap="Steve installs a stem psychrometer, May 2021. Courtesy Avery Driscoll"}
 knitr::include_graphics("fieldwork2_32.jfif")
 ```
 
-  - Daily predawn and midday $\Psi$ related to maximum daily VPD and VWC at 10 cm in a stochastic antecedent model [@ogle2015]: 
+  - Daily predawn and midday $\Psi$ related to maximum daily VPD and VWC at 10 cm in a stochastic antecedent model: 
 
 $$
 \begin{aligned}
 \Psi_{MD_i} &= \lambda_i + \sigma_i \cdot \Psi_{PD_i}\\
-\lambda_i, \sigma_i &= \beta_1 + \beta_1 \cdot D_{i}^{ant} + \beta_2 \cdot W_{10_i}^{ant} + \beta_4 \cdot D_{i}^{ant} \cdot W_{10_i}^{ant}
+\lambda_i, \sigma_i &= \beta_1 + \beta_1 \cdot D_{i}^{ant} + \beta_2 \cdot W_{10_i}^{ant} + \beta_4 \cdot D_{i}^{ant} \cdot W_{10_i}^{ant}\\
+X_i^{ant} &= \sum_{p = 0}^{T_{lag}-1}\omega_p \cdot X_{t(i)-p}
 \end{aligned}
 $$
 
@@ -84,22 +84,20 @@ knitr::include_graphics("../figs/fig_1_sep.png")
 ```{r fig-psy, echo=FALSE, out.width="100%", fig.cap="Automated and chamber measurements of stem water potential during the 2021 growing season"}
 knitr::include_graphics("../figs/fig_2.png")
 ```
-```{r fig-cov, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the antecedent covariate effects on $\\sigma$ and $\\lambda$"}
+```{r fig-cov, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the regression coefficients associated with $\\sigma$ and $\\lambda$"}
 knitr::include_graphics("../figs/fig_3.png")
 ```
-    
   - Due to strong monsoon in 2021 (Fig. \@ref(fig:fig-env)), $\Psi_{PD}$ remained above -2 MPa for most of August and the first half of September (Fig. \@ref(fig:fig-psy))
     
   - Model fit was high ($R^2 = 0.92$), with low bias
    
   - Wet soil, dry air, and their combination were positively correlated with higher $\sigma$, or greater anisohydry (Fig. \@ref(fig:fig-cov))
   
-  - The combination of wet soil and dry air caused the pressure drop at $\Psi_{soil} = 0$ ($\lambda$) to decrease significantly (Fig. \@ref(fig:fig-cov))
+  - Combination of wet soil and dry air caused the pressure drop at $\Psi_{soil} = 0$ ($\lambda$) to decrease (Fig. \@ref(fig:fig-cov))
    
   - *J. osteosperma* exhibited temporally variable hydraulic strategies, becoming extremely anisohydric ($\sigma > 1$) after monsoon onset (Fig. \@ref(fig:fig-hydry))
    
   - Iso/anisohydry, as indexed by $\sigma$, was positively correlated with site-level GPP ($p < 0.001$, $r = 0.6$, Fig. \@ref(fig:fig-gpp))
-   
 ```{r fig-hydry, echo=FALSE, out.width="100%", fig.cap="Predicted timeseries of $\\sigma$ (posterior mean and 95% CI)"}
 knitr::include_graphics("../figs/fig_7a.png")
 ```
@@ -109,11 +107,15 @@ knitr::include_graphics("../figs/fig_8.png")
 
 # Discussion
 
-  - Although *J. osteosperma* is considered to have an anisohydric response to drought, we found extreme anisohydry associated with monsoon onset
+  - Although *J. osteosperma* is considered to have an anisohydric response to drought, extreme anisohydry was associated with monsoon onset
+  
   - Aligns with previous findings of conservative drought responses of *J. monosperma* under experimental conditions [@garcia2016]
+  
   - Classically anisohydric species (e.g., *Larrea tridentata*, *Juniperus spp.*) may be more flexible and responsive in their hydraulic strategies, not necessarily associated with high embolism
+  
   - Iso/anisohydry is well-correlated with GPP, confirming that extreme anisohydry is a strategy for maximizing carbon uptake
-  - Next steps include some kind of model comparison for evaluating the added value of iso/anisohydry for predicting GPP, suggestions welcome!
+  
+  - Next steps include some kind of model comparison for evaluating the added value of iso/anisohydry for predicting GPP
 
 # References
 <font size="6.5"> <div id="refs"></div> </font>
