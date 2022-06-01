@@ -124,12 +124,12 @@ param_pred$lambda.upper <- apply(lambda_mat, 1, FUN = quantile, probs = 0.975)
 
 
 param_pred <- param_pred %>%
-  mutate(strategy = case_when(sigma.lower > 1 ~ "extreme anisohydry",
-                              sigma.upper < 1 ~ "isohydry",
-                              sigma.lower < 1 & sigma.upper > 1 ~ "anisohydry"),
-         strategy = factor(strategy, levels = c("isohydry", 
-                                                "anisohydry", 
-                                                "extreme anisohydry")))
+  mutate(strategy = case_when(sigma.lower > 1 ~ "extreme~anisohydry~(sigma > 1)",
+                              sigma.upper < 1 ~ "isohydry~(sigma < 1)",
+                              sigma.lower < 1 & sigma.upper > 1 ~ "anisohydry~(sigma %~~% 1)"),
+         strategy = factor(strategy, levels = c("isohydry~(sigma < 1)", 
+                                                "anisohydry~(sigma %~~% 1)", 
+                                                "extreme~anisohydry~(sigma > 1)")))
 
 # save(param_pred, file = "scripts/model-pd-md/products/param_pred.Rdata")
 load(file = "scripts/model-pd-md/products/param_pred.Rdata")
@@ -146,7 +146,11 @@ fig7a <- ggplot(param_pred, aes(x = date)) +
   scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
                guide = "axis_minor") +
   scale_y_continuous(expression(sigma)) +
-  scale_color_hp_d(option = "HermioneGranger", direction = -1) +
+  scale_color_hp_d(option = "HermioneGranger", direction = -1,
+                   labels = scales::label_parse()) +
+                   # labels = scales::label_parse("isohydry~(sigma < 1)",
+                   #            "anisohydry~(sigma %~~% 1)",
+                   #            "extreme~anisohydry~(sigma > 1)")) +
   theme_bw(base_size = 14) +
   theme(axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"),
@@ -157,7 +161,7 @@ fig7a <- ggplot(param_pred, aes(x = date)) +
         axis.title.x = element_blank(),
         ggh4x.axis.ticks.length.minor = rel(1),
         legend.title = element_blank(),
-        legend.position = c(0.12, 0.92),
+        legend.position = c(0.15, 0.88),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(0.4, "cm")) +
   guides(color = guide_legend(override.aes = list(linetype = c(0, 0, 0))))
