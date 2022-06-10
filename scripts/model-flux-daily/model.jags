@@ -1,46 +1,42 @@
 model{
   for(i in 1:N){
     # Likelihood
-    ET[i] ~ dnorm(mu[i], tau)
-    ET.rep[i] ~ dnorm(mu[i], tau)
+    GPP[i] ~ dnorm(mu[i], tau)
+    GPP.rep[i] ~ dnorm(mu[i], tau)
     
     # Mean model
     mu[i] <- B[1] + 
-      B[2] * W5ant[i] +
-      B[3] * PDant[i] +
-      B[4] * Dant[i] +
-      B[5] * W5ant[i] * PDant[i] +
-      B[6] * W5ant[i] * Dant[i] +
-      B[7] * PDant[i] * Dant[i]
+      B[2] * PDant[i] +
+      B[3] * Dant[i] +
+      B[4] * PARant[i] +
+      B[5] * PDant[i] * Dant[i] +
+      B[6] * PDant[i] * PARant[i] +
+      B[7] * Dant[i] * PARant[i]
     
     # Antecedent variable is the sum across all timesteps
-    W5ant[i] <- sum(w5Temp[i,])
     PDant[i] <- sum(PDTemp[i,])
     Dant[i] <- sum(DTemp[i,])
+    PARant[i] <- sum(PARTemp[i,])
     
     # Multiply weight by each timestep of covariate
     # Indexing tricks used to accomodate flexible time step size pA - pC
-    # Time steps for PDant are offset by nlagA
     
     for(k in 1:nlagA){
-      w5Temp[i,k] <- mean(VWC5[(doy[i]-k*pA+1):(doy[i]-k*pA+pA)])*wA[k]
+      PDTemp[i,k] <- mean(PD[(doy[i]-k*pA+1):(doy[i]-k*pA+pA)])*wA[k]
     }
     
-    #for(k in 1:nlagB){
-      #PDTemp[i,k] <- mean(PD[(doy[i]-k*pB+1):(doy[i]-k*pB+pB)])*wB[k]
-    #}
     
     for(k in 1:nlagB){
-      PDTemp[i,k] <- mean(PD[(doy[i]-k*pB+1-nlagA):(doy[i]-k*pB+pB-nlagA)])*wB[k]
+      DTemp[i,k] <- mean(Dmax[(doy[i]-k*pB+1):(doy[i]-k*pB+pB)])*wB[k]
     }
     
     for(k in 1:nlagC){
-      DTemp[i,k] <- mean(Dmax[(doy[i]-k*pC+1):(doy[i]-k*pC+pC)])*wC[k]
+      PARTemp[i,k] <- mean(PAR[(doy[i]-k*pC+1):(doy[i]-k*pC+pC)])*wC[k]
     }
     
     
     # Part of the calculation of the posterior predictive loss	
-    Sqdiff[i] <- pow(ET.rep[i] - ET[i],2)
+    Sqdiff[i] <- pow(GPP.rep[i] - GPP[i],2)
   }
   # Sum of the deltas for each covariate
   sumA <- sum(deltaA[])

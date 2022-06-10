@@ -1,6 +1,9 @@
-# Univariate first with ET, then multivariate model of fluxes
+# Univariate first with GPP, then multivariate model of fluxes
 # on PD, soil moisture, light, temp, and VPD
 # or some combo thereof
+# GPP daily in mol CO2 m^-2 d^-1
+# Can remove <0 or make zero
+# Average daily PPFD between 9 am and 5 pm
 
 library(rjags)
 load.module('dic')
@@ -8,6 +11,7 @@ library(dplyr)
 library(ggplot2)
 library(mcmcplots)
 library(postjags)
+library(broom.mixed)
 
 # Load gapfilled water potentials
 doy22 <- data.frame(date = seq(as.Date("2021-01-01"), 
@@ -31,14 +35,15 @@ met_in <- met_daily %>%
   mutate(Dmax = scale(VPD_max),
          VWC5 = scale(VWC_5cm),
          VWC10 = scale(VWC_10cm),
-         VWC50 = scale(VWC_50cm)) %>%
+         VWC50 = scale(VWC_50cm),
+         PAR = scale(PAR_In)) %>%
   filter(date >= as.Date("2021-01-01"))
 
 # Read in daily fluxes & clip time range
 flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
   mutate(date = as.Date(as.POSIXct(paste0(Year, DOY), format = "%Y%j"))) %>%
   relocate(date) %>%
-  filter(date >= min(psy_daily_site_gapfilled$date) + 14, # to allow for lags of up to 1 week
+  filter(date >= min(psy_daily_site_gapfilled$date) + 7, # So PD can be antecedent
          date <= max(psy_daily_site_gapfilled$date))
 range(flux$date)
 
@@ -49,10 +54,10 @@ foo <- flux %>%
 
 foo %>%
   ggplot(aes(x = date)) +
-  geom_point(aes(y = ET, color = "ET")) +
+  geom_point(aes(y = GPP_F*10, color = "GPP")) +
   geom_point(aes(y = Dmax, color = "Dmax")) +
   geom_point(aes(y = PD, color = "PD")) +
-  geom_point(aes(y = VWC10, color = "vWC10"))
+  geom_point(aes(y = PAR, color = "PAR"))
 
 foo %>%
   ggplot(aes(x = PD, y = ET)) +
@@ -62,17 +67,24 @@ foo %>%
   ggplot(aes(x = VWC5, y = ET)) +
   geom_point(aes(color = Dmax))
 
-cor(foo$PD, foo$Dmax)
-cor(foo$Dmax, foo$VWC5)
+cor(foo$GPP_F, foo$Dmax)
+cor(foo$GPP_F, foo$VWC_10cm)
+cor(foo$GPP_F, foo$PD, method = "pearson")
+cor(foo$GPP_F, foo$MD, method = "pearson")
+cor(foo$GPP_F, foo$PAR, method = "pearson")
+
+m1 <- lm(GPP_F ~ PD * Dmax + PAR, data = foo)
+summary(m1)
+
 cor(foo$PD_scaled, foo$VWC5)
 cor(foo$ET, foo$VWC5, use = "complete.obs")
 cor(foo$ET, foo$MD, use = "complete.obs")
 
 # Create list of data inputs for model
-dat_list <- list(ET = flux$ET,
+dat_list <- list(GPP = flux$GPP_F,
                 PD = as.vector(psy$PD),
                 Dmax = as.vector(met_in$Dmax),
-                VWC5 = as.vector(met_in$VWC5),
+                PAR = as.vector(met_in$PAR),
                 N = nrow(flux),
                 doy = flux$DOY,
                 nlagA = 7,
@@ -80,7 +92,7 @@ dat_list <- list(ET = flux$ET,
                 nlagC = 7,
                 pA = 1,
                 pB = 1,
-                pC = 3,
+                pC = 1,
                 # weights, of length nlag
                 alphaA = rep(1, 7), 
                 alphaB = rep(1, 7),
@@ -116,7 +128,7 @@ params <- c("deviance", "Dsum",
 coda.out <- coda.samples(jm,
                          variable.names = params,
                          n.iter = 3000,
-                         n.thin = 15)
+                         n.thin = 5)
 
 # save(coda.out, file = "scripts/model-flux-daily/coda/coda.Rdata")
 
@@ -128,6 +140,7 @@ coda.out <- coda.samples(jm,
 mcmcplot(coda.out, parms = c("deviance", "Dsum", 
                              "B", "sig",
                              "wA", "wB", "wC"))
+caterplot(coda.out, regex = "^B", reorder = FALSE)
 caterplot(coda.out, parms = "wA", reorder = FALSE)
 caterplot(coda.out, parms = "wB", reorder = FALSE)
 caterplot(coda.out, parms = "wC", reorder = FALSE)
@@ -172,3 +185,16 @@ saved_state[[1]]
 
 save(saved_state, file = "scripts/model-flux-daily/inits/saved_state.Rdata")
 
+# Run replicated data
+coda.rep <- coda.samples(jm,
+                         variable.names = "GPP.rep",
+                         n.iter = 3000,
+                         n.thin = 5)
+
+# Check model fit
+sum.rep <- tidyMCMC(coda.rep,
+                    conf.int = TRUE, conf.method = "HPDinterval")
+
+pred <- cbind.data.frame(flux, sum.rep)
+m1 <- lm(GPP_F ~ estimate, data = pred)
+summary(m1)
