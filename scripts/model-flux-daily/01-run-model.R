@@ -56,8 +56,13 @@ foo %>%
   ggplot(aes(x = date)) +
   geom_point(aes(y = GPP_F*10, color = "GPP")) +
   geom_point(aes(y = Dmax, color = "Dmax")) +
-  geom_point(aes(y = PD, color = "PD")) +
-  geom_point(aes(y = PAR, color = "PAR"))
+  geom_point(aes(y = PD, color = "PD"))
+
+foo %>%
+  ggplot(aes(x = date)) +
+  geom_point(aes(y = GPP_F*10, color = "GPP")) +
+  geom_point(aes(y = VWC10, color = "VWC10")) +
+  geom_point(aes(y = Dmax, color = "Dmax"))
 
 foo %>%
   ggplot(aes(x = PD, y = ET)) +
@@ -73,8 +78,11 @@ cor(foo$GPP_F, foo$PD, method = "pearson")
 cor(foo$GPP_F, foo$MD, method = "pearson")
 cor(foo$GPP_F, foo$PAR, method = "pearson")
 
-m1 <- lm(GPP_F ~ PD * Dmax + PAR, data = foo)
+m1 <- lm(GPP_F ~ PD * Dmax, data = foo)
 summary(m1)
+
+m2 <- lm(GPP_F ~ VWC10 * Dmax, data = foo)
+summary(m2)
 
 cor(foo$PD_scaled, foo$VWC5)
 cor(foo$ET, foo$VWC5, use = "complete.obs")
@@ -82,30 +90,31 @@ cor(foo$ET, foo$MD, use = "complete.obs")
 
 # Create list of data inputs for model
 dat_list <- list(GPP = flux$GPP_F,
+                 W10 = as.vector(met_in$VWC10),
                 PD = as.vector(psy$PD),
                 Dmax = as.vector(met_in$Dmax),
                 PAR = as.vector(met_in$PAR),
                 N = nrow(flux),
                 doy = flux$DOY,
-                nlagA = 7,
+                nlagA = 5,
                 nlagB = 7,
-                nlagC = 7,
+                # nlagC = 7,
                 pA = 1,
-                pB = 1,
-                pC = 1,
+                pB = 3,
+                # pC = 1,
                 # weights, of length nlag
-                alphaA = rep(1, 7), 
+                alphaA = rep(1, 5), 
                 alphaB = rep(1, 7),
-                alphaC = rep(1, 7),
-                NParam = 7)
+                # alphaC = rep(1, 7),
+                NParam = 4)
 
 # Function to generate initials
 init <- function() {
   list(B = rnorm(dat_list$NParam, 0, 10),
        tau = runif(1, 0, 1),
        deltaA = runif(dat_list$nlagA, 0, 1),
-       deltaB = runif(dat_list$nlagB, 0, 1),
-       deltaC = runif(dat_list$nlagC, 0, 1)
+       deltaB = runif(dat_list$nlagB, 0, 1)
+       # deltaC = runif(dat_list$nlagC, 0, 1)
   )
 }
 
@@ -114,7 +123,7 @@ inits_list <- list(init(), init(), init())
 # Initialize model
 jm <- jags.model("scripts/model-flux-daily/model.jags",
                  data = dat_list,
-                 inits = inits_list,
+                 inits = saved_state[[2]],
                  n.chains = 3)
 
 update(jm, n.iter = 10000)
@@ -123,12 +132,13 @@ update(jm, n.iter = 10000)
 params <- c("deviance", "Dsum",
             "B",
             "tau", "sig",
-            "wA", "wB", "wC", 
-            "deltaA", "deltaB", "deltaC")
+            "wA", "wB", 
+            "deltaA", "deltaB")
+            # "wC", "deltaC")
 coda.out <- coda.samples(jm,
                          variable.names = params,
                          n.iter = 3000,
-                         n.thin = 5)
+                         n.thin = 50)
 
 # save(coda.out, file = "scripts/model-flux-daily/coda/coda.Rdata")
 
@@ -139,11 +149,11 @@ coda.out <- coda.samples(jm,
 # Inspect chains visually
 mcmcplot(coda.out, parms = c("deviance", "Dsum", 
                              "B", "sig",
-                             "wA", "wB", "wC"))
-caterplot(coda.out, regex = "^B", reorder = FALSE)
+                             "wA", "wB"))
+caterplot(coda.out, regex = "^B\\[", reorder = FALSE)
 caterplot(coda.out, parms = "wA", reorder = FALSE)
 caterplot(coda.out, parms = "wB", reorder = FALSE)
-caterplot(coda.out, parms = "wC", reorder = FALSE)
+# caterplot(coda.out, parms = "wC", reorder = FALSE)
 
 # Check convergence diagnostic
 gel <- gelman.diag(coda.out, multivariate = FALSE)
@@ -172,24 +182,20 @@ gel$psrf %>%
   tibble::rownames_to_column() %>%
   filter(grepl("^wB", rowname))
 
-gel$psrf %>%
-  data.frame() %>%
-  tibble::rownames_to_column() %>%
-  filter(grepl("^wC", rowname))
 
 # Save state
 final <- initfind(coda.out, OpenBUGS = FALSE)
 final[[1]]
-saved_state <- removevars(final, variables = c(2, 6, 8:10))
+saved_state <- removevars(final, variables = c(2, 5, 7:8))
 saved_state[[1]]
 
-save(saved_state, file = "scripts/model-flux-daily/inits/saved_state.Rdata")
+# save(saved_state, file = "scripts/model-flux-daily/inits/saved_state.Rdata")
 
 # Run replicated data
 coda.rep <- coda.samples(jm,
                          variable.names = "GPP.rep",
                          n.iter = 3000,
-                         n.thin = 5)
+                         n.thin = 50)
 
 # Check model fit
 sum.rep <- tidyMCMC(coda.rep,
