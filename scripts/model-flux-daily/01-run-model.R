@@ -204,3 +204,5 @@ sum.rep <- tidyMCMC(coda.rep,
 pred <- cbind.data.frame(flux, sum.rep)
 m1 <- lm(GPP_F ~ estimate, data = pred)
 summary(m1)
+
+save(coda.rep, file = "scripts/model-flux-daily/coda/codarep.Rdata")
