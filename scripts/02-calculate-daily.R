@@ -81,7 +81,7 @@ met <- read_csv("data_raw/Other-tower-data.csv",
          doy = lubridate::yday(dt),
          VPD_Avg = RHtoVPD(RH_Avg, AirTemp_Avg)) %>%
   select(date, doy, dt, AirTemp_Avg, RH_Avg, VPD_Avg, 
-         Precip_Tot, contains("VWC")) %>%
+         Precip_Tot, PAR_In_Avg, contains("VWC")) %>%
   distinct()
 
 # Summarize to daily
@@ -94,6 +94,7 @@ met_daily <- met %>%
             T_mean = mean(AirTemp_Avg, na.rm = TRUE),
             T_max = max(AirTemp_Avg, na.rm = TRUE),
             Precip = sum(Precip_Tot, na.rm = TRUE),
+            PAR_In = sum(PAR_In_Avg, na.rm = TRUE),
             VWC_5cm = mean(VWC_5cm_Avg, na.rm = TRUE),
             VWC_10cm = mean(VWC_10cm_Avg, na.rm = TRUE),
             VWC_20cm = mean(VWC_20cm_Avg, na.rm = TRUE),
