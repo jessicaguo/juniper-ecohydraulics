@@ -2,8 +2,8 @@
 # on PD, soil moisture, light, temp, and VPD
 # or some combo thereof
 # GPP daily in mol CO2 m^-2 d^-1
-# Can remove <0 or make zero
-# Average daily PPFD between 9 am and 5 pm
+# Can remove all points <= 0 
+# Total daily PAR_in from half-hourly
 
 library(rjags)
 load.module('dic')
@@ -28,11 +28,14 @@ met_in <- met_daily %>%
 
 # Read in daily fluxes & clip time range
 flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
-  mutate(date = as.Date(as.POSIXct(paste0(Year, DOY), format = "%Y%j"))) %>%
+  mutate(date = as.Date(as.POSIXct(paste0(Year, DOY), format = "%Y%j")),
+         GPP = case_when(GPP_F > 0 ~ GPP_F)) %>%
   relocate(date) %>%
   filter(date >= min(psy_daily_site_gapfilled$date), 
          date <= max(psy_daily_site_gapfilled$date))
 range(flux$date)
+hist(flux$GPP)
+summary(flux$GPP)
 
 # Combine psy and flux to see parameters
 foo <- flux %>%
@@ -40,16 +43,16 @@ foo <- flux %>%
 
 foo %>%
   ggplot(aes(x = date)) +
-  geom_point(aes(y = GPP_F*10, color = "GPP")) +
+  geom_point(aes(y = GPP*10, color = "GPP")) +
   geom_point(aes(y = VWC10, color = "VWC10")) +
   geom_point(aes(y = Dmax, color = "Dmax"))
 
-cor(foo$GPP_F, foo$Dmax)
-cor(foo$GPP_F, foo$VWC10)
+cor(foo$GPP, foo$Dmax, use = "complete.obs")
+cor(foo$GPP, foo$VWC10, use = "complete.obs")
 cor(foo$VWC10, foo$Dmax)
 
 # Create list of data inputs for model
-dat_list <- list(GPP = flux$GPP_F,
+dat_list <- list(GPP = flux$GPP,
                  W10 = as.vector(met_in$VWC10),
                  Dmax = as.vector(met_in$Dmax),
                  N = nrow(flux),
@@ -69,7 +72,6 @@ init <- function() {
        tau = runif(1, 0, 1),
        deltaA = runif(dat_list$nlagA, 0, 1),
        deltaB = runif(dat_list$nlagB, 0, 1)
-       # deltaC = runif(dat_list$nlagC, 0, 1)
   )
 }
 
@@ -92,7 +94,7 @@ params <- c("deviance", "Dsum",
             "tau", "sig",
             "wA", "wB", 
             "deltaA", "deltaB")
-            # "wC", "deltaC")
+
 coda.out <- coda.samples(jm,
                          variable.names = params,
                          n.iter = 3000,

@@ -1,8 +1,8 @@
 model{
   for(i in 1:N){
     # Likelihood
-    GPP[i] ~ dnorm(mu[i], tau)
-    GPP.rep[i] ~ dnorm(mu[i], tau)
+    GPP[i] ~ dlnorm(mu[i], tau)
+    GPP.rep[i] ~ dlnorm(mu[i], tau)
     
     # Mean model
     mu[i] <- B[1] + 

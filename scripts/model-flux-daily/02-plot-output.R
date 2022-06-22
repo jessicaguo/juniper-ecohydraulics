@@ -8,14 +8,15 @@ library(ggh4x)
 library(harrypotter)
 
 # Load coda, coda.rep, input data
-load("scripts/model-pd-md/coda/coda.Rdata")
-load("scripts/model-pd-md/coda/codarep.Rdata")
-load("scripts/model-pd-md/psy_in.Rdata")
-
-# Limit psy_in to both observations
-psy_in <- psy_in %>%
-  filter(!is.na(PD), !is.na(MD))
-
+load("scripts/model-flux-daily/coda/coda.Rdata")
+load("scripts/model-flux-daily/coda/codarep.Rdata")
+load("data_cleaned/psy_daily_site_gapfilled.Rdata")
+flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
+  mutate(date = as.Date(as.POSIXct(paste0(Year, DOY), format = "%Y%j")),
+         GPP = case_when(GPP_F > 0 ~ GPP_F)) %>%
+  relocate(date) %>%
+  filter(date >= min(psy_daily_site_gapfilled$date), 
+         date <= max(psy_daily_site_gapfilled$date))
 
 # Plot parameters
 param_sum <- tidyMCMC(coda.out,
@@ -25,14 +26,12 @@ param_sum <- tidyMCMC(coda.out,
          pred.lower = conf.low,
          pred.upper = conf.high)
 
-# Plot Astar and Bstar
-AB <- param_sum %>%
-  filter(grepl("Astar", term) | grepl("Bstar", term)) %>%
+# Plot B
+B <- param_sum %>%
+  filter(grepl("^B", term)) %>%
   tidyr::separate(term, 
                   into = c("Parameter", "Covariate")) %>%
-  mutate(Parameter = case_when(Parameter == "Astar" ~ "lambda",
-                               Parameter == "Bstar" ~ "sigma"),
-         Covariate = case_when(Covariate == 1 ~ "Intercept",
+  mutate(Covariate = case_when(Covariate == 1 ~ "Intercept",
                                Covariate == 2 ~ "D^ant",
                                Covariate == 3 ~ "W[10]^ant",
                                Covariate == 4 ~ "D^ant%.%W[10]^ant"),
@@ -43,19 +42,14 @@ AB <- param_sum %>%
          Panel = case_when(Covariate == "Intercept" ~ "Intercept",
                             Covariate != "Intercept" ~ "Effects"),
          Panel = factor(Panel, levels = c("Intercept", "Effects")),
-         Parameter = factor(Parameter, levels = c("sigma", "lambda")),
          Sig = case_when(Panel == "Effects" & pred.lower*pred.upper > 0 ~ 1)) 
 
-pos <- AB %>%
+pos <- B %>%
   filter(Sig == 1 & pred.mean > 0)
-neg <- AB %>%
-  filter(Sig == 1 & pred.mean < 0)
 
-dummy <- data.frame(Panel = c(rep("Effects", 2), "Intercept"),
-                    Parameter = c("sigma", "lambda", "sigma"),
-                    intercept = c(0, 0, 1)) %>%
-  mutate(Panel = factor(Panel, levels = c("Intercept", "Effects")),
-         Parameter = factor(Parameter, levels = c("sigma", "lambda")))
+dummy <- data.frame(Panel = c("Effects", "Intercept"),
+                    intercept = c(0, NA)) %>%
+  mutate(Panel = factor(Panel, levels = c("Intercept", "Effects")))
 # labs <- c(
 #           expression(D^ant),
 #           expression(W[10]^ant),
@@ -66,28 +60,22 @@ fig3 <- ggplot() +
              aes(yintercept = intercept),
              size = 1, 
              color = "gray") +
-  geom_errorbar(data = AB, 
+  geom_errorbar(data = B, 
                 aes(x = Covariate,
                     ymin = pred.lower,
                     ymax = pred.upper),
                 width = 0) +
-  geom_point(data = AB, 
+  geom_point(data = B, 
              aes(x = Covariate, 
                  y = pred.mean)) +
   geom_point(data = pos,
-             aes(x = Covariate, y = max(pred.upper + 0.02)),
+             aes(x = Covariate, y = max(pred.upper + 0.05)),
              pch = 8,
              col = "coral",
              stroke = 1.25) +
-  geom_point(data = neg,
-             aes(x = Covariate, y = min(pred.lower - 0.05)),
-             pch = 8,
-             col = "medium purple", 
-             stroke = 1.25) +
   scale_y_continuous("Posterior mean") +
   scale_x_discrete(labels = scales::parse_format()) +
-  facet_grid2(rows = vars(Parameter),
-              cols = vars(Panel),
+  facet_grid2(cols = vars(Panel),
               scales = "free",
               independent = "y",
               space = "free_x",
@@ -101,7 +89,7 @@ fig3 <- ggplot() +
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
 
-ggsave(filename = "scripts/model-pd-md/figs/fig_3.png",
+ggsave(filename = "scripts/model-flux-daily/figs/fig_3.png",
        plot = fig3,
        width = 8, height = 3,
        units = "in")
@@ -152,7 +140,7 @@ fig4 <- ggplot() +
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
 
-ggsave(filename = "scripts/model-pd-md/figs/fig_4.png",
+ggsave(filename = "scripts/model-flux-daily/figs/fig_4.png",
        plot = fig4,
        width = 8, height = 3,
        units = "in")
@@ -167,34 +155,35 @@ coda_sum <- tidyMCMC(coda.rep,
 
 
 # Check model fit
-pred <- cbind.data.frame(psy_in, coda_sum)
+pred <- cbind.data.frame(flux, coda_sum)
 
-m1 <- lm(pred.mean ~ MD, data = pred)
-sm <- summary(m1) # R2 = 0.8985; w/ RE R2 = 0.9198
+m1 <- lm(pred.mean ~ GPP, data = pred)
+sm <- summary(m1) # R2 = 0.74
 
 fig5 <- pred %>%
-  ggplot(aes(x = MD, y =pred.mean)) +
+  ggplot(aes(x = GPP, y = pred.mean)) +
   geom_abline(intercept = 0, slope = 1, col = "black",
               size = 1) +
   geom_abline(intercept = coef(sm)[1,1], 
               slope = coef(sm)[2,1], 
               col = "black",
               lty = 2) +
-  geom_errorbar(aes(ymin = pred.lower, ymax = pred.upper,
-                    color = Tree),
+  geom_errorbar(aes(ymin = pred.lower, ymax = pred.upper),
                 alpha = 0.25) +
-  geom_point(aes(color = Tree)) +
-  scale_x_continuous(expression(paste("Observed ", Psi[MD])), breaks = seq(-9, 0, 3)) +
-  scale_y_continuous(expression(paste("Predicted ", Psi[MD])), breaks = seq(-9, 0, 3)) +
-  scale_colour_hp_d(option = "LunaLovegood", name = "Tree") +
+  geom_point() +
+  scale_x_continuous(expression(paste("Observed GPP"))) +
+  scale_y_continuous(expression(paste("Predicted GPP"))) +
   theme_bw(base_size = 14) +
-  coord_equal() +
+  coord_fixed(xlim=c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
+                     max(pred$GPP,pred$pred.upper, na.rm = TRUE)),
+              ylim=c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
+                     max(pred$GPP,pred$pred.upper,  na.rm = TRUE))) +
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
 
 
-ggsave(filename = "scripts/model-pd-md/figs/fig_5.png",
+ggsave(filename = "scripts/model-flux-daily/figs/fig_5.png",
        plot = fig5,
        width = 4, height = 4,
        units = "in")
