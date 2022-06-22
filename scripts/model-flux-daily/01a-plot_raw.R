@@ -14,7 +14,7 @@ flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
          date <= max(psy_daily_site_gapfilled$date))
 
 fig2 <- ggplot() +
-  geom_point(data = flux,
+  geom_point(data = filter(flux, GPP_F > 0),
              aes(x = date, y = GPP_F)) +
   scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
                guide = "axis_minor") +
