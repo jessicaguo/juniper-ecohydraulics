@@ -183,3 +183,8 @@ ggsave(filename = "scripts/model-pd-md/figs/fig_2.png",
        width = 8, height = 3,
        units = "in")
 
+ggplot(mean_psy, aes(x = PD_mean, y = MD_mean)) +
+  geom_abline(slope = 1, intercept = 0) +
+  geom_point(aes(col = date)) +
+  coord_equal() +
+  theme_bw(base_size = 14)
