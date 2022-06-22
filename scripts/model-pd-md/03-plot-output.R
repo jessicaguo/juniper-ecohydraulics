@@ -173,7 +173,7 @@ m1 <- lm(pred.mean ~ MD, data = pred)
 sm <- summary(m1) # R2 = 0.8985; w/ RE R2 = 0.9198
 
 fig5 <- pred %>%
-  ggplot(aes(x = MD, y =pred.mean)) +
+  ggplot(aes(x = MD, y = pred.mean)) +
   geom_abline(intercept = 0, slope = 1, col = "black",
               size = 1) +
   geom_abline(intercept = coef(sm)[1,1], 
@@ -181,14 +181,17 @@ fig5 <- pred %>%
               col = "black",
               lty = 2) +
   geom_errorbar(aes(ymin = pred.lower, ymax = pred.upper,
-                    color = Tree),
-                alpha = 0.25) +
-  geom_point(aes(color = Tree)) +
+                    col = Tree),
+                alpha = 0.15) +
+  geom_point(aes(col = Tree)) +
   scale_x_continuous(expression(paste("Observed ", Psi[MD])), breaks = seq(-9, 0, 3)) +
   scale_y_continuous(expression(paste("Predicted ", Psi[MD])), breaks = seq(-9, 0, 3)) +
   scale_colour_hp_d(option = "LunaLovegood", name = "Tree") +
   theme_bw(base_size = 14) +
-  coord_equal() +
+  coord_fixed(xlim=c(min(pred$MD,pred$pred.lower,  na.rm = TRUE), 
+                     max(pred$MD,pred$pred.upper, na.rm = TRUE)),
+              ylim=c(min(pred$MD,pred$pred.lower,  na.rm = TRUE), 
+                     max(pred$MD,pred$pred.upper,  na.rm = TRUE))) +
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
