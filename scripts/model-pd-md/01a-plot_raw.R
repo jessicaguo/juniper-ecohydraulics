@@ -2,6 +2,7 @@ library(dplyr)
 library(ggplot2)
 library(cowplot)
 library(ggh4x)
+library(harrypotter)
 
 # Plot env and Psy time series
 load("scripts/model-pd-md/met_in.Rdata")
@@ -113,32 +114,69 @@ ggsave(filename = "scripts/model-pd-md/figs/fig_1_sep.png",
        width = 8, height = 4,
        units = "in")
   
-# Summarize PD and MD across trees
+#### Plot water potentials
+# Summarize PD and MD across trees, including SE
+SE <- function(x) {
+  sd(x, na.rm = TRUE) / sum(!is.na(x))
+}
 mean_psy <- psy_in %>%
   group_by(date) %>%
   summarize(MD_mean = mean(MD, na.rm = TRUE),
             MD_sd = sd(MD, na.rm = TRUE),
+            MD_se = SE(MD),
             PD_mean = mean(PD, na.rm = TRUE),
             PD_sd = sd(PD, na.rm = TRUE),
+            PD_se = SE(PD),
             n = n())
 
+# Manual measurements
 mean_man <- man %>%
   filter(!is.na(Psi)) %>%
   group_by(date) %>%
   summarize(Psi_mean = mean(Psi, na.rm = TRUE),
             Psi_sd = sd(Psi, na.rm = TRUE),
+            Psi_se = SE(Psi),
             n = n())
+
+# Add seasons
+ppt <- met_in %>%
+  filter(date >= as.Date("2021-07-01"),
+         date <= as.Date("2021-09-30")) %>%
+  select(date, Precip) %>%
+  mutate(cPrecip = cumsum(Precip))
+
+tot <- sum(ppt$Precip)
+
+ppt <- ppt %>%
+  mutate(season = case_when(cPrecip < 0.1 * tot ~ "premonsoon",
+                            cPrecip > 0.1 * tot ~ "monsoon"))
+monsoon_st <- ppt$date[min(which(ppt$season == "monsoon"))]
+monsoon_en <- ppt$date[max(which(ppt$season == "monsoon"))]
+rect <- data.frame(season = c("premonsoon", "monsoon", "fall"),
+                   xmin = c(min(mean_man$date), monsoon_st, as.Date("2021-10-01")),
+                   xmax = c(monsoon_st - 1, monsoon_en, max(psy_in$date))) %>%
+  mutate(mid = as.Date(rowMeans(cbind(xmin, xmax)), origin = "1970-01-01"))
+
+
 fig2 <- ggplot() +
+  geom_rect(data = rect,
+            aes(xmin = xmin, xmax = xmax,
+                ymin = -Inf, ymax = Inf,
+                fill = season),
+            alpha = 0.25) +
+  geom_text(data = rect,
+            aes(x = mid, y = -5,
+                label = season)) +
   geom_errorbar(data = mean_psy,
                 aes(x = date, 
-                    ymin = PD_mean - PD_sd,
-                    ymax = PD_mean + PD_sd, color = "PD"),
+                    ymin = PD_mean - PD_se,
+                    ymax = PD_mean + PD_se, color = "PD"),
                 alpha = 0.5,
                 width = 0) +
   geom_errorbar(data = mean_psy,
                 aes(x = date, 
-                    ymin = MD_mean - MD_sd,
-                    ymax = MD_mean + MD_sd, color = "MD"),
+                    ymin = MD_mean - MD_se,
+                    ymax = MD_mean + MD_se, color = "MD"),
                 alpha = 0.5,
                 width = 0) +
   geom_point(data = mean_psy,
@@ -165,6 +203,7 @@ fig2 <- ggplot() +
                guide = "axis_minor") +
   scale_y_continuous(expression(paste(Psi, " (MPa)"))) +
   scale_color_hp_d(option = "Sprout") +
+  scale_fill_manual(values = c("gray90", "gray70", "gray90")) +
   theme_bw(base_size = 14) +
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
@@ -176,15 +215,65 @@ fig2 <- ggplot() +
         legend.key.size = unit(0.4, "cm"),
         ggh4x.axis.ticks.length.minor = rel(1)) +
   guides(color = guide_legend(override.aes = list(shape = c(15, 16, 16),
-                                                  linetype = c(0, 0, 0))))
+                                                  linetype = c(0, 0, 0))),
+         fill = "none")
 
 ggsave(filename = "scripts/model-pd-md/figs/fig_2.png",
        plot = fig2,
        width = 8, height = 3,
        units = "in")
 
-ggplot(mean_psy, aes(x = PD_mean, y = MD_mean)) +
+
+# Join to label each psy with season and plot in MD vs. PD space
+mean_psy2 <- mean_psy %>%
+  left_join(ppt, by = "date") %>%
+  select(-Precip) %>%
+  mutate(season = case_when(is.na(cPrecip) & date <= as.Date("2021-06-30") ~ "premonsoon",
+                            season == "premonsoon" ~ "premonsoon",
+                            season == "monsoon" ~ "monsoon",
+                            is.na(cPrecip) & date >= as.Date("2021-10-01") ~ "fall"),
+         season = factor(season, levels = c("premonsoon", "monsoon", "fall"))) %>%
+  left_join(met_in, by = "date")
+
+# VPD as color axis
+ggplot(mean_psy2, aes(x = PD_mean, y = MD_mean)) +
   geom_abline(slope = 1, intercept = 0) +
-  geom_point(aes(col = date)) +
+  geom_errorbar(aes(ymin = MD_mean - MD_se, ymax = MD_mean + MD_se,
+                    col = VPD_max),
+                width = 0,
+                alpha = 0.25) +
+  geom_errorbarh(aes(xmin = PD_mean - PD_se, xmax = PD_mean + PD_se,
+                     col = VPD_max),
+                 width = 0,
+                 alpha = 0.25) +
+  geom_point(aes(col = VPD_max)) +
+  facet_wrap(~season) +
   coord_equal() +
-  theme_bw(base_size = 14)
+  scale_color_hp(option = "Gryffindor", direction = -1,
+                 name = bquote(D[max])) +
+  theme_bw(base_size = 14)+
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"),
+        axis.title.x = element_blank())
+
+ggplot(mean_psy2, aes(x = PD_mean, y = MD_mean)) +
+  geom_abline(slope = 1, intercept = 0) +
+  geom_errorbar(aes(ymin = MD_mean - MD_se, ymax = MD_mean + MD_se,
+                    col = VWC_20cm),
+                width = 0,
+                alpha = 0.25) +
+  geom_errorbarh(aes(xmin = PD_mean - PD_se, xmax = PD_mean + PD_se,
+                     col = VWC_20cm),
+                 width = 0,
+                 alpha = 0.25) +
+  geom_point(aes(col = VWC_20cm)) +
+  facet_wrap(~season) +
+  coord_equal() +
+  scale_color_hp(option = "Sprout", direction = 1,
+                 name = bquote(W[20])) +
+  theme_bw(base_size = 14)+
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"),
+        axis.title.x = element_blank())
