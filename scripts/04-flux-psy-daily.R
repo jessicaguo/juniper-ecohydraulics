@@ -118,6 +118,16 @@ flux_2021_psy %>%
   ggplot(aes(x = PD, y = GPP_F)) +
   geom_point(aes(color = date))
 
+# Test linear models of GPP
+m1 <- lm(GPP_F ~ VPD_F_1_1_1 + PPFD_IN + SWC_1_2_1 + SWC_1_3_1 + MD, data = flux_2021_psy)
+summary(m1)
+
+m2 <- lm(GPP_F ~ VPD_F_1_1_1 + PPFD_IN + SWC_1_2_1 + MD, data = flux_2021_psy)
+summary(m2)
+
+m3 <- lm(GPP_F ~ (VPD_F_1_1_1 + PPFD_IN + SWC_1_2_1 + MD)^2, data = flux_2021_psy)
+summary(m3)
+
 # Add NA's to temporal record of psy_daily_site
 dates <- data.frame(date = seq(min(psy_daily$date), max(psy_daily$date),
                                        by = "day"))
