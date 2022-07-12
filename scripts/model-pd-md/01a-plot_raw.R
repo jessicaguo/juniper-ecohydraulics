@@ -51,10 +51,10 @@ fig1 <- ggplot() +
         legend.key.size = unit(0.4, "cm"),
         ggh4x.axis.ticks.length.minor = rel(1))
 
-ggsave(filename = "scripts/model-pd-md/figs/fig_1.png",
-       plot = fig1,
-       width = 8, height = 3,
-       units = "in")
+# ggsave(filename = "scripts/model-pd-md/figs/fig_1.png",
+#        plot = fig1,
+#        width = 8, height = 3,
+#        units = "in")
 
 
 # Alternatively, separate VPD + precip from SWC
@@ -110,8 +110,11 @@ fig1b <- ggplot() +
         ggh4x.axis.ticks.length.minor = rel(1))
 fig1b 
 
-fig1_all <- plot_grid(fig1a, fig1b, ncol = 1,
-                      align = "v")
+fig1_all <- plot_grid(fig1a, fig1b, 
+                      ncol = 1,
+                      align = "v",
+                      labels = "auto",
+                      label_size = 12)
 ggsave(filename = "scripts/model-pd-md/figs/fig_1_sep.png",
        plot = fig1_all,
        width = 8, height = 5,
@@ -253,7 +256,9 @@ fig2b <- ggplot() +
 
 fig2 <- plot_grid(fig2a, fig2b,
           ncol = 1,
-          align = "v")
+          align = "v",
+          labels = "auto",
+          label_size = 12)
 
 ggsave(filename = "scripts/model-pd-md/figs/fig_2.png",
        plot = fig2,
@@ -294,23 +299,28 @@ ggplot(mean_psy2, aes(x = PD_mean, y = MD_mean)) +
         axis.text.y = element_text(colour = "black"),
         axis.title.x = element_blank())
 
-ggplot(mean_psy2, aes(x = PD_mean, y = MD_mean)) +
+fig3 <- ggplot() +
   geom_abline(slope = 1, intercept = 0) +
-  geom_errorbar(aes(ymin = MD_mean - MD_se, ymax = MD_mean + MD_se,
-                    col = VWC_20cm),
-                width = 0,
-                alpha = 0.25) +
-  geom_errorbarh(aes(xmin = PD_mean - PD_se, xmax = PD_mean + PD_se,
-                     col = VWC_20cm),
-                 width = 0,
-                 alpha = 0.25) +
-  geom_point(aes(col = VWC_20cm)) +
+  geom_point(data = mean_psy2,
+             aes(x = PD_mean, y = MD_mean,
+                 col = VWC_10cm)) +
   facet_wrap(~season) +
+  scale_x_continuous(expression(paste(Psi[PD], " (MPa)")), 
+                     limits = c(-5, 0),
+                     breaks = c(-4, -2, 0)) +
+  scale_y_continuous(expression(paste(Psi[MD], " (MPa)")),
+                     limits = c(-5, 0),
+                     breaks = c(-4, -2, 0)) +
   coord_equal() +
   scale_color_hp(option = "Sprout", direction = 1,
-                 name = bquote(W[20])) +
+                 name = bquote(VWC["10"])) +
   theme_bw(base_size = 14)+
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
-        axis.text.y = element_text(colour = "black"),
-        axis.title.x = element_blank())
+        axis.text.y = element_text(colour = "black"))
+fig3
+
+ggsave(filename = "scripts/model-pd-md/figs/fig_3.png",
+       plot = fig3,
+       width = 8, height = 3,
+       units = "in")
