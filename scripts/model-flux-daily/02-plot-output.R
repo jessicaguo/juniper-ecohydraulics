@@ -55,11 +55,11 @@ dummy <- data.frame(Panel = c("Effects", "Intercept"),
 #           expression(W[10]^ant),
 #           expression(D^ant %*% W[10]^ant))
 
-fig3 <- ggplot() +
+fig5a <- ggplot() +
   geom_hline(data = dummy, 
              aes(yintercept = intercept),
-             size = 1, 
-             color = "gray") +
+             size = 0.8, 
+             color = "gray70") +
   geom_errorbar(data = B, 
                 aes(x = Covariate,
                     ymin = pred.lower,
@@ -71,9 +71,9 @@ fig3 <- ggplot() +
   geom_point(data = pos,
              aes(x = Covariate, y = max(pred.upper + 0.05)),
              pch = 8,
-             col = "coral",
-             stroke = 1.25) +
-  scale_y_continuous("Posterior mean") +
+             col = "gray70",
+             stroke = 1) +
+  scale_y_continuous("Regression coefficients") +
   scale_x_discrete(labels = scales::parse_format()) +
   facet_grid2(cols = vars(Panel),
               scales = "free",
@@ -89,10 +89,7 @@ fig3 <- ggplot() +
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
 
-ggsave(filename = "scripts/model-flux-daily/figs/fig_3.png",
-       plot = fig3,
-       width = 8, height = 3,
-       units = "in")
+
 
 # Plot weights
 wAB <- param_sum %>%
@@ -116,11 +113,11 @@ wAB <- param_sum %>%
 dummy2 <- data.frame(Covariate = c("D^ant", "W[10]^ant"),
                     intercept = c(1/5, 1/7)) 
 
-fig4 <- ggplot() +
+fig5b <- ggplot() +
   geom_hline(data = dummy2, 
              aes(yintercept = intercept),
-             size = 1, 
-             color = "gray") +
+             size = 0.8, 
+             color = "gray70") +
   geom_errorbar(data = wAB,
                 aes(x = Timestep,
                     ymin = pred.lower,
@@ -140,9 +137,15 @@ fig4 <- ggplot() +
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
 
-ggsave(filename = "scripts/model-flux-daily/figs/fig_4.png",
-       plot = fig4,
-       width = 8, height = 3,
+fig5 <- plot_grid(fig5a, fig5b,
+                  ncol = 1,
+                  labels = "auto",
+                  label_size = 12)
+
+fig5
+ggsave(filename = "scripts/model-flux-daily/figs/fig_5.png",
+       plot = fig5,
+       width = 8, height = 6,
        units = "in")
 
 # Summarize replicated output
@@ -160,7 +163,7 @@ pred <- cbind.data.frame(flux, coda_sum)
 m1 <- lm(pred.mean ~ GPP, data = pred)
 sm <- summary(m1) # R2 = 0.74
 
-fig5 <- pred %>%
+figS2 <- pred %>%
   ggplot(aes(x = GPP, y = pred.mean)) +
   geom_abline(intercept = 0, slope = 1, col = "black",
               size = 1) +
@@ -183,7 +186,7 @@ fig5 <- pred %>%
         axis.text.y = element_text(colour = "black"))
 
 
-ggsave(filename = "scripts/model-flux-daily/figs/fig_5.png",
-       plot = fig5,
-       width = 4, height = 4,
+ggsave(filename = "scripts/model-flux-daily/figs/fig_S2.png",
+       plot = figS2,
+       width = 5, height = 5,
        units = "in")
