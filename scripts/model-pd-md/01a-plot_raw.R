@@ -62,7 +62,8 @@ ggsave(filename = "scripts/model-pd-md/figs/fig_1.png",
 fig1a <- ggplot() +
   geom_rect(data = rect, aes(ymin = -Inf, ymax = Inf,
                              xmin = xmin, xmax = xmax),
-            alpha = 0.1) +
+            fill = "gray90",
+            alpha = 0.25) +
   geom_point(data = met_ppt,
              aes(x = date, y = VPD_max)) +
   geom_bar(data = met_ppt,
@@ -70,7 +71,7 @@ fig1a <- ggplot() +
            color = "black") +
   scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
                guide = "axis_minor") +
-  scale_y_continuous("VPD (kPa) | ppt (cm)") +
+  scale_y_continuous("D (kPa) | precip (cm)") +
   scale_color_hp_d(option = "Mischief") +
   theme_bw(base_size = 14) +
   theme(panel.grid = element_blank(),
@@ -86,7 +87,8 @@ fig1a <- ggplot() +
 fig1b <- ggplot() +
   geom_rect(data = rect, aes(ymin = -Inf, ymax = Inf,
                              xmin = xmin, xmax = xmax),
-            alpha = 0.1) +
+            fill = "gray90",
+            alpha = 0.25) +
    geom_point(data = met_ppt,
              aes(x = date, y = VWC_5cm, color = "5 cm")) +
   geom_point(data = met_ppt,
@@ -94,7 +96,8 @@ fig1b <- ggplot() +
   scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
                guide = "axis_minor") +
   scale_y_continuous("VWC (%)") +
-  scale_color_hp_d(option = "Mischief") +
+  scale_color_hp_d(option = "Mischief", direction = -1,
+                   limits = c("5 cm", "10 cm")) +
   theme_bw(base_size = 14) +
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
@@ -111,7 +114,7 @@ fig1_all <- plot_grid(fig1a, fig1b, ncol = 1,
                       align = "v")
 ggsave(filename = "scripts/model-pd-md/figs/fig_1_sep.png",
        plot = fig1_all,
-       width = 8, height = 4,
+       width = 8, height = 5,
        units = "in")
   
 #### Plot water potentials
@@ -154,29 +157,29 @@ monsoon_st <- ppt$date[min(which(ppt$season == "monsoon"))]
 monsoon_en <- ppt$date[max(which(ppt$season == "monsoon"))]
 rect <- data.frame(season = c("premonsoon", "monsoon", "fall"),
                    xmin = c(min(mean_man$date), monsoon_st, as.Date("2021-10-01")),
-                   xmax = c(monsoon_st - 1, monsoon_en, max(psy_in$date))) %>%
+                   xmax = c(monsoon_st, monsoon_en + 1, max(psy_in$date))) %>%
   mutate(mid = as.Date(rowMeans(cbind(xmin, xmax)), origin = "1970-01-01"))
 
 
-fig2 <- ggplot() +
+fig2a <- ggplot() +
   geom_rect(data = rect,
             aes(xmin = xmin, xmax = xmax,
                 ymin = -Inf, ymax = Inf,
                 fill = season),
             alpha = 0.25) +
   geom_text(data = rect,
-            aes(x = mid, y = -5,
+            aes(x = mid, y = -7,
                 label = season)) +
   geom_errorbar(data = mean_psy,
                 aes(x = date, 
-                    ymin = PD_mean - PD_se,
-                    ymax = PD_mean + PD_se, color = "PD"),
+                    ymin = PD_mean - PD_sd,
+                    ymax = PD_mean + PD_sd, color = "PD"),
                 alpha = 0.5,
                 width = 0) +
   geom_errorbar(data = mean_psy,
                 aes(x = date, 
-                    ymin = MD_mean - MD_se,
-                    ymax = MD_mean + MD_se, color = "MD"),
+                    ymin = MD_mean - MD_sd,
+                    ymax = MD_mean + MD_sd, color = "MD"),
                 alpha = 0.5,
                 width = 0) +
   geom_point(data = mean_psy,
@@ -187,7 +190,6 @@ fig2 <- ggplot() +
              aes(x = date, 
                  y = MD_mean,
                  color = "MD")) +
-  
   geom_errorbar(data = mean_man,
                 aes(x = date, 
                     ymin = Psi_mean - Psi_sd,
@@ -210,7 +212,7 @@ fig2 <- ggplot() +
         axis.text.y = element_text(colour = "black"),
         axis.title.x = element_blank(),
         legend.title = element_blank(),
-        legend.position = c(0.07, 0.92),
+        legend.position = c(0.07, 0.9),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(0.4, "cm"),
         ggh4x.axis.ticks.length.minor = rel(1)) +
@@ -218,9 +220,44 @@ fig2 <- ggplot() +
                                                   linetype = c(0, 0, 0))),
          fill = "none")
 
+# Read in daily fluxes & clip time range
+load("data_cleaned/psy_daily_site_gapfilled.Rdata")
+flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
+  mutate(date = as.Date(as.POSIXct(paste0(Year, DOY), format = "%Y%j")),
+         GPP = case_when(GPP_F > 0 ~ GPP_F)) %>%
+  relocate(date) %>%
+  filter(date >= min(psy_daily_site_gapfilled$date), 
+         date <= max(psy_daily_site_gapfilled$date))
+
+fig2b <- ggplot() +
+  geom_rect(data = rect,
+            aes(xmin = xmin, xmax = xmax,
+                ymin = -Inf, ymax = Inf,
+                fill = season),
+            alpha = 0.25) +
+  geom_text(data = rect,
+            aes(x = mid, y = 0,
+                label = season)) +
+  geom_point(data = filter(flux, GPP_F > 0),
+             aes(x = date, y = GPP_F)) +
+  scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
+               guide = "axis_minor") +
+  scale_y_continuous(expression(paste("GPP (mol ", CO[2], " ", m^-2, d^-1, ")"))) +
+  scale_fill_manual(values = c("gray90", "gray70", "gray90")) +
+  theme_bw(base_size = 14) +
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"),
+        axis.title.x = element_blank()) +
+  guides(fill = "none")
+
+fig2 <- plot_grid(fig2a, fig2b,
+          ncol = 1,
+          align = "v")
+
 ggsave(filename = "scripts/model-pd-md/figs/fig_2.png",
        plot = fig2,
-       width = 8, height = 3,
+       width = 8, height = 5,
        units = "in")
 
 
