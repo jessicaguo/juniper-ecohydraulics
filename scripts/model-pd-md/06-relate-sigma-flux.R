@@ -66,10 +66,10 @@ fig7b <- pred %>%
 
 fig7 <- plot_grid(fig7a, fig7b, ncol = 1,
                   align = "v")
-ggsave(filename = "scripts/model-pd-md/figs/fig_7_gpp.png",
-       plot = fig7,
-       width = 8, height = 5,
-       units = "in")
+# ggsave(filename = "scripts/model-pd-md/figs/fig_7_gpp.png",
+#        plot = fig7,
+#        width = 8, height = 5,
+#        units = "in")
 
 # Remove GPP < 0
 pred2 <- filter(pred, GPP_F > 0)
@@ -166,12 +166,12 @@ fig8b <- ggplot() +
 fig8 <- plot_grid(fig8a, fig8b, rel_widths = c(2, 1.5),
                   align = "h")
 
-ggsave(filename = "scripts/model-pd-md/figs/fig_8.png",
-       plot = fig8,
-       width = 8, height = 3,
-       units = "in")
+# ggsave(filename = "scripts/model-pd-md/figs/fig_8.png",
+#        plot = fig8,
+#        width = 8, height = 3,
+#        units = "in")
 
-ggsave(filename = "scripts/model-pd-md/figs/fig_8b.png",
-       plot = fig8b,
-       width = 4, height = 4,
-       units = "in")
+# ggsave(filename = "scripts/model-pd-md/figs/fig_8b.png",
+#        plot = fig8b,
+#        width = 4, height = 4,
+#        units = "in")

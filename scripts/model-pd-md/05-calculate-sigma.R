@@ -192,13 +192,13 @@ fig7b <- ggplot(param_pred, aes(x = date)) +
 fig7 <- plot_grid(fig7a, fig7b, ncol = 1,
                   align = "v")
 
-ggsave(filename = "scripts/model-pd-md/figs/fig_7.png",
-       plot = fig7,
-       width = 8, height = 6,
-       units = "in")
+# ggsave(filename = "scripts/model-pd-md/figs/fig_7.png",
+#        plot = fig7,
+#        width = 8, height = 6,
+#        units = "in")
 
-ggsave(filename = "scripts/model-pd-md/figs/fig_7a.png",
-       plot = fig7a,
-       width = 8, height = 3,
-       units = "in")
+# ggsave(filename = "scripts/model-pd-md/figs/fig_7a.png",
+#        plot = fig7a,
+#        width = 8, height = 3,
+#        units = "in")
 
