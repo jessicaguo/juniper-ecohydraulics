@@ -109,10 +109,10 @@ fig6 <- ggplot(hydry_pred, aes(x = Dmax_orig, y = W10_orig)) +
         ggh4x.axis.ticks.length.minor = rel(1),
         legend.title = element_blank()) 
 
-ggsave(filename = "scripts/model-pd-md/figs/fig_6.jpg",
-       plot = fig6, 
-       width = 6, height = 3,
-       units = "in")
+# ggsave(filename = "scripts/model-pd-md/figs/fig_6.jpg",
+#        plot = fig6, 
+#        width = 6, height = 3,
+#        units = "in")
 
 min(df$W10)
 min(df$W10_orig)
