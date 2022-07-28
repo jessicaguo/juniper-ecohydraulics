@@ -4,6 +4,7 @@ library(coda)
 library(broom.mixed)
 library(dplyr)
 library(ggplot2)
+library(cowplot)
 library(ggh4x)
 library(harrypotter)
 
