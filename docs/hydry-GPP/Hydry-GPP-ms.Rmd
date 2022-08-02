@@ -75,10 +75,11 @@ Within species shifts in iso/anisohydry were reported for *Larrea tridentata* [@
 However, the C implications of temporally-variable hydraulic strategies are not well understood, even as they become more important for forecasting and ameliorating the effects of climate change [@novick2022; @kennedy2019]. In the semi-arid climate where these dynamic hydraulic strategies are found, persistent water limitation and episodic precipitation promote tight coupling between carbon and water cycles [@biederman2016], resulting in added temporal complexity that can be difficult to model [@ogle2004; @noy-meir1973; @loik2004]. Semi-arid ecosystems are largely responsible for the interannual variability of the global carbon sink [@poulter2014; @ahlström2015], including rapid vegetation expansion associated with wet years, yet dynamic global vegetation models are prone to underestimating C uptake in dryland regions [@macbean2021].
 Understanding the temporal dynamics and environmental sensitivity of plant hydraulic strategies may be critical to improving predictive forecasts of the global carbon cycle.
 
-One iconic emblem of climate change was drought-induced mortality in pinyon-juniper woodlands in the southwestern US.
-Pinyon mortality following the 2002-2003 drought was associated with differences in plant hydraulic regulation [@breshears2009; @plaut2012]; juniper survival was largely attributed to less hydraulically vulnerable xylem and thus greater ability to withstand low water potentials [@mcdowell2008].
+One iconic emblem of climate change was drought-induced mortality in piñon-juniper woodlands in the southwestern US.
+Piñon mortality following the 2002-2003 drought was associated with differences in plant hydraulic regulation [@breshears2009; @plaut2012]; juniper survival was largely attributed to less hydraulically vulnerable xylem and thus greater ability to withstand low water potentials [@mcdowell2008].
 Although generally considered anisohydric, *Juniperus monosperma* exhibited strong stomatal control and negligible xylem embolism under drought manipulation [@garcia-forner2016], thus challenging the paradigm of anisohydric species being prone to hydraulic failure.
-As the southwestern US megadrought persists [@williams2022] and induces mortality even among resilient *Juniperus spp.* [@kannenberg2021], it is imperative to probe how anisohydryic strategies interact with plant productivity and survival.
+As the southwestern US megadrought persists [@williams2022] and induces mortality even among resilient *Juniperus* spp.
+[@kannenberg2021], it is imperative to probe how anisohydryic strategies interact with plant productivity and survival.
 
 In this study, we utilize a five month time-series of plant $\Psi$ and ecosystem C fluxes in a juniper woodland to evaluate the relationship and temporal dynamics between hydraulic strategy and gross primary productivity (GPP).
 We ask:
@@ -90,6 +91,41 @@ We ask:
 We believe this is one of the first studies to contemporaneously measure plant $\Psi$ and GPP at daily temporal resolution, which allows as to probe the implications of $\Psi$ regulation for productivity in an iconic southwestern species.
 
 ### Materials and Methods
+
+This study was conducted at an early-successional piñon-juniper woodland (37.5241 N, 109.7471 W, 1866 m a.s.l.) in southeastern Utah.
+Local climate conditions include cold winters and hot, dry summers, with high interannual variability in summer precipitation due to its location at the northern boundary of the North American Monsoon.
+The locally flat topography is dominated by Utah juniper (*Juniperus osteosperma*, 92% tree basal area) and two-needle piñon (*Pinus edulis*, 8% tree basal area), with sparse understory comprising big sagebrush (*Artemisia tridentata*), prickly pear cactus (*Opuntia* spp.), and bunchgrasses.
+See Kannenberg et al. in review for more site details.
+
+#### Eddy covariance and environmental variables
+
+An eddy covariance flux tower (AmeriFlux US-Cdm) was deployed in June 2019 to measure fluxes of water, carbon, and energy and to monitor site-level meteorological and soil variables [@kannenberg2022].
+The sonic anemometer (Campbell Scientific CSAT3), open-path infrared gas analyzer (Campbell Scientific EC150), and temperature/relative humidity sensor (Vaisala HMP155) were installed at a height of 8 m, while the net radiometer (Kipp and Zonen CNR4) and photosynthetic photon flux density sensor (Kipp and Zonen PQS1) were installed at a height of 6.45 m.
+Site precipitation was measured with a tipping bucket rain gauge (Campbell Scientific TE535WS), while volumetric water content and temperature of the soil were monitored with five sensors (Acclima TDT) deployed at depths of 5 cm, 10 cm, 20 cm, 50 cm, and 100 cm.
+See Kannenberg et al. in review for additional details on calibration and maintenance.
+
+Eddy covariance and environmental data were processed first by summarizing to half-hourly values, gapfilling, and then sumamrizing to daily values used the the subsequent figures and analysis.
+High frequency eddy covariance data were processed into half-hourly values of net ecosystem exchange (NEE) using *EasyFlux PC* (Campbell Scientific) following a procedure of despiking [@vickers1997], coordinate rotation, spectral correction [@massman2000], and Webb-Pearman-Leuning density correction [@webb1980]. NEE was gap-filled using the 50th percentile Ustar distribution and partitioned into gross primary productivity (GPP) and ecosystem respiration using the nighttime method [@reichstein2005] in the R package 'REddyProc' [@wutzler2018].
+All environmental variables were summarized to half-hourly means or sums where appropriate; air temperature, vapor pressure deficit (D), and incoming shortwave radiation were gap-filled using the MDS algorithm [@reichstein2005].
+Ecosystem fluxes and precipitation were aggregated to daily sums, D was summarized to daily maximums, and the remaining environmental variables were summarized as daily means.
+
+#### Plant water potential
+
+Stem water potential of seven mature *J. osteosperma* within the tower footprint (\< 20 m) were monitored with both automated and manual measurements between May 24 and November 5, 2021.
+Half-hourly water potential was monitored with stem psychrometers (ICT International PSY1) that were calibrated prior to installtion.
+Two instruments were installed per tree by removing the bark and phloem to expose a flat xylem surface.
+Psychrometer sensor heads were attached with self-adhesive silicone tape to maintain a tight seal and wrapped in reflective insulation to minimize temperature gradients.
+Because plant wounding responses can fill the sensor chamber, all psychrometers were uninstalled, cleaned with chloroform, and reinstalled on a new branch every 4-5 weeks.
+The day after reinstallation, xylem water potential was measured manually with a Scholander-type pressure chamber (PMS 610) by excising a needle cluster with diameter between 2 and 4 mm and measuring within X minutes of collection.
+
+Half-hourly stem water potential time series were subject to quality control by visual assessment and processed to daily values.
+After removing data during the maintenance period (+ 1 day) and outliers that were \> 0.5 MPa way from adjacent points, data that met the following criteria were also discarded: 1) a step change in the magnitude of water potential not attributable to a precipitation event; 2) loss of diurnal pattern in water potential.
+On average, data from 10 of 14 psychrometers were available during a given period.
+Half-hourly stem water potential was summarized to predawn ($\Psi_{PD}$, 2 hours prior to sunrise) and midday ($\Psi_{PD}$, 2 hours following solar noon) for each logger.
+
+#### Model description
+
+#### Model implementation and interpretation
 
 ### Results
 
