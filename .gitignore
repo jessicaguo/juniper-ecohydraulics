@@ -13,6 +13,9 @@ docs/hydry-GPP/templates/*.docx
 docs/hydry-GPP/rsconnect
 scripts/model-pd-daily/plots/
 scripts/model-pd-md/figs/
+docs/ESA_2022/images/
+docs/ESA_2022/Juniper-water-use-GPP_files
+docs/ESA_2022/*.html
 
 # Suppress html and rsconnect files
 *.html
