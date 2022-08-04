@@ -72,7 +72,7 @@ Isohydry describes a conservative strategy of stomatal closure to maintain $\Psi
 While entire species have been placed on the iso/anisohydry spectrum, recent work has shown that variable strategies within species, which accords with hydraulic theory [@hochberg2018].
 Within species shifts in iso/anisohydry were reported for *Larrea tridentata* [@guo2020] and *Quercus douglasii* [@feng2019] in different seasons, in *Quercus suber* due to competition [@haberstroh], and in multiple species between wet and dry years [@wu2021].
 
-However, the C implications of temporally-variable hydraulic strategies are not well understood, even as they become more important for forecasting and ameliorating the effects of climate change [@novick2022; @kennedy2019]. In the semi-arid climate where these dynamic hydraulic strategies are found, persistent water limitation and episodic precipitation promote tight coupling between carbon and water cycles [@biederman2016], resulting in added temporal complexity that can be difficult to model [@ogle2004; @noy-meir1973; @loik2004]. Semi-arid ecosystems are largely responsible for the interannual variability of the global carbon sink [@poulter2014; @ahlström2015], including rapid vegetation expansion associated with wet years, yet dynamic global vegetation models are prone to underestimating C uptake in dryland regions [@macbean2021].
+However, the C implications of temporally-variable hydraulic strategies are not well understood, even as they become more important for forecasting and ameliorating the effects of climate change [@novick2022; @kennedy2019]. In the semi-arid climate where these dynamic hydraulic strategies are found, persistent water limitation and episodic precipitation promote tight coupling between carbon and water cycles [@biederman2016], resulting in added temporal complexity that can be difficult to model [@ogle2004; @noy-meir1973; @loik2004]. Semi-arid ecosystems are largely responsible for the interannual variability of the global carbon sink [@poulter2014; @ahlstrom2015], including rapid vegetation expansion associated with wet years, yet dynamic global vegetation models are prone to underestimating C uptake in dryland regions [@macbean2021].
 Understanding the temporal dynamics and environmental sensitivity of plant hydraulic strategies may be critical to improving predictive forecasts of the global carbon cycle.
 
 One iconic emblem of climate change was drought-induced mortality in piñon-juniper woodlands in the southwestern US.
@@ -105,9 +105,10 @@ Site precipitation was measured with a tipping bucket rain gauge (Campbell Scien
 See Kannenberg et al. in review for additional details on calibration and maintenance.
 
 Eddy covariance and environmental data were processed first by summarizing to half-hourly values, gapfilling, and then sumamrizing to daily values used the the subsequent figures and analysis.
-High frequency eddy covariance data were processed into half-hourly values of net ecosystem exchange (NEE) using *EasyFlux PC* (Campbell Scientific) following a procedure of despiking [@vickers1997], coordinate rotation, spectral correction [@massman2000], and Webb-Pearman-Leuning density correction [@webb1980]. NEE was gap-filled using the 50th percentile Ustar distribution and partitioned into gross primary productivity (GPP) and ecosystem respiration using the nighttime method [@reichstein2005] in the R package 'REddyProc' [@wutzler2018].
-All environmental variables were summarized to half-hourly means or sums where appropriate; air temperature, vapor pressure deficit (D), and incoming shortwave radiation were gap-filled using the MDS algorithm [@reichstein2005].
-Ecosystem fluxes and precipitation were aggregated to daily sums, D was summarized to daily maximums, and the remaining environmental variables were summarized as daily means.
+High frequency eddy covariance data were processed into half-hourly values of net ecosystem exchange (NEE) using *EasyFlux PC* (Campbell Scientific) following a procedure of despiking [@vickers1997], coordinate rotation, spectral correction [@massman2000], and Webb-Pearman-Leuning density correction [@webb1980].
+NEE was gap-filled using the 50th percentile Ustar distribution and partitioned into gross primary productivity (GPP) and ecosystem respiration using the nighttime method [@reichstein2005] in the R package 'REddyProc' [@wutzler2018].
+All environmental variables were summarized to half-hourly means or sums where appropriate; air temperature, vapor pressure deficit, and incoming shortwave radiation were gap-filled using the MDS algorithm [@reichstein2005].
+Ecosystem fluxes and precipitation were aggregated to daily sums, vapor pressure deficit was summarized to daily maximums, and the remaining environmental variables were summarized as daily means.
 
 #### Plant water potential
 
@@ -124,6 +125,92 @@ On average, data from 10 of 14 psychrometers were available during a given perio
 Half-hourly stem water potential was summarized to predawn ($\Psi_{PD}$, 2 hours prior to sunrise) and midday ($\Psi_{PD}$, 2 hours following solar noon) for each logger.
 
 #### Model description
+
+To specify the hydraulic regulation model, we used the Martinez-Vilalta et al. [-@mart�nez-vilalta2014] equation to relate $\Psi_{MD}$ to $\Psi_{PD}$:
+
+$$
+\begin{equation}
+\tag{1}
+\Psi_{MD} = \sigma \cdot \Psi_{PD} + \lambda
+\end{equation}
+$$
+
+where $\sigma$ represents the stringency of hydraulic regulation and $\lambda$ describes the pressure drop when soil moisture is not limiting.
+Plant hydraulic regulation can be described as isohydry if \$\\sigma \< 1\$, anisohydry if \$\\sigma \\approx 1\$, and extreme anisohydry if $sigma > 1$.
+
+To allow hydraulic regulation and GPP to vary over the growing season, we specified a hierarchical Bayesian model that estimated $\sigma$, $\lambda$, GPP as linear functions of maximum daily vapor pressure deficit ($D$) and volumetric soil water content at 10 cm (\$W\_{10}\$).
+Furthermore, we implemented the stochastic antecedent model [@ogle2015] to quantify the influence of past environmental conditions.
+The data model for hydraulic regulation describes the likelihood of each observed \$\\Psi\_{MD}\$, which was normally distributed for each observation $i$ ($i = 1, 2, \ldots, 1425$):
+
+$$
+\begin{equation}
+\tag{2}
+{\Psi_{MD}}_i \sim Normal({{\overline{\Psi}}_{MD}}_i, \sigma_{\Psi}^2)
+\end{equation}
+$$
+
+where ${{\overline{\Psi}}_{MD}}_i$ is the predicted or mean midday water potential and $\sigma_{\Psi}^2$ represents the observation variance.
+${{\overline{\Psi}}_{MD}}_i$ was modeled according to Eqn 1, where all terms were allowed to vary over time, either as direct observations (\$\\Psi\_{MD}\$,\$\\Psi\_{PD}\$) or as modeled parameters (\$\\sigma\$, $\lambda$).
+The time-varying estimates of hydraulic regulation, $\sigma$ and $\lambda$ were indexed by $i$ and modeled as linear combinations of two antecedent covariates and their interaction:
+
+$$
+\begin{equation}
+\tag{3}
+\sigma_i = \beta_0 + \beta_1 \cdot D_i^{ant} + \beta_2 \cdot {W_{10}}_i^{ant} + \beta_3 \cdot D_i^{ant} \cdot {W_{10}}_i^{ant} + \mathcal{E}_{\sigma, t(i)}\\
+\lambda_i = \alpha_0 + \alpha_1 \cdot D_i^{ant} + \alpha_2 \cdot {W_{10}}_i^{ant} + \alpha_3 \cdot D_i^{ant}\cdot {W_{10}}_i^{ant} + \mathcal{E}_{\lambda, t(i)}
+\end{equation}
+$$
+
+The $\beta$ and $\alpha$ parameters were estimated for all trees.
+$\mathcal{E}_{\sigma}$ and $\mathcal{E}_{\lambda}$ represent the random effects of each tree, where $t(i)$ indicates tree $t$ associated with each observation \$i\$.
+$D_{max}$ and $W_{10}$ were scaled using the 2021 mean and standard deviation so that regression coefficients could be compared and $\beta_0$ and $\alpha_0$ could be interpreted as $\sigma$ and $\lambda$, respectively, under mean environmental conditions.
+Antecedent variables [@ogle2015] were constructed using daily time series of each scale environmental variable:
+
+$$
+\begin{equation}
+\tag{4}
+D_i^{ant} = \sum_{p = 0}^{T_{lag}}\omega_{D_p} \cdot D_{t(i)-p}\\
+{W_{10}}_i^{ant} = \sum_{p = 0}^{T_{lag}}\omega_{W_p} \cdot W_{t(i)-p}
+\end{equation}
+$$
+
+where $p$ indicates the time step, $T_{lag}$ represents the total number of past time-steps considered, $\omega_{D_p}$ and $\omega_{W_p}$ indicates the weight or relative importance of the \$p\$th time step into the past, and $D_{t(i)-p}$ and $W_{t(i)-p}$ are the observed value of each variable at $p$ time steps ago.
+Antecedent covariates are weighted averages of past covariate values where the weights are stochastically determined by the data.
+In this analysis, $D^{ant}$ was constructed using daily values from the current day to 4 days ago ($p$ = 1, $T_{lag}$ = 5), while $W_{10}^{ant}$ was constructed using three-day averages of $W_{10}$ from the current day to 20 days ago ($p$ = 3, $T_{lag}$ = 7).
+
+In order to complete this model, a zero-centered hierarchical normal prior was specified for tree random effects:
+
+$$
+\begin{equation}
+\tag{5}
+\mathcal{E}_{\sigma, t} \sim Normal(0, \sigma_{\sigma}^2)\\
+\mathcal{E}_{\lambda, t} \sim Normal(0, \sigma_{\lambda}^2)
+\end{equation}
+$$ where reparameterization by sweeping was employed to ensure identifiability between the intercepts ($\beta_0$, $\alpha_0$) and the random effects [@vines1996].
+
+All remaining parameters were given standard priors following Gelman et al. [-@gelman2014].
+The regression coefficients were assigned relatively non-informative normal priors centered at zero with large variance.
+Antecedent importance weights, vectors of length $T_{lag}$ (Eqn 4), were given non-informative Dirichlet priors that assume *a priori* that each past time step has equal importance, and that constrain weights for each covariate to sum to 1 across all time steps, \$p\$.
+The standard deviation of tree random effects (\$\\sigma\_{\\sigma}\$ and \$\\sigma\_{\\lambda}\$) were given relatively non-informative $Uniform(0, 1)$ priors, while the measurement error precision (\$1/\\sigma\_{\\Psi}\^2\$) was assigned a conjugate, relatively non-informative $Gamma(0.1, 0.1)$ prior.
+
+Similarly, the data model for daily ecosystem productivity describes the likelihood of each observed \$GPP\$, which was normally distributed for each observation $j$ ($i = 1, 2, \ldots, 166$):
+
+$$
+\begin{equation}
+\tag{4}
+{GPP}_j \sim Lognormal(\overline{GPP}_j, \sigma_{GPP}^2)
+\end{equation}
+$$
+
+where $\overline{GPP}_j$ is the predicted or mean daily GPP and the variance $\sigma_{GPP}^2$ represents the uncertainty in observed $GPP$.
+$\overline{GPP}_j$ was modeled as a linear function of the same antecedent covariates and interaction as in Eqn 3.
+
+$$
+\begin{equation}
+\tag{5}
+\overline{GPP}_j = \gamma_0 + \gamma_1 \cdot {D_{max}}_j^{ant} + \gamma_2 \cdot {W_{10}}_j^{ant} + \gamma_3 \cdot {D_{max}}_j^{ant}\cdot {W_{10}}_j^{ant}
+\end{equation}
+$$
 
 #### Model implementation and interpretation
 
