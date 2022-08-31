@@ -17,7 +17,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Figures
 
 
-```{r fig-env, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 1</b> Daily site-level environmental characteristics of <b>a)</b> vapor pressure deficit (D) and precipitation and <b>b)</b> volumetric water content (VWC) at two depths in 2021. Gray box indicates period of psychrometer instrumentation"}
+```{r fig-env, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 1</b> Daily site-level environmental characteristics of <b>a)</b> maximum vapor pressure deficit (D) and total precipitation and <b>b)</b> mean volumetric water content (VWC) at two depths in 2021. Gray boxes indicates period of psychrometer instrumentation, subdivided into before, during, and after the monsoon season"}
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_1_sep.png")
 ```
 
