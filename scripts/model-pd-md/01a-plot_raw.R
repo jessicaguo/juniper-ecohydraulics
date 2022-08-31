@@ -15,14 +15,34 @@ man <- readr::read_csv("data_raw/Pressure-chamber-data.csv") %>%
 # m1 <- lm(Psych ~ Psi, data = man)
 # summary(m1)
 
+# Calculate rectangles for 3 sub-seasons of growing season
+ppt <- met_in %>%
+  filter(date >= as.Date("2021-07-01"),
+         date <= as.Date("2021-09-30")) %>%
+  select(date, Precip) %>%
+  mutate(cPrecip = cumsum(Precip))
 
+tot <- sum(ppt$Precip)
+
+ppt <- ppt %>%
+  mutate(season = case_when(cPrecip < 0.1 * tot ~ "premonsoon",
+                            cPrecip > 0.1 * tot ~ "monsoon"))
+monsoon_st <- ppt$date[min(which(ppt$season == "monsoon"))]
+monsoon_en <- ppt$date[max(which(ppt$season == "monsoon"))]
+rect <- data.frame(season = c("premonsoon", "monsoon", "fall"),
+                   xmin = c(min(psy_in$date), monsoon_st, as.Date("2021-10-01")),
+                   xmax = c(monsoon_st, monsoon_en + 1, max(psy_in$date))) %>%
+  mutate(mid = as.Date(rowMeans(cbind(xmin, xmax)), origin = "1970-01-01"))
+
+
+
+#  All together in single plot
 rect <- data.frame(xmin = min(man$date, na.rm = TRUE),
                    xmax = max(psy_in$date))
 
 met_ppt <- met_in %>%
   mutate(ppt = case_when(Precip > 0 ~ Precip)) 
 
-#  All together in single plot
 fig1 <- ggplot() +
   geom_rect(data = rect, aes(ymin = -Inf, ymax = Inf,
                              xmin = xmin, xmax = xmax),
@@ -60,10 +80,14 @@ fig1 <- ggplot() +
 # Alternatively, separate VPD + precip from SWC
 
 fig1a <- ggplot() +
-  geom_rect(data = rect, aes(ymin = -Inf, ymax = Inf,
-                             xmin = xmin, xmax = xmax),
-            fill = "gray90",
-            alpha = 0.25) +
+  geom_rect(data = rect,
+          aes(xmin = xmin, xmax = xmax,
+              ymin = -Inf, ymax = Inf,
+              fill = season),
+          alpha = 0.25) + 
+  geom_text(data = rect,
+          aes(x = mid, y = 7,
+              label = season)) +
   geom_point(data = met_ppt,
              aes(x = date, y = VPD_max)) +
   geom_bar(data = met_ppt,
@@ -73,6 +97,7 @@ fig1a <- ggplot() +
                guide = "axis_minor") +
   scale_y_continuous("D (kPa) | precip (cm)") +
   scale_color_hp_d(option = "Mischief") +
+  scale_fill_manual(values = c("gray90", "gray70", "gray90")) +
   theme_bw(base_size = 14) +
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
@@ -82,13 +107,19 @@ fig1a <- ggplot() +
         legend.position = c(0.07, 0.92),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(0.4, "cm"),
-        ggh4x.axis.ticks.length.minor = rel(1))
+        ggh4x.axis.ticks.length.minor = rel(1)) +
+  guides(fill = "none")
+fig1a
   
 fig1b <- ggplot() +
-  geom_rect(data = rect, aes(ymin = -Inf, ymax = Inf,
-                             xmin = xmin, xmax = xmax),
-            fill = "gray90",
-            alpha = 0.25) +
+  geom_rect(data = rect,
+            aes(xmin = xmin, xmax = xmax,
+                ymin = -Inf, ymax = Inf,
+                fill = season),
+            alpha = 0.25) + 
+  geom_text(data = rect,
+            aes(x = mid, y = 18,
+                label = season)) +
    geom_point(data = met_ppt,
              aes(x = date, y = VWC_5cm, color = "5 cm")) +
   geom_point(data = met_ppt,
@@ -98,6 +129,7 @@ fig1b <- ggplot() +
   scale_y_continuous("VWC (%)") +
   scale_color_hp_d(option = "Mischief", direction = -1,
                    limits = c("5 cm", "10 cm")) +
+  scale_fill_manual(values = c("gray90", "gray70", "gray90")) +
   theme_bw(base_size = 14) +
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
@@ -107,7 +139,8 @@ fig1b <- ggplot() +
         legend.position = c(0.07, 0.92),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(0.4, "cm"),
-        ggh4x.axis.ticks.length.minor = rel(1))
+        ggh4x.axis.ticks.length.minor = rel(1)) +
+  guides(fill = "none")
 fig1b 
 
 fig1_all <- plot_grid(fig1a, fig1b, 
@@ -119,7 +152,7 @@ ggsave(filename = "scripts/model-pd-md/figs/fig_1_sep.png",
        plot = fig1_all,
        width = 8, height = 5,
        units = "in")
-  
+
 #### Plot water potentials
 # Summarize PD and MD across trees, including SE
 SE <- function(x) {
