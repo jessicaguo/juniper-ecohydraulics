@@ -78,6 +78,11 @@ fig1 <- ggplot() +
 
 
 # Alternatively, separate VPD + precip from SWC
+# Limit to period of psy instrumentation
+met_ppt <- met_in %>%
+  mutate(ppt = case_when(Precip > 0 ~ Precip)) %>%
+  filter(date >= min(psy_in$date) &
+           date <= max(psy_in$date))
 
 fig1a <- ggplot() +
   geom_rect(data = rect,
@@ -120,10 +125,16 @@ fig1b <- ggplot() +
   geom_text(data = rect,
             aes(x = mid, y = 18,
                 label = season)) +
-   geom_point(data = met_ppt,
+  geom_point(data = met_ppt,
              aes(x = date, y = VWC_5cm, color = "5 cm")) +
   geom_point(data = met_ppt,
              aes(x = date, y = VWC_10cm, color = "10 cm")) +
+  geom_text(data = data.frame(x = min(rect$xmin),
+                              y = c(met_ppt$VWC_5cm[1], met_ppt$VWC_10cm[1]),
+                              lab = c("5 cm", "10 cm")),
+            aes(x = x, y = y, label = lab),
+            vjust = -0.5,
+            hjust = 0) +
   scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
                guide = "axis_minor") +
   scale_y_continuous("VWC (%)") +
@@ -136,11 +147,12 @@ fig1b <- ggplot() +
         axis.text.y = element_text(colour = "black"),
         axis.title.x = element_blank(),
         legend.title = element_blank(),
-        legend.position = c(0.07, 0.92),
+        legend.position = c(0.066, 0.85),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(0.4, "cm"),
         ggh4x.axis.ticks.length.minor = rel(1)) +
-  guides(fill = "none")
+  guides(fill = "none",
+         color = "none")
 fig1b 
 
 fig1_all <- plot_grid(fig1a, fig1b, 
