@@ -67,7 +67,10 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ### Introduction
 
-Plant water use strategies encompass the numerous ways plants have evolved to confront an inescapable dilemma: obtaining the raw materials for photosynthesis necessitates water loss through stomata [@berry2010]. Along the soil-plant-atmosphere continuum, gradients of water potential ($\Psi$) drive water transport and integrate the tradeoff between carbon gain and water loss, such that the popular iso/anisohydry spectrum is based on the stomatal regulation of $\Psi$ [@tardieu1998; @jones1998]. Isohydry describes a conservative strategy of stomatal closure to maintain $\Psi$ above a threshold to preserve hydraulic conductivity, while anisohydry is a profligate stomatal strategy that prioritizes carbon gain at the expense of low $\Psi$. While entire species have been placed on the iso/anisohydry spectrum, recent work has demonstrated that multiple strategies can occur within a species, which results from plant-environment interactions in accordance with hydraulic theory [@hochberg2018]. Within species shifts in iso/anisohydry have been reported for *Larrea tridentata* [@guo2020] and *Quercus douglasii* [@feng2019] in different seasons, in *Quercus suber* due to competition [@haberstroh], *Acacia aptaneura* as a result of repeated experimental drought [@nolan2017], and in multiple species between wet and dry years [@wu2021].
+Plant water use strategies encompass the numerous ways plants have evolved to confront an inescapable dilemma: obtaining the raw materials for photosynthesis necessitates water loss through stomata [@berry2010]. Along the soil-plant-atmosphere continuum, gradients of water potential ($\Psi$) drive water transport and integrate the tradeoff between carbon gain and water loss, such that the popular iso/anisohydry spectrum is based on the stomatal regulation of $\Psi$ [@tardieu1998; @jones1998].
+Isohydry describes a conservative strategy of stomatal closure to maintain $\Psi$ above a threshold to preserve hydraulic conductivity, while anisohydry is a profligate stomatal strategy that prioritizes carbon gain at the expense of low $\Psi$.
+While entire species have been placed on the iso/anisohydry spectrum, recent work has demonstrated that multiple strategies can occur within a species, which results from plant-environment interactions in accordance with hydraulic theory [@hochberg2018].
+Within species shifts in iso/anisohydry have been reported for *Larrea tridentata* [@guo2020] and *Quercus douglasii* [@feng2019] in different seasons, in *Quercus suber* due to competition [@haberstroh], *Acacia aptaneura* as a result of repeated experimental drought [@nolan2017], and in multiple species between wet and dry years [@wu2021].
 
 However, the C implications of temporally-variable hydraulic strategies are not well understood, even as they become more important for forecasting and ameliorating the effects of climate change [@novick2022; @kennedy2019]. In the semi-arid climate where these dynamic hydraulic strategies are found, persistent water limitation and episodic precipitation promote tight coupling between carbon and water cycles [@biederman2016], resulting in added temporal complexity that can be difficult to model [@ogle2004; @noy-meir1973; @loik2004; @feldman2018]. Semi-arid ecosystems are largely responsible for the interannual variability of the global carbon sink [@poulter2014; @ahlstrom2015], including rapid vegetation expansion associated with wet years, yet dynamic global vegetation models are prone to underestimating C uptake in dryland regions [@macbean2021].
 Understanding the temporal dynamics and environmental sensitivity of plant hydraulic strategies may be critical to improving predictive forecasts of the global carbon cycle.
@@ -224,9 +227,15 @@ To quantify seasonal variation in \$\\sigma\$, the posterior samples of the $\be
 
 ### Results
 
-#### Seasonal dynamics of $\Psi$
+#### Seasonal dynamics of $\Psi$ and GPP
 
-The
+Over the study period, predawn ($\Psi_{PD}$) and midday (\$\\Psi\_{MD}\$) stem water potentials responded dynamically to moisture inputs, particularly during the monsoon period (Fig. \@ref(fig:fig-env), Fig.
+\@ref(fig:fig-psy)a).
+Monsoon onset was determined as the day on which on the 10% of the total July, August, September was accumulated [@grantz2007], which was achieved on 2021-07-23.
+During the premonsoon, the generally high vapor pressure deficit (D) and low volumetric water content (W) yielded relatively consistent mean $\Psi_{PD}$ between -2 and -4 MPa.
+During the monsoon period, D and W were less extreme than premonsoon conditions, though highly variable as the result of three major pulse-drydown events (Fig. \@ref(fig:fig-env)).
+Beginning with the 39 mm precipitation event on 2021-07-27, mean $\Psi_{PD}$ remained above -2 MPa continuously for 46 days; however, minimum mean $\Psi_{PD}$ was similar both periods due to rapid decline in $\Psi_{PD}$ following the third major pulse-drydown.
+Finally, mean $\Psi_{PD}$ stayed above -2 MPa during the fall season, likely due to cooling temperatures and reduced atmospheric demand.
 
 #### Environmental drivers and timescales of $\sigma$ and GPP
 
@@ -247,6 +256,40 @@ The
 ### Tables
 
 ### Figures
+
+```{r fig-env, echo=FALSE, out.width="100%", fig.cap="Daily site-level environmental characteristics of <b>a)</b> maximum vapor pressure deficit (D) and total precipitation and <b>b)</b> mean volumetric water content (VWC) at 5 cm and 10 cm. Labeled boxes subdivide the study period into before, during, and after the monsoon season"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_1_sep.png")
+```
+
+\pagebreak
+
+```{r fig-psy, echo=FALSE, out.width="100%", fig.cap="Time series of <b>a)</b> chamber and automated daily measurements of stem water potential and <b>b)</b> daily total gross primary productivity (GPP). Labeled boxes subdivide the study period into before, during, and after the monsoon season"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_2.png")
+```
+
+\pagebreak
+
+```{r fig-gpp, echo=FALSE, out.width="100%", fig.cap="Midday vs. predawn stem water potential divided by the three seasons. Points are colored by the concurrent daily VWC at 10 cm"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_3.png")
+```
+
+\pagebreak
+
+```{r fig-hydry-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> regression coefficients and <b>b)</b> antecedent weights $\\omega$ of covariates associated with $\\sigma$ and $\\lambda$"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_4.png")
+```
+
+\pagebreak
+
+```{r fig-gpp-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> regression coefficients and <b>b)</b> antecedent weights $\\omega$ of covariates associated with GPP"}
+knitr::include_graphics("../../scripts/model-flux-daily/figs/fig_5.png")
+```
+
+\pagebreak
+
+```{r fig-hydry, echo=FALSE, out.width="100%", fig.cap="Relationship between predicted $\\sigma$ (posterior mean and 95% CI) and daily GPP shown as <b>a)</b> time series across three seasons, <b>b)</b> bivariate plots for each season, and <b>c)</b> Pearson's correlation (estimate and 95% confidence interval) during monsoon season across a range of daily offsets where GPP leads $\\sigma$"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_6.png")
+```
 
 \pagebreak
 
