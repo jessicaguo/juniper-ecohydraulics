@@ -17,11 +17,11 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Figures
 
 
-```{r fig-env, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 1</b> Daily site-level environmental characteristics of <b>a)</b> maximum vapor pressure deficit (D) and total precipitation and <b>b)</b> mean volumetric water content (VWC) at two depths in 2021. Gray boxes indicates period of psychrometer instrumentation, subdivided into before, during, and after the monsoon season"}
+```{r fig-env, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 1</b> Daily site-level environmental characteristics of <b>a)</b> maximum vapor pressure deficit (D) and total precipitation and <b>b)</b> mean volumetric water content (VWC) at 5 cm and 10 cm. Labeled boxes subdivide the study period into before, during, and after the monsoon season"}
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_1_sep.png")
 ```
 
-```{r fig-psy, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 2</b> Time series of <b>a)</b> chamber and automated daily measurements of stem water potential and <b>b)</b> daily total gross primary productivity (GPP) durig the period of psychrometer instrumentation. Labeled boxes indicate before, during, and after the monsoon season"}
+```{r fig-psy, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 2</b> Time series of <b>a)</b> chamber and automated daily measurements of stem water potential and <b>b)</b> daily total gross primary productivity (GPP). Labeled boxes subdivide the study period into before, during, and after the monsoon season"}
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_2.png")
 ```
 
