@@ -63,16 +63,16 @@ dummy <- data.frame(Panel = c(rep("Effects", 2), "Intercept"),
 #           expression(D^ant %*% W[10]^ant))
 
 fig4a <- ggplot() +
-  geom_hline(data = dummy, 
+  geom_hline(data = filter(dummy, Panel != "Intercept"), 
              aes(yintercept = intercept),
              size = 0.8, 
              color = "gray70") +
-  geom_errorbar(data = AB, 
+  geom_errorbar(data = filter(AB, Covariate != "Intercept"), 
                 aes(x = Covariate,
                     ymin = pred.lower,
                     ymax = pred.upper),
                 width = 0) +
-  geom_point(data = AB, 
+  geom_point(data = filter(AB, Covariate != "Intercept"), 
              aes(x = Covariate, 
                  y = pred.mean)) +
   geom_point(data = pos,
@@ -85,10 +85,10 @@ fig4a <- ggplot() +
              pch = 8,
              col = "gray70", 
              stroke = 1) +
-  scale_y_continuous("Regression coefficients") +
+  scale_y_continuous("Covariate effects") +
   scale_x_discrete(labels = scales::parse_format()) +
   facet_grid2(rows = vars(Parameter),
-              cols = vars(Panel),
+              # cols = vars(Panel),
               scales = "free",
               independent = "y",
               space = "free_x",
@@ -102,7 +102,7 @@ fig4a <- ggplot() +
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
 
-
+fig4a
 
 # Plot weights
 wAB <- param_sum %>%
