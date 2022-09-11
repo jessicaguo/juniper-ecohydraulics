@@ -358,7 +358,7 @@ fig3 <- ggplot() +
                      breaks = c(-4, -2, 0)) +
   coord_equal() +
   scale_color_hp(option = "Sprout", direction = 1,
-                 name = bquote(VWC["10"])) +
+                 name = bquote(W["10"])) +
   theme_bw(base_size = 14)+
   theme(panel.grid = element_blank(),
         axis.text.x = element_text(colour = "black"),
