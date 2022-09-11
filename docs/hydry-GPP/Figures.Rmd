@@ -45,10 +45,10 @@ knitr::include_graphics("../../scripts/model-pd-md/figs/fig_6.png")
 
 ## SI Figures
 
-```{r fig-hydry-fit, echo=FALSE, out.width="90%", fig.cap="<b>Fig. S1</b> Observed vs. predicted $\\Psi_{MD}$ ($R^2 = 0.92$)"}
+```{r fig-hydry-fit, echo=FALSE, out.width="90%", fig.cap="<b>Fig. S1</b> Observed vs. predicted $\\Psi_{MD}$ ($R^2 = 0.920$)"}
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_S1.png")
 ```
 
-```{r fig-gpp-fit, echo=FALSE, out.width="75%", fig.cap="<b>Fig. S2</b> Observed vs. predicted GPP ($R^2 = 0.74$)"}
+```{r fig-gpp-fit, echo=FALSE, out.width="75%", fig.cap="<b>Fig. S2</b> Observed vs. predicted GPP ($R^2 = 0.741$)"}
 knitr::include_graphics("../../scripts/model-flux-daily/figs/fig_S2.png")
 ```
