@@ -30,11 +30,11 @@ knitr::include_graphics("../../scripts/model-pd-md/figs/fig_3.png")
 ```
 
 
-```{r fig-hydry-params, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 4</b> Posterior mean and 95% CI of the <b>a)</b> regression coefficients and <b>b)</b> antecedent weights $\\omega$ of covariates associated with $\\sigma$ and $\\lambda$"}
+```{r fig-hydry-params, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 4</b> Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with $\\sigma$ and $\\lambda$"}
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_4.png")
 ```
 
-```{r fig-gpp-params, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 5</b> Posterior mean and 95% CI of the <b>a)</b> regression coefficients and <b>b)</b> antecedent weights $\\omega$ of covariates associated with GPP"}
+```{r fig-gpp-params, echo=FALSE, out.width="100%", fig.cap="<b>Fig. 5</b> Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with GPP"}
 knitr::include_graphics("../../scripts/model-flux-daily/figs/fig_5.png")
 ```
 
