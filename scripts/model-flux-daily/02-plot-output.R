@@ -61,12 +61,12 @@ fig5a <- ggplot() +
              aes(yintercept = intercept),
              size = 0.8, 
              color = "gray70") +
-  geom_errorbar(data = B, 
+  geom_errorbar(data = filter(B, Covariate != "Intercept"), 
                 aes(x = Covariate,
                     ymin = pred.lower,
                     ymax = pred.upper),
                 width = 0) +
-  geom_point(data = B, 
+  geom_point(data = filter(B, Covariate != "Intercept"), 
              aes(x = Covariate, 
                  y = pred.mean)) +
   geom_point(data = pos,
@@ -74,13 +74,13 @@ fig5a <- ggplot() +
              pch = 8,
              col = "gray70",
              stroke = 1) +
-  scale_y_continuous("Regression coefficients") +
+  scale_y_continuous("Covariate effects") +
   scale_x_discrete(labels = scales::parse_format()) +
-  facet_grid2(cols = vars(Panel),
-              scales = "free",
-              independent = "y",
-              space = "free_x",
-              labeller = label_parsed) +
+  # facet_grid2(cols = vars(Panel),
+  #             scales = "free",
+  #             independent = "y",
+  #             space = "free_x",
+  #             labeller = label_parsed) +
   theme_bw(base_size = 14) +
   theme(strip.background = element_blank(),
         strip.text.x = element_blank(),
@@ -90,7 +90,7 @@ fig5a <- ggplot() +
         axis.text.x = element_text(colour = "black"),
         axis.text.y = element_text(colour = "black"))
 
-
+fig5a
 
 # Plot weights
 wAB <- param_sum %>%
