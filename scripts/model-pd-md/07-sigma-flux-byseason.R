@@ -139,7 +139,7 @@ fig6b <- ggplot() +
                      col = strategy),
                  alpha = 0.25) +
   geom_abline(data = parms, aes(slope = slope, intercept = intercept),
-              lty = 2) +
+              lty = 1) +
   geom_text(data = fit,  
             aes(x = lat, y = lon,
                 label = lab), 
