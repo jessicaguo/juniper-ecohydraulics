@@ -173,7 +173,7 @@ coda_sum <- tidyMCMC(coda.rep,
 pred <- cbind.data.frame(psy_in, coda_sum)
 
 m1 <- lm(pred.mean ~ MD, data = pred)
-sm <- summary(m1) # R2 = 0.8985; w/ RE R2 = 0.9198
+sm <- summary(m1) # R2 = 0.8985; w/ RE R2 = 0.9198, slope = 0.91917
 
 figS1 <- pred %>%
   ggplot(aes(x = MD, y = pred.mean)) +

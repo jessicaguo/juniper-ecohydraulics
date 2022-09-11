@@ -162,7 +162,7 @@ coda_sum <- tidyMCMC(coda.rep,
 pred <- cbind.data.frame(flux, coda_sum)
 
 m1 <- lm(pred.mean ~ GPP, data = pred)
-sm <- summary(m1) # R2 = 0.74
+sm <- summary(m1) # R2 = 0.741, slope = 0.762
 
 figS2 <- pred %>%
   ggplot(aes(x = GPP, y = pred.mean)) +
