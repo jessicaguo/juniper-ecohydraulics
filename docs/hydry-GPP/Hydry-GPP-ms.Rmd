@@ -230,20 +230,20 @@ To quantify seasonal variation in $\sigma$, the posterior samples of the $\beta$
 Over the study period, predawn ($\Psi_{PD}$) and midday ($\Psi_{MD}$) stem water potentials responded dynamically to moisture inputs, particularly during the monsoon period (Fig. \@ref(fig:fig-env), Fig.
 \@ref(fig:fig-psy)a).
 Monsoon onset was determined as the day on which on the 10% of the total July, August, September was accumulated [@grantz2007], which was achieved on 2021-07-23.
-During the premonsoon, the generally high vapor pressure deficit (D) and low volumetric water content (W) yielded relatively consistent mean $\Psi_{PD}$ between -2 and -4 MPa.
-During the monsoon period, D and W were less extreme than premonsoon conditions, though highly variable as the result of three major pulse-drydown events (Fig. \@ref(fig:fig-env)).
+Prior to monsoon onset, the generally high vapor pressure deficit (D) and low volumetric water content (W) yielded relatively consistent mean $\Psi_{PD}$ between -2 and -4 MPa.
+During the monsoon period, D and W were less extreme previously experienced, though highly variable as the result of three major pulse-drydown events (Fig. \@ref(fig:fig-env)).
 Beginning with the first major pulse event (39 mm on 2021-07-27), mean $\Psi_{PD}$ remained above -2 MPa continuously for 46 days; however, minimum mean $\Psi_{PD}$ was similar in premonsoon and monsoon periods due to rapid decline in $\Psi_{PD}$ following the third major pulse-drydown.
 Finally, mean $\Psi_{PD}$ stayed above -2 MPa during the fall season, likely due to cooling temperatures and reduced atmospheric demand.
 
 Seasonal GPP dynamics were similarly responsive to precipitation inputs (Fig. \@ref(fig:fig-psy)b).
 GPP declined during the premonsoon period to near-zero levels, while the onset of the monsoon prompted sharp increases.
 Interestingly, while the first major pulse event was the largest single day total (39 mm on 2021-07-27) that corresponded to almost immediate increases in $\Psi_{PD}$, GPP rose only modestly.
-The three peaks in GPP during the monsoon period lagged the moisture inputs and stayed high only briefly, in contrast to $\Psi_{PD}$ (Fig. \@ref(fig:fig-psy)a).
-Fall GPP averaged $0.1 mol\,CO_2\,m^{-2}\,d^{-1}$, about the same as initial GPP during the premonsoon period.
+All three peaks in GPP during the monsoon period lagged the moisture inputs and stayed high only briefly, in contrast to $\Psi_{PD}$ (Fig. \@ref(fig:fig-psy)a).
+Fall GPP averaged $0.1\ mol\,CO_2\,m^{-2}\,d^{-1}$, about the same as initial GPP during the premonsoon period.
 
-At a coarse scale, the dynmics of hydraulic regulation can be visually estimated by plotting stem $\Psi_{MD}$ and $\Psi_{PD}$ by season (Fig. \@ref(fig:fig-sig)).
-The slope $\sigma$ appears similar during the premonsoon and fall periods, although the soil water content ($W_{10}$) and therefore stem $\Psi$ differ greatly.
-During the monsoon period, distinct slopes are evident, with $\sigma > 1$ occurring when both $W_{10}$ and $\Psi_{PD}$ are high; the same region during the fall season has a much lower $\sigma$.
+At a coarse scale, the dynamics of hydraulic regulation can be visually estimated by plotting stem $\Psi_{MD}$ and $\Psi_{PD}$ by season (Fig. \@ref(fig:fig-sig)).
+The slope $\sigma$ appeared similar during the premonsoon and fall periods, although the soil water content ($W_{10}$) and therefore stem $\Psi$ differed greatly.
+During the monsoon period, multiple slopes are evident, with $\sigma > 1$ occurring when both $W_{10}$ and $\Psi_{PD}$ are high; the same region during the fall season has a much lower $\sigma$.
 
 #### Environmental drivers and timescales of $\sigma$ and GPP
 
@@ -251,8 +251,8 @@ The hydraulic regulation model (Eqns 2-5) fit the data very well (Fig. S1, obser
 With much lower sample size, the GPP model (Eqns. 6-7) also fit the data pretty well (Fig. S2, observed vs. predicted $GPP$ $R^2$= 0.741), although with some degree of bias (slope of observed vs. predicted = 0.762) such that high GPP values were underpredicted.
 
 Temporal variation in hydraulic regulation ($\sigma$) was strongly positively associated with antecedent vapor pressure deficit ($D^{ant}$),antecedent soil water content ($W_{10}^{ant}$), and their interaction (Fig. \@ref(fig:fig-hydry-params)a), indicating that *J. osteosperma* became especially anisohydric under dry atmospheric conditions when soils were wet.
-With the larger coefficient, $D^{ant}$ was more influential upon $\sigma$ than $W_{10}^{ant}$.
-While the positive effect of D was primarily driven by the atmospheric dryness on the same day, soil moisture was influential up to 11 days into the past (Fig. \@ref(fig:fig-hydry-params)b).
+With the larger coefficient, $D^{ant}$ was more influential upon $\sigma$ than \$W\_{10}\^{ant}\$.
+While the positive effect of $D$ was primarily driven by the atmospheric dryness on the same day, soil moisture was influential up to 11 days into the past (Fig. \@ref(fig:fig-hydry-params)b).
 The pressure drop parameter $\lambda$ was negatively associated with the interaction of $D^{ant}$ and $W_{10}^{ant}$, although the main effects were not significant (Fig. \@ref(fig:fig-hydry-params)a).
 
 Similar to $\sigma$, GPP was positively associated with both environmental covariates and their interaction (Fig. \@ref(fig:fig-gpp-params)a), although in this case $W_{10}^{ant}$ was more influential than $D^{ant}$.
@@ -260,7 +260,7 @@ Soil moisture up to 5 days into the past was most influential on GPP, but no cle
 
 #### Relationship between $\sigma$ and GPP
 
-Although general trends hydraulic regulation can be inferred from grouping $\Psi_{MD}$ and $\Psi_{PD}$ by season (e.g., Fig. \@ref(fig:fig-sig)), the Bayesian model allowed for combining model parameters with environmental covariates to produce daily timeseries of predicted $\sigma$ (e.g., Fig. \@ref(fig:fig-hydry-gpp)a).
+Although general trends hydraulic regulation can be inferred from grouping $\Psi_{MD}$ and $\Psi_{PD}$ by season (e.g., Fig. \@ref(fig:fig-sig)), the hierarchical Bayesian model allowed for combining posterior parameter distributions with environmental covariates to produce daily timeseries of predicted $\sigma$ (e.g., Fig. \@ref(fig:fig-hydry-gpp)a).
 During the premonsoon, *J. osteosperma* shifted between iso- and anisohydry, with $\sigma$ values hovering near 1.
 But during monsoon, the three main pulse events precipitated peaks in $\sigma$ that signify extreme anisohydry, with $\sigma$ values well above 1.
 Finally, in the fall, *J. osteosperma* returned to isohydry, and $\sigma$ fell below 1.
@@ -270,6 +270,22 @@ Thus, $\sigma$ and GPP were positively correlated during the monsoon period ($r=
 This observation was supported by the highest Pearson's correlation between GPP and $\sigma$ achieved at a 1-2 day offset between the two timeseries (Fig. \@ref(fig:fig-hydry-gpp)c).
 
 ### Discussion
+
+We believe this novel study is one of the first to associate temporal trends in daily plant water potential, ecosystem fluxes, and hydraulic behavior in a naturally-occurring ecosystem.
+We found that in the anisohydric *J. osteosperma*, midday water potentials ($\Psi_{MD}$) were variably sensitive to predawn water potentials ($\Psi_{PD}$), indicating environmentally-dependent modes of hydraulic regulation ($\sigma$).
+Interestingly, while both $\Psi_{MD}$ and $\Psi_{PD}$ respond rapidly to precipitation inputs, gross primary productivity (GPP) and $\sigma$ were responsive to soil moisture up to by 5 or 11 days prior, respectively.
+Thus, while $\sigma$ and GPP were positively correlated, particularly during the monsoon season, peaks in GPP were achieved earlier than peaks in $\sigma$, offering the intriguing possibility that extreme anisohydry can serve to maximize soil water extraction and prolong GPP pulses in semi-arid ecosystems.
+
+#### Temporally varying hydraulic behavior
+
+*Juniperus* species are considered anisohydric than co-occurring pinyons due to their more cavitation-resistant xylem [@linton1998], higher safety margins [@plaut2012], and lower leaf water potentials [@west2007, @breshears2009], while their categorization based on stomatal control are less conclusive [@garcia2016]. Here, a 166-day time series of $\Psi_{PD}$ and $\Psi_{MD}$ on *J. osteosperma* reveals strong, context-dependent variation in hydraulic regulation, a timescale that can potentially bridge the gap between short-term stomatal response-based definition of iso/anisohydry [@tardieu1998] and definitions that rely on seasonal extremes [@klein2014, @martínez-vilalta2021].
+We believe that using response-based metrics [@kannenberg2022a] to quantify plant water use strategies can enable predictive understanding of plant-environment interactions.
+
+Similar to previous findings for the anisohydric *Larrea tridentata* [@Guo2020], dry air in combination with wet soil drove large increases in $\sigma$ in *J. osteosperma*, suggesting that extreme drops in $\Psi_{MD}$ are primarily enabled when the risk of embolism is surpassed by the reward of carbon uptake. Indeed, we show a positive relationship between $\sigma$ and GPP that confirms the tradeoff at the ecosystem scale. While the mechanism enabling temporally flexible hydraulic behavior is not well understood, although there are some tantalizing hints in similarly temporally variable leaf water relations and ABA synthesis. Both *Larrea* and *Juniperus* experience seasonally varying leaf water relations and a strong difference in turgor loss point ($\Psi_{TLP}$) between rehydrated and un-rehydrated methods [@meinzer2014, @meinzer1986]. By extrapolating the pressure-volume relationships for both types of samples, Meinzer et al. [-@meinzer2014] found that turgor loss would occur at -8.2 MPa for *J. monosperma*, and indeed 99.1% of our $\Psi_{MD}$ observations exceeded this threshold. Seasonally varying leaf-water relations in anisohydric species may indicate the physiological capacity to maintain turgor at multiple levels of leaf hydration.
+
+The capacity to tolerate leaf dehydration may be linked to foliar ABA dynamics during soil water stress [@brodribb2013].
+In *Callatris rhomboidea*, a member of Cupressaceae, sustained water stress lead to a decline in ABA such that loss of water potential drove stomatal closure.
+Thus, rewatering allowed for rapid recovery of gas exchange, because ABA levels were already low.
 
 ### Acknowledgements
 
