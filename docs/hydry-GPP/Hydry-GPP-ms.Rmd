@@ -29,6 +29,8 @@ output:
       pandoc_args:
       - --lua-filter=templates/scholarly-metadata.lua
       - --lua-filter=templates/author-info-blocks.lua
+      - -Fpandoc-crossref #required for cross-ref equations
+      
 linkcolor: black
 bibliography: refs.bib
 link-citations: yes
@@ -58,9 +60,8 @@ knitr::opts_chunk$set(echo = TRUE)
 
 -   *J. osteosperma* experiences weaker hydraulic regulation and higher productivity after monsoon precipitation pulses, when soil moisture and atmospheric demand are both high.
     The relationship between $\Psi_{PD}$ and $\Psi_{MD}$ ($\sigma$) is strongly correlated with GPP, although only during the monsoon period.
-    Interestingly, GPP response more rapidly to moisture inputs than $\sigma$.
 
--   Flexible hydraulic regulation appears to allow *J. osteosperma* to prolong the period of high carbon uptake following episodic rain events during the growing season.
+-   Flexible hydraulic regulation appears to allow *J. osteosperma* to prolong soil water extraction and the period of high carbon uptake following episodic rain events during the growing season.
     While the underlying physiological mechanisms that allow for temporal adjustment need further study, this flexibility can partially explain the success of some drought-tolerant species and suggests why dynamic vegetation models often underestimate the productivity of semi-arid ecosystems.
 
 \pagebreak
@@ -126,7 +127,7 @@ Half-hourly stem water potential was summarized to predawn ($\Psi_{PD}$, 2 hours
 
 #### Model description - hydraulic regulation
 
-To specify the hydraulic regulation model, we used the Martinez-Vilalta et al. [@martínez-vilalta2014] equation to relate $\Psi_{MD}$ to $\Psi_{PD}$:
+To specify the hydraulic regulation model, we used the Martinez-Vilalta et al. [@martÃ­nez-vilalta2014] equation to relate $\Psi_{MD}$ to $\Psi_{PD}$:
 
 $$
 \begin{array}{c}
@@ -143,22 +144,22 @@ Furthermore, we implemented the stochastic antecedent model [@ogle2015] to quant
 The data model for hydraulic regulation describes the likelihood of each observed $\Psi_{MD}$, which was normally distributed for each observation $i$ ($i = 1, 2, \ldots, 1425$):
 
 $$
-\begin{equation}
+\begin{array}{c}
 \tag{2}
 {\Psi_{MD}}_i \sim Normal({{\overline{\Psi}}_{MD}}_i, \sigma_{\Psi}^2)
-\end{equation}
+\end{array}
 $$
 
 where ${{\overline{\Psi}}_{MD}}_i$ is the predicted or mean midday water potential and $\sigma_{\Psi}^2$ represents the observation variance.
-${{\overline{\Psi}}_{MD}}_i$ was modeled according to Eqn 1, where all terms were allowed to vary over time, either as direct observations ($\Psi_{MD},$\Psi\_{PD}$) or as modeled parameters ($\sigma\$, $\lambda$).
+${{\overline{\Psi}}_{MD}}_i$ was modeled according to Eqn 1, where all terms were allowed to vary over time, either as direct observations ($\Psi_{MD}$,$\Psi_{PD}$) or as modeled parameters ($\sigma$, $\lambda$).
 The time-varying estimates of hydraulic regulation, $\sigma$ and $\lambda$ were indexed by $i$ and modeled as linear combinations of two antecedent covariates and their interaction:
 
 $$
-\begin{equation}
+\begin{array}{c}
 \tag{3}
 \sigma_i = \beta_0 + \beta_1 \cdot D_i^{ant} + \beta_2 \cdot {W_{10}}_i^{ant} + \beta_3 \cdot D_i^{ant} \cdot {W_{10}}_i^{ant} + \mathcal{E}_{\sigma, t(i)}\\
 \lambda_i = \alpha_0 + \alpha_1 \cdot D_i^{ant} + \alpha_2 \cdot {W_{10}}_i^{ant} + \alpha_3 \cdot D_i^{ant}\cdot {W_{10}}_i^{ant} + \mathcal{E}_{\lambda, t(i)}
-\end{equation}
+\end{array}
 $$
 
 The $\beta$ and $\alpha$ parameters were estimated for all trees.
@@ -167,28 +168,32 @@ $D_{max}$ and $W_{10}$ were scaled using the 2021 mean and standard deviation so
 Antecedent variables [@ogle2015] were constructed using daily time series of each scaled environmental variable:
 
 $$
-\begin{equation}
+\begin{array}{c}
 \tag{4}
 D_i^{ant} = \sum_{p = 0}^{T_{lag}}\omega_{D_p} \cdot D_{t(i)-p}\\
 {W_{10}}_i^{ant} = \sum_{p = 0}^{T_{lag}}\omega_{W_p} \cdot W_{t(i)-p}
-\end{equation}
-$$ where $p$ indicates the time step, $T_{lag}$ represents the total number of past time-steps considered, $\omega_{D_p}$ and $\omega_{W_p}$ indicates the weight or relative importance of the $p$th time step into the past, and $D_{t(i)-p}$ and $W_{t(i)-p}$ are the observed value of each variable at $p$ time steps ago.
+\end{array}
+$$
+
+where $p$ indicates the time step, $T_{lag}$ represents the total number of past time-steps considered, $\omega_{D_p}$ and $\omega_{W_p}$ indicates the weight or relative importance of the $p$th time step into the past, and $D_{t(i)-p}$ and $W_{t(i)-p}$ are the observed value of each variable at $p$ time steps ago.
 Antecedent covariates are weighted averages of past covariate values where the weights are stochastically determined by the data.
 In this analysis, $D^{ant}$ was constructed using daily values from the current day to 4 days ago ($p$ = 1, $T_{lag}$ = 5), while $W_{10}^{ant}$ was constructed using three-day averages of $W_{10}$ from the current day to 20 days ago ($p$ = 3, $T_{lag}$ = 7).
 
 In order to complete this model, a zero-centered hierarchical normal prior was specified for tree random effects:
 
 $$
-\begin{equation}
+\begin{array}{c}
 \tag{5}
 \mathcal{E}_{\sigma, t} \sim Normal(0, \sigma_{\sigma}^2)\\
 \mathcal{E}_{\lambda, t} \sim Normal(0, \sigma_{\lambda}^2)
-\end{equation}
-$$ where reparameterization by sweeping was employed to ensure identifiability between the intercepts ($\beta_0$, $\alpha_0$) and the random effects [@vines1996].
+\end{array}
+$$
+
+where reparameterization by sweeping was employed to ensure identifiability between the intercepts ($\beta_0$, $\alpha_0$) and the random effects [@vines1996].
 
 All remaining parameters were given standard priors following Gelman et al. [-@gelman2014].
 The regression coefficients were assigned relatively non-informative normal priors centered at zero with large variance.
-Antecedent importance weights, vectors of length $T_{lag}$ (Eqn 4), were given non-informative Dirichlet priors that assume *a priori* that each past time step has equal importance, and that constrain weights for each covariate to sum to 1 across all time steps, \$p\$.
+Antecedent importance weights, vectors of length $T_{lag}$ (Eqn 4), were given non-informative Dirichlet priors that assume *a priori* that each past time step has equal importance, and that constrain weights for each covariate to sum to 1 across all time steps, $p$.
 The standard deviation of tree random effects ($\sigma_{\sigma}$ and $\sigma_{\lambda}$) were given relatively non-informative $Uniform(0, 1)$ priors, while the measurement error precision ($1/\sigma_{\Psi}^2$) was assigned a conjugate, relatively non-informative $Gamma(0.1, 0.1)$ prior.
 
 #### Model description - GPP
@@ -196,20 +201,20 @@ The standard deviation of tree random effects ($\sigma_{\sigma}$ and $\sigma_{\l
 Similarly, the data model for daily ecosystem productivity describes the likelihood of each observed $GPP$, which was normally distributed for each observation $j$ ($i = 1, 2, \ldots, 166$):
 
 $$
-\begin{equation}
+\begin{array}{c}
 \tag{6}
 {GPP}_j \sim Lognormal(\overline{GPP}_j, \sigma_{GPP}^2)
-\end{equation}
+\end{array}
 $$
 
 where $\overline{GPP}_j$ is the predicted or mean daily GPP and the variance $\sigma_{GPP}^2$ represents the uncertainty in observed $GPP$.
 $\overline{GPP}_j$ was modeled as a linear function of the same antecedent covariates and interaction as in Eqn 3.
 
 $$
-\begin{equation}
+\begin{array}{c}
 \tag{7}
 \overline{GPP}_j = \gamma_0 + \gamma_1 \cdot {D_{max}}_j^{ant} + \gamma_2 \cdot {W_{10}}_j^{ant} + \gamma_3 \cdot {D_{max}}_j^{ant}\cdot {W_{10}}_j^{ant}
-\end{equation}
+\end{array}
 $$
 
 Antecedents weights were constructed identically to Eqn 4, with unique weights determined by the GPP data.
@@ -248,10 +253,10 @@ During the monsoon period, multiple slopes are evident, with $\sigma > 1$ occurr
 #### Environmental drivers and timescales of $\sigma$ and GPP
 
 The hydraulic regulation model (Eqns 2-5) fit the data very well (Fig. S1, observed vs. predicted $\Psi_{MD}$ $R^2$= 0.920) with low bias (slope of observed vs. predicted = 0.919).
-With much lower sample size, the GPP model (Eqns. 6-7) also fit the data pretty well (Fig. S2, observed vs. predicted $GPP$ $R^2$= 0.741), although with some degree of bias (slope of observed vs. predicted = 0.762) such that high GPP values were underpredicted.
+With much lower sample size, the GPP model (Eqns. 6-7) also fit the data well (Fig. S2, observed vs. predicted $GPP$ $R^2$= 0.741), although with some degree of bias (slope of observed vs. predicted = 0.762) such that high GPP values were underpredicted.
 
 Temporal variation in hydraulic regulation ($\sigma$) was strongly positively associated with antecedent vapor pressure deficit ($D^{ant}$),antecedent soil water content ($W_{10}^{ant}$), and their interaction (Fig. \@ref(fig:fig-hydry-params)a), indicating that *J. osteosperma* became especially anisohydric under dry atmospheric conditions when soils were wet.
-With the larger coefficient, $D^{ant}$ was more influential upon $\sigma$ than \$W\_{10}\^{ant}\$.
+With the larger coefficient, $D^{ant}$ was more influential upon $\sigma$ than $W_{10}^{ant}$.
 While the positive effect of $D$ was primarily driven by the atmospheric dryness on the same day, soil moisture was influential up to 11 days into the past (Fig. \@ref(fig:fig-hydry-params)b).
 The pressure drop parameter $\lambda$ was negatively associated with the interaction of $D^{ant}$ and $W_{10}^{ant}$, although the main effects were not significant (Fig. \@ref(fig:fig-hydry-params)a).
 
@@ -274,18 +279,31 @@ This observation was supported by the highest Pearson's correlation between GPP 
 We believe this novel study is one of the first to associate temporal trends in daily plant water potential, ecosystem fluxes, and hydraulic behavior in a naturally-occurring ecosystem.
 We found that in the anisohydric *J. osteosperma*, midday water potentials ($\Psi_{MD}$) were variably sensitive to predawn water potentials ($\Psi_{PD}$), indicating environmentally-dependent modes of hydraulic regulation ($\sigma$).
 Interestingly, while both $\Psi_{MD}$ and $\Psi_{PD}$ respond rapidly to precipitation inputs, gross primary productivity (GPP) and $\sigma$ were responsive to soil moisture up to by 5 or 11 days prior, respectively.
-Thus, while $\sigma$ and GPP were positively correlated, particularly during the monsoon season, peaks in GPP were achieved earlier than peaks in $\sigma$, offering the intriguing possibility that extreme anisohydry can serve to maximize soil water extraction and prolong GPP pulses in semi-arid ecosystems.
+Thus, while $\sigma$ and GPP were positively correlated, particularly during the monsoon season, peaks in GPP were achieved earlier than peaks in $\sigma$, hinting at the intriguing possibility that extreme anisohydry can serve to maximize soil water extraction and prolong GPP pulses in semi-arid ecosystems.
 
 #### Temporally varying hydraulic behavior
 
-*Juniperus* species are considered anisohydric than co-occurring pinyons due to their more cavitation-resistant xylem [@linton1998], higher safety margins [@plaut2012], and lower leaf water potentials [@west2007, @breshears2009], while their categorization based on stomatal control are less conclusive [@garcia2016]. Here, a 166-day time series of $\Psi_{PD}$ and $\Psi_{MD}$ on *J. osteosperma* reveals strong, context-dependent variation in hydraulic regulation, a timescale that can potentially bridge the gap between short-term stomatal response-based definition of iso/anisohydry [@tardieu1998] and definitions that rely on seasonal extremes [@klein2014, @martínez-vilalta2021].
+*Juniperus* species are considered more anisohydric than co-occurring pinyons due to their more cavitation-resistant xylem [@linton1998], higher safety margins [@plaut2012], and lower leaf water potentials [@west2007, @breshears2009], while their categorization based on stomatal control are less conclusive [@garcia2016]. Here, a 166-day time series of $\Psi_{PD}$ and $\Psi_{MD}$ on *J. osteosperma* reveals strong, context-dependent variation in hydraulic regulation, an intermediate timescale that can potentially bridge the gap between short-term stomatal response-based definition of iso/anisohydry [@tardieu1998] and definitions that rely on seasonal extremes [@klein2014, @martÃ­nez-vilalta2021].
 We believe that using response-based metrics [@kannenberg2022a] to quantify plant water use strategies can enable predictive understanding of plant-environment interactions.
 
-Similar to previous findings for the anisohydric *Larrea tridentata* [@Guo2020], dry air in combination with wet soil drove large increases in $\sigma$ in *J. osteosperma*, suggesting that extreme drops in $\Psi_{MD}$ are primarily enabled when the risk of embolism is surpassed by the reward of carbon uptake. Indeed, we show a positive relationship between $\sigma$ and GPP that confirms the tradeoff at the ecosystem scale. While the mechanism enabling temporally flexible hydraulic behavior is not well understood, although there are some tantalizing hints in similarly temporally variable leaf water relations and ABA synthesis. Both *Larrea* and *Juniperus* experience seasonally varying leaf water relations and a strong difference in turgor loss point ($\Psi_{TLP}$) between rehydrated and un-rehydrated methods [@meinzer2014, @meinzer1986]. By extrapolating the pressure-volume relationships for both types of samples, Meinzer et al. [-@meinzer2014] found that turgor loss would occur at -8.2 MPa for *J. monosperma*, and indeed 99.1% of our $\Psi_{MD}$ observations exceeded this threshold. Seasonally varying leaf-water relations in anisohydric species may indicate the physiological capacity to maintain turgor at multiple levels of leaf hydration.
+Similar to previous findings for the anisohydric *Larrea tridentata* [@guo2020], dry air in combination with wet soil drove large increases in $\sigma$ in *J. osteosperma*, suggesting that extreme drops in $\Psi_{MD}$ are primarily enabled when the risk of embolism is surpassed by the reward of carbon uptake. In our study, shifts to extreme anisohydry appeared only as responses to discrete monsoon precipitation pulses, suggesting that flexible hydraulic behavior enables *J. osteosperma* to take advantage of soil moisture when available. The responsiveness of hydraulic behavior to soil moisture may explain why, despite similar lateral root densities as pinyons [@schwinning2020], junipers tend to be more physiologically responsive to moderate moisture inputs [@breshears1997, @west2007].
 
-The capacity to tolerate leaf dehydration may be linked to foliar ABA dynamics during soil water stress [@brodribb2013].
-In *Callatris rhomboidea*, a member of Cupressaceae, sustained water stress lead to a decline in ABA such that loss of water potential drove stomatal closure.
-Thus, rewatering allowed for rapid recovery of gas exchange, because ABA levels were already low.
+The positive relationship between $\sigma$ and GPP, particularly during the monsoon season, confirms that hydraulic behavior of dominant *J. osteosperma* can drive ecosystem-scale carbon fluxes.
+Most interestingly, the timing $\sigma$ and GPP suggest that extreme anisohydry continues after GPP already peaks.
+Junipers are known to extract soil water even at low soil water potentials [@west2007]; the extreme anisohydry decreases midday water potentials long after the initial pulse of soil moisture, which can serve to prolong elevated GPP than otherwise possible.
+
+#### Possible mechanisms of flexible hydraulic behavior
+
+The mechanisms underlying temporally flexible hydraulic behavior are not well understood, although there are some tantalizing hints in similarly temporally variable leaf water relations and ABA synthesis.
+Both *Larrea* and *Juniperus* experience seasonally varying leaf water relations and a strong difference in turgor loss point between rehydrated and un-rehydrated methods [@meinzer1986, @meinzer2014].
+By extrapolating the pressure-volume relationships for both types of samples, Meinzer et al. [-@meinzer2014] found that turgor loss would ultimately occur at -8.2 MPa for *J. monosperma*, and indeed 99.1% of our $\Psi_{MD}$ observations exceeded this threshold.
+Seasonally varying leaf-water relations in anisohydric species may indicate that a combination of osmotic and cell wall elasticity adjustment can maintain turgor across different levels of leaf hydration.
+
+Hydraulic regulation strategies may also be linked to foliar ABA dynamics during soil water stress [@brodribb2013].
+In *Callatris rhomboidea*, sustained water stress led to a decline in ABA such that loss of water potential (and thus guard cell turgor) drove stomatal closure, but conversely, low ABA also enabled rapid recovery after rewatering [@brodribb2013].
+Among *Cupressaceae*, incuding *Juniperus* and *Callatris*, the use of leaf dessication to close stomata during water stress is a common mechanism to tolerate water stress and could explain how *J. osteosperma* is able to both tolerate dry periods and respond rapidly to rewetting events.
+
+#### Conclusions
 
 ### Acknowledgements
 
