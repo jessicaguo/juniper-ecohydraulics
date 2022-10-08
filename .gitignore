@@ -18,6 +18,7 @@ docs/ESA_2022/Juniper-water-use-GPP_files
 docs/ESA_2022/*.html
 docs/ESA_2022/receipts
 docs/AGU_2022/
+docs/RISE_2022/
 
 # Suppress html and rsconnect files
 *.html
