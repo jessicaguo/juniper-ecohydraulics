@@ -3,6 +3,7 @@ library(dplyr)
 library(ggplot2)
 library(harrypotter)
 library(cowplot)
+library(ggh4x)
 
 # Load predicted sig timeseries
 load(file = "scripts/model-pd-md/products/param_pred.Rdata")
