@@ -61,7 +61,7 @@ knitr::opts_chunk$set(echo = TRUE)
 | Results               | 782        | \-     |
 | Discussion            | 1260       | \-     |
 | Figures               | \-         | 6      |
-| Total                 | 4336       | \-     |
+| Total                 | 4557       | \-     |
 
 \pagebreak
 
@@ -249,15 +249,27 @@ During the monsoon period, D and W were less extreme than during the more arid m
 Beginning with the first major pulse event (39 mm on 2021-07-27), mean $\Psi_{PD}$ remained above -2 MPa continuously for 46 days; however, minimum mean $\Psi_{PD}$ was similar in premonsoon and monsoon periods due to rapid decline in $\Psi_{PD}$ following the third major pulse-drydown.
 Finally, mean $\Psi_{PD}$ stayed above -2 MPa during the fall season, likely due to cooling temperatures and reduced atmospheric demand.
 
+```{r fig-env, echo=FALSE, out.width="100%", fig.cap="Daily site-level environmental characteristics of <b>a)</b> maximum vapor pressure deficit (D) and total precipitation and <b>b)</b> mean volumetric water content (VWC) at 5 cm and 10 cm. Labeled boxes subdivide the study period into before, during, and after the monsoon season"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_1_sep.png")
+```
+
 Seasonal GPP dynamics were similarly responsive to precipitation inputs (Fig. \@ref(fig:fig-psy)b).
 GPP declined during the premonsoon period to near-zero levels, while the onset of the monsoon prompted sharp increases.
 Interestingly, while the first major pulse event was the largest single-day total (39 mm on 2021-07-27) that corresponded to almost immediate increases in $\Psi_{PD}$, GPP rose only modestly.
 All three peaks in GPP during the monsoon period lagged the moisture inputs and stayed high only briefly, in contrast to $\Psi_{PD}$ (Fig. \@ref(fig:fig-psy)a).
 Fall GPP averaged $0.1\ mol\,CO_2\,m^{-2}\,d^{-1}$, about the same as initial GPP during the premonsoon period.
 
+```{r fig-psy, echo=FALSE, out.width="100%", fig.cap="Time series of <b>a)</b> chamber and automated daily measurements of stem water potential and <b>b)</b> daily total gross primary productivity (GPP). Labeled boxes subdivide the study period into before, during, and after the monsoon season. Error bars represent population standard deviation"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_2.png")
+```
+
 At a coarse scale, the dynamics of hydraulic regulation can be visually estimated by plotting stem $\Psi_{MD}$ and $\Psi_{PD}$ by season (Fig. \@ref(fig:fig-sig)).
 The slope $\sigma$ appeared similar during the premonsoon and fall periods, although the soil water content ($W_{10}$) and therefore stem $\Psi$ differed substantially between the two seasons.
 During the monsoon period, multiple slopes are evident, with $\sigma > 1$ occurring when both $W_{10}$ and $\Psi_{PD}$ are high; the same region during the fall season has a much shallower slope.
+
+```{r fig-sig, echo=FALSE, out.width="100%", fig.cap="Midday vs. predawn stem water potential in each of three seasons. Points are colored by the concurrent daily VWC at 10 cm"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_3.png")
+```
 
 #### Environmental drivers and timescales of $\sigma$ and GPP
 
@@ -269,8 +281,16 @@ With the larger coefficient, $D^{ant}$ was more influential upon $\sigma$ than $
 While the positive effect of $D$ was primarily driven by the atmospheric dryness on the same day, soil moisture up to 11 days prior was influential (Fig. \@ref(fig:fig-hydry-params)b).
 The pressure drop parameter $\lambda$ was negatively associated with the interaction of $D^{ant}$ and $W_{10}^{ant}$, although the main effects were not significant (Fig. \@ref(fig:fig-hydry-params)a).
 
+```{r fig-hydry-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with $\\sigma$ and $\\lambda$. Gray horizontal lines indicate the prior means, and asterisks indicate significant covariate effects"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_4.png")
+```
+
 Like $\sigma$, GPP was positively associated with both environmental covariates and their interaction (Fig. \@ref(fig:fig-gpp-params)a), although in this case $W_{10}^{ant}$ was more influential than $D^{ant}$.
 Soil moisture up to 5 days into the past was most influential on GPP, but no clear temporal trend was observed in the antecedent weights for $D^{ant}$ (Fig. \@ref(fig:fig-gpp-params)b).
+
+```{r fig-gpp-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with GPP. Gray horizontal lines indicate the prior means, and asterisks indicate significant covariate effects"}
+knitr::include_graphics("../../scripts/model-flux-daily/figs/fig_5.png")
+```
 
 #### Relationship between $\sigma$ and GPP
 
@@ -282,6 +302,10 @@ Finally, in the fall, *J. osteosperma* returned to isohydry, and $\sigma$ fell b
 The trends in daily $\sigma$ correspond well to observed time-series of GPP (Fig. \@ref(fig:fig-hydry-gpp)a), particularly in the responsiveness of both $\sigma$ and GPP to the three main pulse events.
 Thus, $\sigma$ and GPP were positively correlated during the monsoon period ($r=0.653, p<0.001$, Fig. \@ref(fig:fig-hydry-gpp)b), although the peak in GPP appeared to lead the the peak in $\sigma$.
 This observation was supported by the highest Pearson's correlation between GPP and $\sigma$ achieved at a 1-2 day offset between the two timeseries (Fig. \@ref(fig:fig-hydry-gpp)c).
+
+```{r fig-hydry-gpp, echo=FALSE, out.width="100%", fig.cap="Relationship between predicted $\\sigma$ (posterior mean and 95% CI) and daily GPP shown as <b>a)</b> time series across three seasons, <b>b)</b> bivariate plots for each season, and <b>c)</b> Pearson's correlation coefficient (estimate and 95% confidence interval) during monsoon season across a range of daily offsets where GPP leads $\\sigma$"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_6.png")
+```
 
 ### Discussion
 
@@ -300,14 +324,14 @@ Together, these results hint at the intriguing possibility that extreme anisohyd
 *Juniperus* species are considered more anisohydric than co-occurring pinyon pines due to their more cavitation-resistant xylem [@linton1998], higher hydraulic safety margins [@plaut2012], and lower leaf water potentials [@west2007; @breshears2009], while their categorization based on stomatal control is less conclusive [@garcia2016]. Due to less vulnerable xylem in *Juniperus*, low water potentials alone do not suggest less stringent stomatal control, as they should be interpreted relative to vulnerability curve parameters such as $\Psi_{50}$, or the xylem pressure at 50% loss of hydraulic conductance. Here, a 166-day time series of $\Psi_{PD}$ and $\Psi_{MD}$ in *J. osteosperma* reveals strong, context-dependent variation in hydraulic regulation, an intermediate timescale that can potentially bridge the gap between short-term stomatal response-based definition of iso/anisohydry [@tardieu1998] and definitions that rely on seasonal extremes [@klein2014; @martínez-vilalta2021].
 We posit that using response-based metrics [@kannenberg2022a] to quantify plant water use strategies can enable predictive understanding of plant-environment interactions.
 
-Dry air in combination with wet soil drove large increases in $\sigma$ in *J. osteosperma*, which corresponds to a similar pattern in a drought-tolerant dryland shrub, *Larrea tridentata* [@guo2020]. These findings suggest that extreme drops in $\Psi_{MD}$ are primarily enabled when the risk of embolism is surpassed by the reward of carbon uptake. In our study, shifts to extreme anisohydry appeared only as responses to discrete monsoon precipitation pulses, suggesting that flexible hydraulic behavior enables *J. osteosperma* to take advantage of soil moisture when available. The responsiveness of hydraulic behavior to soil moisture may explain why, despite similar lateral root densities as pinyon pines [@schwinning2020], junipers tend to be more physiologically responsive to moderate moisture inputs [@breshears1997; @west2007].
+Dry air in combination with wet soil drove large increases in $\sigma$ in *J. osteosperma*, attesting to the importance of vapor pressure deficit as a driver of plant responses [@grossiord2020; @novick2016]. The same drivers were important for hydraulic regulation in a drought-tolerant dryland shrub, *Larrea tridentata* [@guo2020], suggesting that extreme drops in $\Psi_{MD}$ are primarily enabled when the risk of embolism is surpassed by the reward of carbon uptake. In our study, shifts to extreme anisohydry appeared only as responses to discrete monsoon precipitation pulses, suggesting that flexible hydraulic behavior enables *J. osteosperma* to take advantage of soil moisture when available. The responsiveness of hydraulic behavior to soil moisture may explain why, despite similar lateral root densities as pinyon pines [@schwinning2020], junipers tend to be more physiologically responsive to moderate moisture inputs [@breshears1997; @west2007; @guo2018].
 
 The positive relationship between $\sigma$ and GPP, particularly during the monsoon season, suggests that temporally-variable hydraulic regulation can maximize carbon uptake during periods of patchy moisture availability.
 Most interestingly, the timing of $\sigma$ and GPP suggest that extreme anisohydry continues after GPP peaks.
 Immediately following a precipitation pulse when soil moisture is high, GPP may be immediately stimulated, such that relatively high midday water potentials (low $\sigma$) are sufficient to drive water transport along the soil-plant-air continuum.
-Because soil moisture declines rapidly after precipitation pulses, extreme anisohydry ($\sigma$ \> 1) may serve to decrease midday water potentials, maintain water transport in drying soils, and possibly confer a competitive advantage over understory species [e.g., @barron-gafford2021].
+Because soil moisture declines rapidly after precipitation pulses, extreme anisohydry ($\sigma$ \> 1) may serve to decrease midday water potentials, maintain water transport in drying soils, and possibly confer a competitive advantage over co-occurring understory species [e.g., @barron-gafford2021].
 The propensity of *Juniperus* spp.
-to extract soil water even at low soil water potentials [@west2007] is consistent with extreme anisohydry and prolong elevated GPP as soils dry.
+to extract soil water even at low soil water potentials [@west2007] is consistent with extreme anisohydry and prolonged elevation of GPP as soils dry.
 
 #### Possible mechanisms of flexible hydraulic behavior
 
@@ -318,39 +342,47 @@ Seasonally varying leaf-water relations in anisohydric species may indicate that
 
 Hydraulic regulation strategies could also be linked to temporal dynamics of foliar ABA during soil water stress and recovery [@brodribb2013].
 In *Callatris rhomboidea*, sustained water stress led to a decline in ABA such that loss of leaf water potential (and thus guard cell turgor) drove stomatal closure, but conversely, low ABA also enabled rapid recovery after rewatering [@brodribb2013].
-Among *Cupressaceae*, including *Juniperus* and *Callatris*, the use of leaf desiccation to close stomata during water stress [@brodribb2014] could explain how *J. osteosperma* is able to both tolerate dry periods, respond rapidly to rewetting events, and persist in seasonally dry ecosystems.
+Among *Cupressaceae*, including *Juniperus* and *Callatris*, the use of leaf desiccation to close stomata during water stress [@brodribb2014] could explain how *J. osteosperma* is able to tolerate dry periods and respond rapidly to rewetting events, enabling persistence in seasonally dry ecosystems.
 
-Finally, temporal variability in plant hydraulic regulation may also be associated with the timing of belowground dynamics, such as fine root and mycorrhizal development [@peek2006; @lehto2011]. In *J. osteosperma*, fine roots grow when soil water is most available and shift toward deeper layers as the growing season progresses [@peek2006], and root distributions may differ depending on cool-season vs. warm-season precipitation. Rooting dynamics can directly influence plant water potential via rhizosphere conductance, but this is difficult to measure empirically [@bristow1984; @sperry2016].
+Finally, temporal variability in plant hydraulic regulation may also be associated with the timing of belowground dynamics, such as fine root and mycorrhizal development [@peek2006; @lehto2011]. In *J. osteosperma*, fine roots grow when soil water is most available and shift toward deeper layers as the growing season progresses [@peek2006], and root distributions vary depending on cool-season vs. warm-season precipitation. Rooting dynamics can directly influence plant water potential via rhizosphere conductance, but this is difficult to measure empirically [@bristow1984; @sperry2016].
 Similarly, mycorrhizal symbionts are known to alter root conductivity [@lehto2011], enhance stomatal conductance [@augé2015], and increase plant productivity [@mohan2014], but the temporal dynamics of plant-mycorrhizae relationships under field conditions are poorly understood and deserve further study[@gehring2017].
 
 #### Implications for vegetation modeling
 
-Plant hydraulic schemes are becoming increasingly represented in vegetation and land surface models [@eller2020; @kennedy2019a; @sabot2020]. The link we observed between hydraulic strategy and GPP hints at the promise of these approaches for better predicting GPP, especially in dryland ecosystems where patchy resource availability leads to a widespread underpredictions of both the magnitude and variability of carbon fluxes [@macbean2021a; @barnes2021].
-Temporal heterogeneity in plant hydraulic strategy coupled with spatial heterogeneity in topoedaphic characteristics may also interact, as evidenced by high variance in stem $\Psi$ among seven co-located trees (Fig. \@ref(fig:fig-psy)a), and contribute to model underperformance in dryland ecosystems.
+Plant hydraulic schemes are becoming increasingly represented in vegetation and land surface models [@eller2020; @kennedy2019a; @sabot2020]. The link we observed between hydraulic strategy and GPP hints at the promise of these approaches for improved predictions of GPP, especially in dryland ecosystems where patchy resource availability leads to a widespread underpredictions of both the magnitude and variability of carbon fluxes [@macbean2021a; @barnes2021].
+Temporal heterogeneity in plant hydraulic strategy and spatial heterogeneity in topoedaphic characteristics may also interact, as evidenced by high variance in stem $\Psi$ among seven co-located trees (Fig. \@ref(fig:fig-psy)a), and contribute to model underperformance in dryland ecosystems.
 However, if transient anisohydry does indeed represent a life history strategy to maximize carbon uptake during pulses of moisture availability, then these models will need to allow for vegetation hydraulic strategies to vary over time.
 
 One avenue of model development operationalizes the trade-off between carbon gain and hydraulic costs [@sperry2016; @wolf2016; @mencuccini2019], a subset of stomatal optimization models that accounts for the cavitation risk of low plant $\Psi$ [@wang2020].
 The Sperry [-@sperry2016] model simulated the water potential and transpiration of co-occurring *P. edulis* and *J. monosperma* with high accuracy, but did not assess temporal variation in GPP.
 Improving the temporal fidelity of optimization models could involve explicit implementation at multiple timescales (daily, weekly) to represent plant physiological acclimation to a changing environment [@joshi2022].
-Alternatively, temporally-variable water use strategies may arise as an emergent property of such models [@kannenberg2022a], although a deeper understanding of mechanistic processes (e.g, turgor maintenance across leaf hydration gradients, ABA synthesis, belowground temporal dynamics) is needed to refine such emergent properties.
-Overall, more research regarding when, where, and how temporally-varying water use strategies arise is necessary to evaluate their role in improved modeling of dryland carbon fluxes.
+Alternatively, temporally-variable water use strategies may arise as an emergent property of such models [@kannenberg2022a], although a deeper understanding of mechanistic processes (e.g, turgor maintenance across leaf hydration gradients, ABA synthesis, belowground temporal dynamics) is needed to support such emergent properties.
+Broadly, more research regarding when, where, and how temporally-varying water use strategies arise is necessary to evaluate their role in improved modeling of dryland carbon fluxes.
 
 #### Conclusions
 
-Though classically considered anisohydric, *J. osteosperma* exhibited multiple hydraulic regulation strategies during the course of a growing season.
-Extreme anisohydry was only evident after monsoon precipitation pulses, while soils were rapidly drying and carbon uptake was high.
-This suggests that flexible hydraulic regulation allows *J. osteosperma* to both avoid extreme $\Psi_{MD}$ and xylem cavitation during seasonal drought and prolong high carbon uptake following episodic precipitation events in a single growing season.
+Though classically considered anisohydric, *J. osteosperma* exhibited multiple hydraulic regulation strategies within a growing season.
+Extreme anisohydry was only evident after monsoon precipitation pulses, while soils were rapidly drying yet carbon uptake was high.
+This suggests that temporally flexible hydraulic regulation allows *J. osteosperma* to both avoid extreme $\Psi_{MD}$ and xylem cavitation during seasonal drought and prolong high carbon uptake following episodic precipitation events.
 Evaluating plant responses at intermediate timescales can reveal the important contribution of biotic regulation to the timing and magnitude of dryland ecosystem fluxes.
 
 ### Data availability
 
 All data and code stored in a GitHub repository that will be made public and archived on Zenodo upon manuscript acceptance.
 
+### Supporting Information
+
+**Fig. S1** Observed vs. predicted $\Psi_{MD}$ ($R^2 = 0.920$)
+
+**Fig. S2** Observed vs. predicted GPP ($R^2 = 0.741$)
+
 ### Acknowledgements
 
 The instrumentation for the eddy covariance tower was provided by the AmeriFlux Management Project, administered through the US Department of Energy (DOE).
 We also thank Newton Tran for assistance with the stem psychrometers, and acknowledge the State of Utah School and Institutional Trust Lands Administration for land permissions.
-SAK was supported by the US Department of Agriculture (USDA) Forest Service Forest Health Protection Evaluation Monitoring program grant #19-05, the US DOE Environmental System Science program grant #DE-SC0022052, and the USDA National Institute of Food and Agriculture Sustainable Agricultural Systems program, grant #2021-68012-35898.
+MLB and SAK were supported by the US DOE Environmental System Science program grant #DE-SC0022052.
+SAK was supported by the US Department of Agriculture (USDA) Forest Service Forest Health Protection Evaluation Monitoring program grant #19-05 and the USDA National Institute of Food and Agriculture Sustainable Agricultural Systems program, grant #2021-68012-35898.
+MLB was supported by the NASA SMAP Science Team grant #80NSSC20K1805.
 WRLA acknowledges support from the David and Lucille Packard Foundation, US National Science Foundation grants 1802880, 2003017 and 2044937, and USDA National Institute of Food and Agriculture, Agricultural and Food Research Initiative Competitive Programme, Ecosystem Services and Agro‐Ecosystem Management, grant no. 2018‐67019‐27850.
 
 ### Author contributions
@@ -359,44 +391,6 @@ JSG and SAK conceived of and designed study with input from WRLA.
 Data were collected by SAK, processed by SAK and JSG, and analyzed by JSG.
 JSG prepared the manuscript with input from all co-authors.
 All authors reviewed the results and approved the final version of the manuscript.
-
-\pagebreak
-
-### Figures
-
-```{r fig-env, echo=FALSE, out.width="100%", fig.cap="Daily site-level environmental characteristics of <b>a)</b> maximum vapor pressure deficit (D) and total precipitation and <b>b)</b> mean volumetric water content (VWC) at 5 cm and 10 cm. Labeled boxes subdivide the study period into before, during, and after the monsoon season"}
-knitr::include_graphics("../../scripts/model-pd-md/figs/fig_1_sep.png")
-```
-
-\pagebreak
-
-```{r fig-psy, echo=FALSE, out.width="100%", fig.cap="Time series of <b>a)</b> chamber and automated daily measurements of stem water potential and <b>b)</b> daily total gross primary productivity (GPP). Labeled boxes subdivide the study period into before, during, and after the monsoon season. Error bars represent population standard deviation"}
-knitr::include_graphics("../../scripts/model-pd-md/figs/fig_2.png")
-```
-
-\pagebreak
-
-```{r fig-sig, echo=FALSE, out.width="100%", fig.cap="Midday vs. predawn stem water potential in each of three seasons. Points are colored by the concurrent daily VWC at 10 cm"}
-knitr::include_graphics("../../scripts/model-pd-md/figs/fig_3.png")
-```
-
-\pagebreak
-
-```{r fig-hydry-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with $\\sigma$ and $\\lambda$. Gray horizontal lines indicate the prior means, and asterisks indicate significant covariate effects"}
-knitr::include_graphics("../../scripts/model-pd-md/figs/fig_4.png")
-```
-
-\pagebreak
-
-```{r fig-gpp-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with GPP. Gray horizontal lines indicate the prior means, and asterisks indicate significant covariate effects"}
-knitr::include_graphics("../../scripts/model-flux-daily/figs/fig_5.png")
-```
-
-\pagebreak
-
-```{r fig-hydry-gpp, echo=FALSE, out.width="100%", fig.cap="Relationship between predicted $\\sigma$ (posterior mean and 95% CI) and daily GPP shown as <b>a)</b> time series across three seasons, <b>b)</b> bivariate plots for each season, and <b>c)</b> Pearson's correlation coefficient (estimate and 95% confidence interval) during monsoon season across a range of daily offsets where GPP leads $\\sigma$"}
-knitr::include_graphics("../../scripts/model-pd-md/figs/fig_6.png")
-```
 
 \pagebreak
 
