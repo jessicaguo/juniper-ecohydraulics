@@ -370,12 +370,6 @@ Evaluating plant responses at intermediate timescales can reveal the important c
 
 All data and code stored in a GitHub repository that will be made public and archived on Zenodo upon manuscript acceptance.
 
-### Supporting Information
-
-**Fig. S1** Observed vs. predicted $\Psi_{MD}$ ($R^2 = 0.920$)
-
-**Fig. S2** Observed vs. predicted GPP ($R^2 = 0.741$)
-
 ### Acknowledgements
 
 The instrumentation for the eddy covariance tower was provided by the AmeriFlux Management Project, administered through the US Department of Energy (DOE).
@@ -395,3 +389,12 @@ All authors reviewed the results and approved the final version of the manuscrip
 \pagebreak
 
 ### References
+
+::: {#refs}
+:::
+
+### Supporting Information
+
+**Fig. S1** Observed vs. predicted $\Psi_{MD}$ ($R^2 = 0.920$)
+
+**Fig. S2** Observed vs. predicted GPP ($R^2 = 0.741$)
