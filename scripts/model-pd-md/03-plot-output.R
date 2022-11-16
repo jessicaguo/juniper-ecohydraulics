@@ -187,8 +187,14 @@ figS1 <- pred %>%
                     col = Tree),
                 alpha = 0.15) +
   geom_point(aes(col = Tree)) +
-  scale_x_continuous(expression(paste("Observed ", Psi[MD])), breaks = seq(-9, 0, 3)) +
-  scale_y_continuous(expression(paste("Predicted ", Psi[MD])), breaks = seq(-9, 0, 3)) +
+  geom_text(x = 0, y = -11, 
+            label = "italic(R^2)==0.920",
+            parse = TRUE,
+            hjust = 1,
+            vjust = 0,
+            size = 5) +
+  scale_x_continuous(expression(paste("Observed ", Psi[MD], " (MPa)")), breaks = seq(-9, 0, 3)) +
+  scale_y_continuous(expression(paste("Predicted ", Psi[MD], " (MPa)")), breaks = seq(-9, 0, 3)) +
   scale_colour_hp_d(option = "LunaLovegood", name = "Tree") +
   theme_bw(base_size = 14) +
   coord_fixed(xlim=c(min(pred$MD,pred$pred.lower,  na.rm = TRUE), 

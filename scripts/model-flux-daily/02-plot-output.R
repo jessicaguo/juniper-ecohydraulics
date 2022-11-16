@@ -175,8 +175,14 @@ figS2 <- pred %>%
   geom_errorbar(aes(ymin = pred.lower, ymax = pred.upper),
                 alpha = 0.25) +
   geom_point() +
-  scale_x_continuous(expression(paste("Observed GPP"))) +
-  scale_y_continuous(expression(paste("Predicted GPP"))) +
+  geom_text(x = 0.4, y = 0, 
+            label = "italic(R^2)==0.741",
+            parse = TRUE,
+            hjust = 1,
+            vjust = 0,
+            size = 5) +
+  scale_x_continuous(expression(paste("Observed GPP (mol ", CO[2], " ", m^-2, d^-1, ")"))) +
+  scale_y_continuous(expression(paste("Predicted GPP (mol ", CO[2], " ", m^-2, d^-1, ")"))) +
   theme_bw(base_size = 14) +
   coord_fixed(xlim=c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
                      max(pred$GPP,pred$pred.upper, na.rm = TRUE)),
