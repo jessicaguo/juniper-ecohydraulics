@@ -15,13 +15,13 @@ library(ggthemes)
 
 #### Add locs ####
 
-loc <- data.frame(name = c("Wasatch Front", "Bears Ears", "Desert Botanical Garden", "Austin"),
-                  x = c(-111.9175, -109.7471, -111.9411, -97.743056),
-                  y = c(40.575, 37.5241, 33.46472, 30.267222))
+loc <- data.frame(name = c("Wasatch Front", "Bears Ears", "Desert Botanical Garden", "NEON-SRER"),
+                  x = c(-111.9175, -109.7471, -111.9411, -110.83633),
+                  y = c(40.575, 37.5241, 33.46472, 31.91126))
 
 #### Select states ####
 states <- st_as_sf(map("state", plot = FALSE, fill = TRUE)) %>%
-  filter(ID %in% c("arizona", "new mexico", "colorado", "utah", "texas"))
+  filter(ID %in% c("arizona", "new mexico", "colorado", "utah"))
 head(states)
 class(states)
 projection(states)
@@ -93,8 +93,8 @@ fig_all <- ggplot() +
              size = 2.5,
              label.size = NA,
              alpha = 0.6,
-             hjust = 0,
-             vjust = 1) +
+             hjust = -0.05,
+             vjust = 0.5) +
   scale_fill_viridis() +
   theme_map() +
   theme(legend.position = "right",
