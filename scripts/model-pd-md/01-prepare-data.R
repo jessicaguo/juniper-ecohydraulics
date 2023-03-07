@@ -68,11 +68,12 @@ psy <- psy_all %>%
 # Use 2021 data and doy as index
 # Will center/scale in model script
 met_in <- met_daily %>%
+  filter(date >= as.Date("2021-01-01")) %>%
   mutate(Dmax = scale(VPD_max),
          VWC5 = scale(VWC_5cm),
          VWC10 = scale(VWC_10cm),
-         VWC50 = scale(VWC_50cm)) %>%
-  filter(date >= as.Date("2021-01-01"))
+         VWC50 = scale(VWC_50cm),
+         PAR = scale(PAR_In)) 
 
 psy_in <- psy %>%
   mutate(doy = lubridate::yday(date))
