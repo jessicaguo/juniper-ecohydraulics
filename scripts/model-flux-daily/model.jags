@@ -16,16 +16,11 @@ model{
     # Antecedent variable is the sum across all timesteps
     #PDant[i] <- sum(PDTemp[i,])
     Dant[i] <- sum(DTemp[i,])
-     W10ant[i] <- sum(W10Temp[i,])
+    W10ant[i] <- sum(W10Temp[i,])
     #PARant[i] <- sum(PARTemp[i,])
     
     # Multiply weight by each timestep of covariate
     # Indexing tricks used to accomodate flexible time step size pA - pC
-    
-    #for(k in 1:nlagA){
-      #PDTemp[i,k] <- mean(PD[(doy[i]-k*pA+1):(doy[i]-k*pA+pA)])*wA[k]
-    #}
-    
     
     for(k in 1:nlagA){
       DTemp[i,k] <- mean(Dmax[(doy[i]-k*pA+1):(doy[i]-k*pA+pA)])*wA[k]
@@ -43,6 +38,7 @@ model{
     # Part of the calculation of the posterior predictive loss	
     Sqdiff[i] <- pow(GPP.rep[i] - GPP[i],2)
   }
+  
   # Sum of the deltas for each covariate
   sumA <- sum(deltaA[])
   sumB <- sum(deltaB[])

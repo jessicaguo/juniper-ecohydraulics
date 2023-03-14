@@ -26,13 +26,32 @@ met_in <- met_daily %>%
          PAR = scale(PAR_In)) %>%
   filter(date >= as.Date("2021-01-01"))
 
-# Read in daily fluxes & clip time range
+# Add seasons
+ppt <- met_in %>%
+  filter(date >= as.Date("2021-07-01"),
+         date <= as.Date("2021-09-30")) %>%
+  select(date, Precip) %>%
+  mutate(cPrecip = cumsum(Precip))
+
+tot <- sum(ppt$Precip)
+
+ppt <- ppt %>%
+  mutate(season = case_when(cPrecip < 0.1 * tot ~ "premonsoon",
+                            cPrecip > 0.1 * tot ~ "monsoon"))
+monsoon_st <- ppt$date[min(which(ppt$season == "monsoon"))]
+monsoon_en <- ppt$date[max(which(ppt$season == "monsoon"))]
+
+
+# Read in daily fluxes, clip time range, assign seasons
 flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
   mutate(date = as.Date(as.POSIXct(paste0(Year, DOY), format = "%Y%j")),
          GPP = case_when(GPP_F > 0 ~ GPP_F)) %>%
   relocate(date) %>%
   filter(date >= min(psy_daily_site_gapfilled$date), 
-         date <= max(psy_daily_site_gapfilled$date))
+         date <= max(psy_daily_site_gapfilled$date)) %>%
+  mutate(season = case_when(date < monsoon_st ~ "premonsoon",
+                            date >= monsoon_st & date <= monsoon_en ~ "monsoon",
+                            date > monsoon_en ~ "fall"))
 range(flux$date)
 hist(flux$GPP)
 summary(flux$GPP)
@@ -51,10 +70,36 @@ cor(foo$GPP, foo$Dmax, use = "complete.obs")
 cor(foo$GPP, foo$VWC10, use = "complete.obs")
 cor(foo$VWC10, foo$Dmax)
 
+# Test correlations in different seasons
+test1 <- foo %>% 
+  filter(season == "premonsoon") 
+with(test1, cor(Dmax, GPP, use = "complete.obs"))
+with(test1, cor(PAR, GPP, use = "complete.obs"))
+with(test1, cor(VWC10, GPP, use = "complete.obs"))
+with(test1, cor(PAR, Dmax))
+
+test2 <- foo %>%
+  filter(season == "monsoon")
+with(test2, cor(Dmax, GPP, use = "complete.obs"))
+with(test2, cor(PAR, GPP, use = "complete.obs"))
+with(test2, cor(VWC10, GPP, use = "complete.obs"))
+with(test2, cor(PAR, Dmax))
+
+test3 <- foo %>%
+  filter(season == "fall")
+with(test3, cor(Dmax, GPP, use = "complete.obs"))
+with(test3, cor(PAR, GPP, use = "complete.obs"))
+with(test3, cor(VWC10, GPP, use = "complete.obs"))
+with(test3, cor(PAR, Dmax))
+
 # Create list of data inputs for model
 dat_list <- list(GPP = flux$GPP,
                  W10 = as.vector(met_in$VWC10),
                  Dmax = as.vector(met_in$Dmax),
+                 # PAR = as.vector(met_in$PAR),
+                 # season = as.numeric(factor(flux$season, levels = c("premonsoon",
+                 #                                                    "monsoon",
+                 #                                                    "fall"))),
                  N = nrow(flux),
                  doy = flux$DOY,
                  nlagA = 5,
@@ -76,6 +121,15 @@ init <- function() {
 }
 
 inits_list <- list(init(), init(), init())
+
+which(colnames(coda.out[[1]]) == "deviance")
+mean(coda.out[[1]][,35])
+mean(coda.out[[2]][,35])
+mean(coda.out[[3]][,35])
+
+reinits <- list(saved_state[[2]][[2]],
+                saved_state[[2]][[1]],
+                saved_state[[2]][[2]])
 
 # Alternatively, load saved state
 load("scripts/model-flux-daily/inits/saved_state.Rdata")
