@@ -1,0 +1,33 @@
+model{
+    for(i in 1:N){
+    
+    # Normal likelihood of residuals
+    resid[i] ~ dnorm(mu[i], tau)
+    resid.rep[i] ~ dnorm(mu[i], tau)
+    
+    # Mean model
+    mu[i] = B[1] + 
+      B[2] * PD[i]
+    
+    # Part of the calculation of the posterior predictive loss	
+    Sqdiff[i] <- pow(resid.rep[i] - resid[i],2)
+  }
+  
+  # Compute Bayesian R2 value
+  var.pred <- pow(sd(mu[]),2)
+  var.resid <- 1/tau
+  R2_resid <- var.pred/(var.pred + var.resid)
+
+  # Normal priors for regression parameters
+  for(j in 1:NParam) { # Number of parameters in linear models
+    B[j] ~ dnorm(0, 0.001)
+  }
+  
+  # Priors for variance terms
+  tau ~ dgamma(0.1, 0.1)
+  sig <- pow(tau, -0.5)
+    
+  # Posterior predictive loss is the posterior mean of Dsum
+  Dsum <- sum(Sqdiff[])
+  
+}

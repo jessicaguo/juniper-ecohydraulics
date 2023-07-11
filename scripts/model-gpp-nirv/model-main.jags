@@ -1,0 +1,37 @@
+model{
+
+### PART 1: GPP ~ NIRv ###
+  for(i in 1:N){
+    # Normal likelihood of residuals
+    GPP[i] ~ dnorm(muGPP[i], tauGPP)
+    GPP.rep[i] ~ dnorm(muGPP[i], tauGPP)
+    
+    # Mean model
+    muGPP[i] <- A[1] + 
+      A[2] * NIRv[i]
+      
+    # Residuals
+    resid[i] <- GPP[i] - muGPP[i]
+    
+    # Part of the calculation of the posterior predictive loss	
+    SqdiffGPP[i] <- pow(GPP.rep[i] - GPP[i],2)
+    }
+    
+  # Compute Bayesian R2 value
+  var.predGPP <- pow(sd(muGPP[]),2)
+  var.residGPP <- 1/tauGPP
+  R2_GPP <- var.predGPP/(var.predGPP + var.residGPP)
+    
+  # Normal priors for regression parameters
+  for(j in 1:2) { 
+    A[j] ~ dnorm(0, 0.001)
+  }
+  
+  # Priors for variance terms
+  tauGPP ~ dgamma(0.1, 0.1)
+  sigGPP <- pow(tauGPP, -0.5)
+    
+  # Posterior predictive loss is the posterior mean of Dsum
+  DsumGPP <- sum(SqdiffGPP[])
+}
+  
