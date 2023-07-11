@@ -93,15 +93,19 @@ fig1a <- ggplot() +
   geom_text(data = rect,
           aes(x = mid, y = 7,
               label = season)) +
-  geom_point(data = met_ppt,
-             aes(x = date, y = VPD_max)) +
-  geom_bar(data = met_ppt,
-           aes(x = date, y = ppt/10), stat = "identity",
-           color = "black") +
+  geom_line(data = met_ppt,
+             aes(x = date, y = VPD_max, color = "D"),
+            size = 1.25) +
+  geom_line(data = met_ppt,
+             aes(x = date, y = PAR_In/100 -5, color = "PAR"),
+            size = 1.25) +
   scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
                guide = "axis_minor") +
-  scale_y_continuous("D (kPa) | precip (cm)") +
-  scale_color_hp_d(option = "Mischief") +
+  scale_y_continuous("D (kPa)", 
+                     sec.axis = sec_axis(~(.+5)*100,
+                                         expression(paste("PAR (mmol ",
+                                                          m^-2, s^-1, ")")))) +
+  scale_color_hp_d(option = "Hufflepuff") +
   scale_fill_manual(values = c("gray90", "gray70", "gray90")) +
   theme_bw(base_size = 14) +
   theme(panel.grid = element_blank(),
@@ -109,7 +113,7 @@ fig1a <- ggplot() +
         axis.text.y = element_text(colour = "black"),
         axis.title.x = element_blank(),
         legend.title = element_blank(),
-        legend.position = c(0.07, 0.92),
+        legend.position = c(0.066, 0.12),
         legend.background = element_rect(fill = "transparent"),
         legend.key.size = unit(0.4, "cm"),
         ggh4x.axis.ticks.length.minor = rel(1)) +
@@ -125,21 +129,32 @@ fig1b <- ggplot() +
   geom_text(data = rect,
             aes(x = mid, y = 18,
                 label = season)) +
+  geom_line(data = met_ppt,
+             aes(x = date, y = VWC_5cm, color = "5 cm"),
+            size = 1.25) +
+  geom_line(data = met_ppt,
+             aes(x = date, y = VWC_10cm, color = "10 cm"),
+            size = 1.25) +
+  geom_bar(data = met_ppt,
+           aes(x = date, y = ppt*0.4), stat = "identity",
+           fill = "black") +
   geom_point(data = met_ppt,
-             aes(x = date, y = VWC_5cm, color = "5 cm")) +
-  geom_point(data = met_ppt,
-             aes(x = date, y = VWC_10cm, color = "10 cm")) +
+             aes(x = date, y = T_max*0.4, color = "Temp"),
+             size = 1.25) +
   geom_text(data = data.frame(x = min(rect$xmin),
-                              y = c(met_ppt$VWC_5cm[1], met_ppt$VWC_10cm[1]),
-                              lab = c("5 cm", "10 cm")),
+                              y = c(met_ppt$VWC_5cm[1], met_ppt$VWC_10cm[1], met_ppt$T_max[4]*0.4+1),
+                              lab = c("5~cm", "10~cm", "T[air]")),
             aes(x = x, y = y, label = lab),
+            parse = TRUE,
             vjust = -0.5,
             hjust = 0) +
   scale_x_date(date_labels = "%b %d", date_breaks = "2 months",
                guide = "axis_minor") +
-  scale_y_continuous("VWC (%)") +
-  scale_color_hp_d(option = "Mischief", direction = -1,
-                   limits = c("5 cm", "10 cm")) +
+  scale_y_continuous("VWC (%)",
+                     sec.axis = sec_axis(~./0.4,
+                                         expression(paste("Precip (mm) | ", T[air], " (°C)")))) +
+  scale_color_hp_d(option = "Mischief",
+                   limits = c("5 cm", "10 cm", "Temp")) +
   scale_fill_manual(values = c("gray90", "gray70", "gray90")) +
   theme_bw(base_size = 14) +
   theme(panel.grid = element_blank(),
