@@ -232,6 +232,14 @@
       "Hash": "e8a1e41acf02548751f45c718d55aa6a",
       "Requirements": []
     },
+    "data.table": {
+      "Package": "data.table",
+      "Version": "1.14.8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b4c06e554f33344e044ccd7fdca750a9",
+      "Requirements": []
+    },
     "denstrip": {
       "Package": "denstrip",
       "Version": "1.5.4",
@@ -607,6 +615,17 @@
       "Hash": "4fbd3679ec8ee169ba28d4b1ea7d0e8f",
       "Requirements": []
     },
+    "lubridate": {
+      "Package": "lubridate",
+      "Version": "1.9.2",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e25f18436e3efd42c7c590a1c4c15390",
+      "Requirements": [
+        "generics",
+        "timechange"
+      ]
+    },
     "magrittr": {
       "Package": "magrittr",
       "Version": "2.0.3",
@@ -716,6 +735,14 @@
       "Source": "Repository",
       "Repository": "CRAN",
       "Hash": "01f28d4278f15c76cddbea05899c5d6f",
+      "Requirements": []
+    },
+    "plantecophys": {
+      "Package": "plantecophys",
+      "Version": "1.4-6",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "018f18edd5a86b27b91ebf7063d6e89a",
       "Requirements": []
     },
     "postjags": {
@@ -958,6 +985,18 @@
         "vctrs"
       ]
     },
+    "suncalc": {
+      "Package": "suncalc",
+      "Version": "0.5.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "d7f6002de83e84715b882458162207b6",
+      "Requirements": [
+        "data.table",
+        "lubridate",
+        "magrittr"
+      ]
+    },
     "tibble": {
       "Package": "tibble",
       "Version": "3.2.1",
@@ -1008,6 +1047,16 @@
         "rlang",
         "vctrs",
         "withr"
+      ]
+    },
+    "timechange": {
+      "Package": "timechange",
+      "Version": "0.2.0",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "8548b44f79a35ba1791308b61e6012d7",
+      "Requirements": [
+        "cpp11"
       ]
     },
     "tinytex": {
