@@ -7,20 +7,13 @@ model{
     
     # Mean model
     mu[i] = B[1] + 
-      B[2] * W10ant[i] +
-      B[3] * Dant[i] +
-      B[4] * Dant[i] * W10ant[i]
+      B[2] * W10ant[i]
     
     # Antecedent variable is the sum across all timesteps
-    Dant[i] <- sum(DTemp[i,])
     W10ant[i] <- sum(W10Temp[i,])
     
     # Multiply weight by each timestep of covariate
     # Indexing tricks used to accomodate flexible time step size pA - pC
-    
-    for(k in 1:nlagA){
-      DTemp[i,k] <- mean(Dmax[(doy[i]-k*pA+1):(doy[i]-k*pA+pA)])*wA[k]
-    }
     
     for(k in 1:nlagB){
       W10Temp[i,k] <- mean(W10[(doy[i]-k*pB+1):(doy[i]-k*pB+pB)])*wB[k]
@@ -32,7 +25,6 @@ model{
   }
   
   # Sum of the deltas for each covariate
-  sumA <- sum(deltaA[])
   sumB <- sum(deltaB[])
   
   # Compute Bayesian R2 value
@@ -42,11 +34,7 @@ model{
 
   # Priors for weights using the delta trick
   # Daily variable weights
-  for(k in 1:nlagA){
-    wA[k] <- deltaA[k] / sumA
-    deltaA[k] ~ dgamma(alphaA[k], 1)
-  }
-  
+
   for(k in 1:nlagB){
     wB[k] <- deltaB[k] / sumB
     deltaB[k] ~ dgamma(alphaB[k], 1)
