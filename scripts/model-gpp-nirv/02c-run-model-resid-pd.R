@@ -1,7 +1,8 @@
-# Univariate model of  with GPP ~ APAR * LUE
+# Univariate model of  with GPP ~ fAPAR * PAR * LUE
 # where LUE ~ SWC, VPD or some combo/antecedent thereof
 # GPP daily in mol CO2 m^-2 d^-1
-# Can remove all points <= 0 (Should we? Not according to Dario Papale)
+# Residual model of LUE
+# Linear function of predawn WP (concurrent) 
 
 library(rjags)
 load.module('dic')
@@ -40,7 +41,7 @@ ppt <- ppt %>%
 monsoon_st <- ppt$date[min(which(ppt$season == "monsoon"))]
 monsoon_en <- ppt$date[max(which(ppt$season == "monsoon"))]
 
-# Read in NIRv
+# Read in NIRv & scale
 sat_dat <- read_csv("data_cleaned/US-Cdm_NIRv.csv") %>%
   rename(date = Date) %>%
   select(-1) %>%
@@ -58,8 +59,8 @@ sat_dat %>%
 
 # Read in daily fluxes, clip time range, assign seasons
 flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
-  mutate(date = as.Date(as.POSIXct(paste0(Year, DOY), format = "%Y%j")))%>%
-         # GPP = case_when(GPP_F > 0 ~ GPP_F)) %>% # should we only use positive values?
+  mutate(date = as.Date(as.POSIXct(paste0(Year, DOY), format = "%Y%j")),
+         GPP = case_when(GPP_F > 0 ~ GPP_F)) %>% # should we only use positive values?
   relocate(date) %>%
   filter(date >= min(psy_daily_site_gapfilled$date), 
          date <= max(psy_daily_site_gapfilled$date)) %>%
@@ -71,140 +72,133 @@ flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
                                 filter(type == "PD") %>%
                                 select(-n)) 
 
-# Simple linear model of GPP_F with smoothed_NIRv
-m <- lm(GPP_F ~ smoothed_NIRv, data = flux)
-summary(m)
+
+# Load residuals from model-main.jags
+load("scripts/model-gpp-nirv/model-main-resid.Rdata") # resid_df
 
 # Combine psy and flux to plot parameters
 # Add residuals of simple model
-derived <- flux %>%
-  left_join(met_in) %>%
-  left_join(psy_daily_site_gapfilled %>%
-              filter(type == "PD") %>%
-              select(-n)) %>%
-  mutate(resid_gpp_nirv = scale(m$residuals))
+derived <- cbind.data.frame(flux, resid = scale(resid_df$pred.mean))
+
 
 derived %>%
   ggplot(aes(x = date)) +
-  geom_line(aes(y = GPP_F*10, color = "GPP"),
-             color = "black") +
-  # geom_point(aes(y = smoothed_NIRv, color = "smooth NIRv")) +
-  geom_point(aes(y = NDVI, color = "NDVI")) +
-  geom_point(aes(y = VWC10, color = "VWC10")) +
-  geom_point(aes(y = Dmax, color = "Dmax")) 
+  geom_line(aes(y = resid, color = "resid_gpp_main")) +
+  geom_point(aes(y = WP_mean, color = "predawn WP")) +
+  theme_bw()
 
-derived %>%
-  ggplot(aes(x = date)) +
-  geom_line(aes(y = resid_gpp_nirv, color = "resid_gpp_nirv")) +
-  # geom_point(aes(y = VWC10, color = "VWC10")) +
-  # geom_point(aes(y = Dmax, color = "Dmax")) +
-  geom_point(aes(y = WP_mean, color = "PD")) 
+#### PART 2, verson with concurrent predawn WP ####
 
-# Create list of data inputs for model
-dat_list1 <- list(GPP = flux$GPP,
-                  NIRv = as.vector(flux$smoothed_NIRv),
-                  N = nrow(flux))
-
-
-#### PART 2: resid ~ PD ###
-load("scripts/model-gpp-nirv/model-main-resid.Rdata") # resid_df
-
-dat_list3 <- list(
+dat_list4 <- list(
   resid = as.vector(scale(resid_df$pred.mean)),
-  PD = as.vector(scale(flux$WP_kalman)),
+  PD = as.vector(scale(flux$WP_kalman)), # scaled, gap-filled predawns
   N = nrow(flux),
   NParam = 2)
 
 # Function to generate initials
-init3 <- function() {
-  list(B = rnorm(dat_list3$NParam, 0, 10),
+init4 <- function() {
+  list(B = rnorm(dat_list4$NParam, 0, 10),
        tau = runif(1, 0, 1)
   )
 }
 
-inits_list3 <- list(init3(), init3(), init3())
+inits_list4 <- list(init4(), init4(), init4())
+
+load(file = "scripts/model-gpp-nirv/inits/saved_state-resid-pd.Rdata")
 
 # Initialize model
-jm3 <- jags.model("scripts/model-gpp-nirv/model-resid-pd.jags",
-                 data = dat_list3,
-                 inits = saved_state3[[2]],
+jm4 <- jags.model("scripts/model-gpp-nirv/model-resid-pd.jags",
+                 data = dat_list4,
+                 inits = saved_state4[[2]],
                  n.chains = 3)
 
-update(jm3, n.iter = 10000)
+# update(jm4, n.iter = 10000)
+dic.samples(jm4, n.iter = 3000, thin = 50)
 
 # Monitor
-params3 <- c("deviance", "Dsum", "R2_resid",
+params4 <- c("deviance", "Dsum", "R2_resid",
             "B",
             "tau", "sig")
 
-coda.out3 <- coda.samples(jm3,
-                         variable.names = params3,
+coda.out4 <- coda.samples(jm4,
+                         variable.names = params4,
                          n.iter = 3000,
                          n.thin = 50)
 
-# save(coda.out1, file = "scripts/model-gpp-nirv/coda/coda-env.Rdata")
+save(coda.out4, file = "scripts/model-gpp-nirv/coda/coda-resid-pd.Rdata")
 
 # Inspect chains visually
-mcmcplot(coda.out3, parms = c("deviance", "Dsum", "R2_resid",
+mcmcplot(coda.out4, parms = c("deviance", "Dsum", "R2_resid",
                               "B",
                               "tau", "sig"))
-caterplot(coda.out3, regex = "^B\\[", reorder = FALSE)
+caterplot(coda.out4, regex = "^B\\[", reorder = FALSE)
 
 # Check convergence diagnostic
-gel3 <- gelman.diag(coda.out3, multivariate = FALSE)
-gel3$psrf %>%
+gel4 <- gelman.diag(coda.out4, multivariate = FALSE)
+gel4$psrf %>%
   data.frame() %>%
   tibble::rownames_to_column() %>%
   filter(grepl("Dsum", rowname) |grepl("deviance", rowname) | grepl("R2", rowname))
 
-gel3$psrf %>%
+gel4$psrf %>%
   data.frame() %>%
   tibble::rownames_to_column() %>%
   filter(grepl("sig", rowname))
 
-gel3$psrf %>%
+gel4$psrf %>%
   data.frame() %>%
   tibble::rownames_to_column() %>%
   filter(grepl("^B", rowname))
 
+# Posterior mean of Dsum and R2
+coda4 <- tidyMCMC(coda.out4,
+                      conf.int = TRUE,
+                      conf.method = "HPDinterval") %>%
+  rename(pred.mean = estimate,
+         pred.lower = conf.low,
+         pred.upper = conf.high)
+coda4 %>%
+  filter(grepl("Dsum", term) |
+           grepl("R2_resid", term))
 
-# Save state
-final <- initfind(coda.out3, OpenBUGS = FALSE)
-final[[1]]
-saved_state3 <- removevars(final, variables = c(2:3, 6, 8:9))
-saved_state3[[1]]
 
-save(saved_state3, file = "scripts/model-gpp-nirv/inits/saved_state-resid-pd.Rdata")
+# # Save state
+# final <- initfind(coda.out4, OpenBUGS = FALSE)
+# final[[1]]
+# saved_state4 <- removevars(final, variables = c(2:4))
+# saved_state4[[1]]
+# 
+# save(saved_state4, file = "scripts/model-gpp-nirv/inits/saved_state-resid-pd.Rdata")
 
 
 # Run replicated data
-coda.rep3 <- coda.samples(jm3,
+coda.rep4 <- coda.samples(jm4,
                          variable.names = "resid.rep",
                          n.iter = 3000,
                          n.thin = 50)
 
 # Save out
-# save(coda.rep, file = "scripts/model-gpp-nirv/coda/codarep-env.Rdata")
+save(coda.rep4, file = "scripts/model-gpp-nirv/coda/codarep-resid-pd.Rdata")
 
-coda_sum3 <- tidyMCMC(coda.rep3,
+coda_sum4 <- tidyMCMC(coda.rep4,
                       conf.int = TRUE,
                       conf.method = "HPDinterval") %>%
   rename(pred.mean = estimate,
          pred.lower = conf.low,
          pred.upper = conf.high)
 
-pred3 <- cbind.data.frame(resid_df %>%
+pred4 <- cbind.data.frame(resid_df %>%
                             mutate(resid_mean = scale(pred.mean)) %>%
-                            select(resid_mean), coda_sum3)
+                            select(resid_mean), coda_sum4)
 
-m3 <- lm(pred.mean ~ resid_mean, data = pred3)
-sm3 <- summary(m3) # R2 = 0.1449
+m4 <- lm(pred.mean ~ resid_mean, data = pred4)
+sm4 <- summary(m4) # R2 = 0.1996
 
-ggplot(pred3) +
+ggplot(pred4) +
   geom_abline(intercept = 0, slope = 1, col = "black",
-              size = 1) +
-  geom_abline(intercept = coef(sm2)[1,1], 
-              slope = coef(sm2)[2,1], 
+              linewidth = 1) +
+  geom_abline(intercept = coef(sm4)[1,1], 
+              slope = coef(sm4)[2,1], 
               col = "black",
               lty = 2) +
   geom_point(aes(x = resid_mean,
