@@ -80,10 +80,13 @@ derived <- cbind.data.frame(flux, resid = scale(resid_df$pred.mean))
 
 derived %>%
   ggplot(aes(x = date)) +
-  geom_line(aes(y = resid, color = "resid_gpp_main")) +
-  geom_point(aes(y = VWC10, color = "VWC10")) +
+  geom_line(aes(y = resid)) +
   geom_point(aes(y = Dmax, color = "Dmax")) +
-  theme_bw()
+  geom_point(aes(y = VWC10, color = "VWC10")) +
+  scale_color_manual(values = c("VWC10" = "forestgreen",
+                                "Dmax" = "royalblue")) +
+  theme_bw() +
+  labs(color = "covariate")
 
 
 #### PART 2, verson with concurrent Dmax and antecedent VWC10 ####
@@ -138,6 +141,7 @@ coda.out2 <- coda.samples(jm2,
                          n.thin = 50)
 
 save(coda.out2, file = "scripts/model-gpp-nirv/coda/coda-resid-env.Rdata")
+load(file = "scripts/model-gpp-nirv/coda/coda-resid-env.Rdata")
 
 # Inspect chains visually
 mcmcplot(coda.out2, parms = c("deviance", "Dsum", "R2_resid",

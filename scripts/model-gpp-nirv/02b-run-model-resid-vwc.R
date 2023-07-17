@@ -132,6 +132,7 @@ coda.out3 <- coda.samples(jm3,
                          n.thin = 50)
 
 save(coda.out3, file = "scripts/model-gpp-nirv/coda/coda-resid-vwc.Rdata")
+load(file = "scripts/model-gpp-nirv/coda/coda-resid-vwc.Rdata")
 
 # Inspect chains visually
 mcmcplot(coda.out3, parms = c("deviance", "Dsum", "R2_resid",

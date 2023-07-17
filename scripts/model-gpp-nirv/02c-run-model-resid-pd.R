@@ -83,9 +83,10 @@ derived <- cbind.data.frame(flux, resid = scale(resid_df$pred.mean))
 
 derived %>%
   ggplot(aes(x = date)) +
-  geom_line(aes(y = resid, color = "resid_gpp_main")) +
+  geom_line(aes(y = resid)) +
   geom_point(aes(y = WP_mean, color = "predawn WP")) +
-  theme_bw()
+  theme_bw() +
+  labs(color = "covariate")
 
 #### PART 2, verson with concurrent predawn WP ####
 
@@ -126,6 +127,7 @@ coda.out4 <- coda.samples(jm4,
                          n.thin = 50)
 
 save(coda.out4, file = "scripts/model-gpp-nirv/coda/coda-resid-pd.Rdata")
+load(file = "scripts/model-gpp-nirv/coda/coda-resid-pd.Rdata")
 
 # Inspect chains visually
 mcmcplot(coda.out4, parms = c("deviance", "Dsum", "R2_resid",
@@ -179,6 +181,7 @@ coda.rep4 <- coda.samples(jm4,
 
 # Save out
 save(coda.rep4, file = "scripts/model-gpp-nirv/coda/codarep-resid-pd.Rdata")
+load(file = "scripts/model-gpp-nirv/coda/codarep-resid-pd.Rdata")
 
 coda_sum4 <- tidyMCMC(coda.rep4,
                       conf.int = TRUE,
@@ -192,7 +195,7 @@ pred4 <- cbind.data.frame(resid_df %>%
                             select(resid_mean), coda_sum4)
 
 m4 <- lm(pred.mean ~ resid_mean, data = pred4)
-sm4 <- summary(m4) # R2 = 0.1996
+sm4 <- summary(m4) # R2 = 0.1999
 
 ggplot(pred4) +
   geom_abline(intercept = 0, slope = 1, col = "black",
@@ -202,6 +205,14 @@ ggplot(pred4) +
               col = "black",
               lty = 2) +
   geom_point(aes(x = resid_mean,
-                 y = pred.mean)) 
+                 y = pred.mean)) +
+  geom_errorbar(aes(x = resid_mean,
+                    ymin = pred.lower,
+                    ymax = pred.upper),
+                width = 0,
+                alpha = 0.2) +
+  scale_y_continuous("Predicted residuals") +
+  scale_x_continuous("Observed residuals") +
+  theme_bw(base_size = 14)
 
 

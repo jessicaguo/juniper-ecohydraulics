@@ -120,13 +120,14 @@ coda.out1 <- coda.samples(jm1,
                          n.thin = 50)
 
 save(coda.out1, file = "scripts/model-gpp-nirv/coda/coda-main.Rdata")
+load(file = "scripts/model-gpp-nirv/coda/coda-main.Rdata")
 # Inspect chains visually
 mcmcplot(coda.out1, parms = c("deviance", "DsumGPP", "R2_GPP",
                              "A",
                              "tauGPP", "sigGPP"))
 caterplot(coda.out1, regex = "^A\\[", reorder = FALSE)
 
-# Check convergence diagnostic
+Check convergence diagnostic
 gel1 <- gelman.diag(coda.out1, multivariate = FALSE)
 gel1$psrf %>%
   data.frame() %>%
@@ -170,7 +171,7 @@ coda.rep1 <- coda.samples(jm1,
                          n.thin = 50)
 # Save out
 save(coda.rep1, file = "scripts/model-gpp-nirv/coda/codarep-main.Rdata")
-
+load(file = "scripts/model-gpp-nirv/coda/codarep-main.Rdata")
 
 coda_sum1 <- tidyMCMC(coda.rep1,
                      conf.int = TRUE,
@@ -182,7 +183,7 @@ coda_sum1 <- tidyMCMC(coda.rep1,
 pred1 <- cbind.data.frame(flux, coda_sum1)
 
 m1 <- lm(pred.mean ~ GPP, data = pred1)
-sm1 <- summary(m1) # R2 = 0.7308
+sm1 <- summary(m1) # R2 = 0.7334
 
 ggplot(pred1) +
   geom_abline(intercept = 0, slope = 1, col = "black",
@@ -193,7 +194,14 @@ ggplot(pred1) +
               lty = 2) +
   geom_point(aes(x = GPP,
                  y = pred.mean)) +
-  coord_fixed()
+  geom_errorbar(aes(x = GPP,
+                    ymin = pred.lower,
+                    ymax = pred.upper),
+                width = 0,
+                alpha = 0.2) +
+  scale_y_continuous("Predicted GPP") +
+  scale_x_continuous("Observed GPP") +
+  theme_bw()
 
 # Process posterior means of residuals
 resid_df <- tidyMCMC(coda.out1,
