@@ -87,13 +87,22 @@ Keywords: `r rmarkdown::metadata$keywords`
 
 ### Introduction
 
-Along the soil-plant-atmosphere continuum, gradients of water potential ($\Psi$) drive water transport and integrate the tradeoff between obtaining carbon dioxide for photosynthesis and water loss through stomata [@berry2010]. The concept of a 'plant water use strategy' encompasses the numerous ways plants have evolved to confront this inescapable dilemma, including the popular iso/anisohydry spectrum based on the stomatal regulation of $\Psi$ [@tardieu1998; @jones1998].
+Along the soil-plant-atmosphere continuum, gradients of water potential ($\Psi$) drive water transport and integrate the tradeoff between obtaining carbon dioxide for photosynthesis and water loss through stomata [@berry2010].
+The concept of a 'plant water use strategy' encompasses the numerous ways plants have evolved to confront this inescapable dilemma, including the popular iso/anisohydry spectrum based on the stomatal regulation of $\Psi$ [@tardieu1998; @jones1998].
 Isohydry describes a conservative stomatal strategy to minimize reductions in $\Psi$ and preserve hydraulic conductivity, while anisohydry is a profligate stomatal strategy that prioritizes carbon gain at the expense of low $\Psi$.
-While the degree of iso/anisohydry is generally operationalized as a species-level trait, recent work has demonstrated that these strategies can be quite variable within a species, which may arise from plant-environment interactions in accordance with hydraulic theory [@hochberg2018].
+The degree of iso/anisohydry is generally operationalized as a species-level and theoretical trait, describing a strategy in response to declining soil moisture in the absence of other limiting factors ().
+However, recent work has demonstrated that these strategies can be quite variable within a species and may arise from plant-environment interactions [@hochberg2018], including vapor pressure deficit (VPD), which is often decoupled from soil moisture at short timescales [@novick2016].
 Within-species shifts in iso/anisohydry have been reported for *Larrea tridentata* [@guo2020] and *Quercus douglasii* [@feng2019] in different seasons, in *Quercus suber* due to competition [@haberstroh2022], *Acacia aptaneura* as a result of repeated experimental drought [@nolan2017], and in multiple species between wet and dry years [@wu2021].
 
-The implications of temporally-variable hydraulic strategies on ecosystem carbon (C) fluxes are not well understood, but are important for understanding the dynamics of the land carbon sink and, by extension, its potential to forecast and mitigate the effects of climate change [@novick2022; @kennedy2019]. Particularly in dryland ecosystems, persistent water limitation and episodic precipitation promote tight coupling between carbon and water cycles [@biederman2016], resulting in added temporal complexity that can be difficult to model [@ogle2004; @noy-meir1973; @loik2004; @feldman2018]. Dryland ecosystems are largely responsible for the interannual variability of the global carbon sink [@poulter2014; @ahlstrom2015], yet dynamic global vegetation models are prone to underestimating C uptake in dryland regions [@macbean2021].
+The implications of temporally-variable hydraulic strategies on ecosystem carbon (C) fluxes are not well understood, but are important for understanding the dynamics of the land carbon sink and, by extension, its potential to forecast and mitigate the effects of climate change [@novick2022; @kennedy2019].
+Particularly in dryland ecosystems, persistent water limitation and episodic precipitation promote tight coupling between carbon and water cycles [@biederman2016], resulting in added temporal complexity that can be difficult to model [@ogle2004; @noy-meir1973; @loik2004; @feldman2018].
+Dryland ecosystems are largely responsible for the interannual variability of the global carbon sink [@poulter2014; @ahlstrom2015], yet dynamic global vegetation models are prone to underestimating C uptake in dryland regions [@macbean2021].
 Understanding the temporal dynamics and environmental sensitivity of plant hydraulic strategies may be critical to improving predictive forecasts of the global carbon cycle.
+
+Current methods to quantify drought impacts on ecosystem productivity often rely on remotely-sensed indices of vegetation greenness [@zeng2022].
+However, while such indices capture structural capacity for photosynthesis on a seasonal basis, they fail to cpature the immediate constraints imposed by soil and atmospheric drought, which must be explicitly represented [@stocker2018].
+The divergence between low seasonality in remote-sensed indices and high seasonality in tower-based measurements is especially apparent in semi-arid and evergreen ecosystems [@garbulsky2008, @pierrat2021].
+Therefore, inclusion of plant water potential, a direct metric of plant water stress, may provide a physiological constraint on GPP prediction in drylands and improve quantification of drought impacts on the global carbon cycle.
 
 Drought-induced mortality in pinyon-juniper woodlands is an iconic consequence of climate change in the southwest US.
 Pinyon mortality following the 2002-2003 drought was associated with differences in plant hydraulic regulation [@breshears2009; @plaut2012]; juniper survival was largely attributed to a less hydraulically vulnerable xylem and thus a greater ability to withstand low water potentials [@mcdowell2008].
@@ -101,13 +110,13 @@ Although generally considered anisohydric, *Juniperus monosperma* exhibited stro
 As the southwestern US megadrought persists [@williams2022] and induces mortality even among resilient *Juniperus* spp.
 [@kannenberg2021], it is imperative to examine how anisohydric strategies interact with plant productivity and survival.
 
-In this study, we utilize a five-month time-series of plant $\Psi$ and ecosystem C fluxes in a juniper woodland to evaluate the relationship and temporal dynamics between hydraulic strategy and gross primary productivity (GPP).
-By contemporaneously measuring plant $\Psi$ and GPP continuously at daily temporal resolution, we can directly investigate the implications of $\Psi$ regulation for productivity in an iconic southwestern species.
+In this study, we utilize a five-month time-series of plant $\Psi$ and ecosystem C fluxes in a juniper woodland to evaluate the temporal dynamics of hydraulic strategy and gross primary productivity (GPP).
+By contemporaneously measuring plant $\Psi$ and GPP continuously at daily resolution, we can directly investigate the implications of $\Psi$ regulation and predawn water potential for productivity in an iconic southwestern species.
 We ask:
 
 1)  Does plant hydraulic regulation vary over time in *J. osteosperma*?
-2)  Do the drivers of hydraulic regulation differ from the drivers of GPP?
-3)  What is the relationship between hydraulic regulation and GPP over a growing season?
+2)  What are the temporal patterns in hydraulic regulation and GPP over a growing season?
+3)  Can GPP prediction be enhanced by plant water potential?
 
 ### Materials and Methods
 
@@ -142,6 +151,22 @@ The half-hourly stem water potential time series were subjected to quality contr
 After removing data during the maintenance period (+ 1 day) and outliers that were \> 0.5 MPa from adjacent points, data that met the following criteria were also discarded: 1) a step change in the magnitude of water potential not attributable to a precipitation event; 2) loss of diurnal pattern in water potential.
 On average, data from 10 out of 14 psychrometers were available during a given period.
 Half-hourly stem water potential was summarized to predawn ($\Psi_{PD}$, 2 hours prior to sunrise) and midday ($\Psi_{PD}$, 2 hours following solar noon) for each logger.
+In addition, site-level means of predawn and midday water potential were calculated and missing values (10 and 8, respectively) were imputed using Kalman Smoothing via the R package 'imputeTS' [@moritz2017].
+
+#### Vegetation indices and fAPAR
+
+We employed a Monteith-style framework [@monteith1972] to model tower-based GPP as a function of fraction of absorbed photosynthetically active radiation (fAPAR) and light use efficiency (LUE):
+
+$$
+\begin{array}{c}
+GPP = PAR \cdot fAPAR \cdot LUE
+\end{array}
+$${#eq:1}
+
+fAPAR is commonly represented by remotely-sensed vegetation indices; here, we used the near infrared reflectance of vegetation (NIRv) from NASA's Moderate Resolution Imaging Spectoradiometer (MODIS).
+500m resolution MODIS data for US-CdM were screened for the highest quality flags and interpolated to daily values using a Savitzky-Golay filter of order \_ and length \_.\
+Site-level incoming photosynthetically active radiation (PAR) was obtained the tower sensor.
+NIRv is well-correlated with modeled absorbed photosynthetically active radiation, even at low vegetation cover [badgley2017]; the product of NIRv and incoming PAR is termed NIRvP and considered a robust proxy of photosynthesis globally [@dechant2022].
 
 #### Model description - hydraulic regulation
 
@@ -211,24 +236,58 @@ The standard deviation of tree random effects ($\sigma_{\sigma}$ and $\sigma_{\l
 
 #### Model description - GPP
 
-Similarly, the data model for daily ecosystem productivity describes the likelihood of each observed $GPP$, which was normally distributed for each observation $j$ ($i = 1, 2, \ldots, 166$):
+To model daily ecosystem productivity, the likelihood of observed $GPP$ was normally distributed for for each observation $j$ ($j = 1, 2, \ldots, 166$):
 
 $$
 \begin{array}{c}
-{GPP}_j \sim Lognormal(\overline{GPP}_j, \sigma_{GPP}^2)
+{GPP}_j \sim Normal(\overline{GPP}_j, \sigma_{GPP}^2)
 \end{array}
 $${#eq:6}
 
 where $\overline{GPP}_j$ is the predicted or mean daily GPP and the variance $\sigma_{GPP}^2$ represents the uncertainty in observed $GPP$.
-$\overline{GPP}_j$ was modeled as a linear function of the same antecedent covariates and interaction as in Eqn 3.
+$\overline{GPP}_j$ was modeled as a linear function of NIRv, PAR, and their interaction, representing the initial $GPP = fAPAR$ component of the Monteith formulation.
 
 $$
 \begin{array}{c}
-\overline{GPP}_j = \gamma_0 + \gamma_1 \cdot {D_{max}}_j^{ant} + \gamma_2 \cdot {W_{10}}_j^{ant} + \gamma_3 \cdot {D_{max}}_j^{ant}\cdot {W_{10}}_j^{ant}
+\overline{GPP}_j = \gamma_0 + \gamma_1 \cdot {NIRv}_j + \gamma_2 \cdot {PAR}_j + \gamma_3 \cdot {NIRv}_j\cdot {PAR}_j
 \end{array}
 $${#eq:7}
 
-Antecedents weights were constructed identically to Eqn 4, with unique weights determined by the GPP data.
+All remaining parameters were given standard priors as previously described.
+
+To account for the remaining effects of LUE, we calculated the residuals of the above model as the posterior mean of $GPP_j - \overline{GPP}_j$; residuals were then scaled for improved model mixing.
+The likelihood of the residual model described scaled $resid$ as normally distributed for observations $k$ ($k = 1, 2, \ldots, 166$):
+
+$$
+\begin{array}{c}
+{resid}_k \sim Normal(\overline{resid}_k, \sigma_{resid}^2)
+\end{array}
+$${#eq:8}
+
+where $\overline{resid}_k$ is the predicted residual between observed and modeled (eqn. 6, 7) GPP, and the variance $\sigma_{resid}^2$ represents the uncertainty in observed $resid$.
+$\overline{resid}_k$ is interpreted as a dynamic LUE constraint on the GPP \~ fAPAR relationship.
+We devised three LUE formulations that account for the combined impact of concurrent VPD and antecedent soil moisture (eqn. 9), antecedent soil moisture alone (eqn. 10), and concurrent predawn water potential (eqn. 11):
+
+$$
+\begin{array}{c}
+\overline{resid}_k = \delta_0 + \delta_1 \cdot {D_{max}}_k + \delta_2 \cdot {W_{10}}_k^{ant} + \delta_3 \cdot {D_{max}}_k\cdot {W_{10}}_k^{ant}
+\end{array}
+$${#eq:9}
+
+$$
+\begin{array}{c}
+\overline{resid}_k = \eta_0 + \eta_1 \cdot {W_{10}}_k^{ant}
+\end{array}
+$${#eq:10}
+
+$$
+\begin{array}{c}
+\overline{resid}_k = \theta_0 + \theta_1 \cdot {\Psi_{PD}}_k
+\end{array}
+$${#eq:11}
+
+where $\Psi_{PD}$ were the gapfilled means of predawn water potential at the site level.
+Antecedents weights for $W_{10}^{ant}$ were constructed identically to Eqn 4, with unique weights determined by the GPP residuals.
 
 #### Model implementation and interpretation
 
@@ -238,6 +297,7 @@ Models were then run for 150,000 iterations and thinned by 50 to reduce within-c
 Posterior distributions were summarized by their means and 95% highest posterior density credible intervals (henceforth, 95% CIs).
 Covariate effects were significant if the 95% CI did not overlap zero.
 To quantify seasonal variation in $\sigma$, the posterior samples of the $\beta$ regression coefficients and antecedent weights were combined with the time-series of scaled $D_{max}$ and $W_{10}$ to produce posterior means and 95% CIs.
+Model comparison criteria for the three forms of GPP residual models included posterior predictive loss [@gelfand1998] and $R^2$ between observed and predicted values.
 
 ### Results
 
@@ -323,10 +383,15 @@ Together, these results hint at the intriguing possibility that extreme anisohyd
 
 #### Temporally-varying hydraulic behavior
 
-*Juniperus* species are considered more anisohydric than co-occurring pinyon pines due to their more cavitation-resistant xylem [@linton1998], higher hydraulic safety margins [@plaut2012], and lower leaf water potentials [@west2007; @breshears2009], while their categorization based on stomatal control is less conclusive [@garcia2016]. Due to less vulnerable xylem in *Juniperus*, low water potentials alone do not suggest less stringent stomatal control, as they should be interpreted relative to vulnerability curve parameters such as $\Psi_{50}$, or the xylem pressure at 50% loss of hydraulic conductance. Here, a 166-day time series of $\Psi_{PD}$ and $\Psi_{MD}$ in *J. osteosperma* reveals strong, context-dependent variation in hydraulic regulation, an intermediate timescale that can potentially bridge the gap between short-term stomatal response-based definition of iso/anisohydry [@tardieu1998] and definitions that rely on seasonal extremes [@klein2014; @martínez-vilalta2021].
+*Juniperus* species are considered more anisohydric than co-occurring pinyon pines due to their more cavitation-resistant xylem [@linton1998], higher hydraulic safety margins [@plaut2012], and lower leaf water potentials [@west2007; @breshears2009], while their categorization based on stomatal control is less conclusive [@garcia2016].
+Due to less vulnerable xylem in *Juniperus*, low water potentials alone do not suggest less stringent stomatal control, as they should be interpreted relative to vulnerability curve parameters such as $\Psi_{50}$, or the xylem pressure at 50% loss of hydraulic conductance.
+Here, a 166-day time series of $\Psi_{PD}$ and $\Psi_{MD}$ in *J. osteosperma* reveals strong, context-dependent variation in hydraulic regulation, an intermediate timescale that can potentially bridge the gap between short-term stomatal response-based definition of iso/anisohydry [@tardieu1998] and definitions that rely on seasonal extremes [@klein2014; @martínez-vilalta2021].
 We posit that using response-based metrics [@kannenberg2022a] to quantify plant water use strategies can enable predictive understanding of plant-environment interactions.
 
-Dry air in combination with wet soil drove large increases in $\sigma$ in *J. osteosperma*, attesting to the importance of vapor pressure deficit as a driver of plant responses [@grossiord2020; @novick2016]. As the same drivers were important for hydraulic regulation in the drought-tolerant desert shrub, *Larrea tridentata* [@guo2020], transient drops in $\Psi_{MD}$ may be strategic only during the wet periods of otherwise water-limited ecosystems, when the reward of carbon uptake exceeds the risk of embolism. In our study, shifts to extreme anisohydry appeared only as responses to discrete monsoon precipitation pulses, suggesting that flexible hydraulic behavior enables *J. osteosperma* to take advantage of soil moisture when available. The responsiveness of hydraulic behavior to soil moisture may explain why, despite similar lateral root densities as pinyon pines [@schwinning2020], junipers tend to be more physiologically responsive to moderate moisture inputs [@breshears1997; @west2007; @guo2018].
+Dry air in combination with wet soil drove large increases in $\sigma$ in *J. osteosperma*, attesting to the importance of vapor pressure deficit as a driver of plant responses [@grossiord2020; @novick2016].
+As the same drivers were important for hydraulic regulation in the drought-tolerant desert shrub, *Larrea tridentata* [@guo2020], transient drops in $\Psi_{MD}$ may be strategic only during the wet periods of otherwise water-limited ecosystems, when the reward of carbon uptake exceeds the risk of embolism.
+In our study, shifts to extreme anisohydry appeared only as responses to discrete monsoon precipitation pulses, suggesting that flexible hydraulic behavior enables *J. osteosperma* to take advantage of soil moisture when available.
+The responsiveness of hydraulic behavior to soil moisture may explain why, despite similar lateral root densities as pinyon pines [@schwinning2020], junipers tend to be more physiologically responsive to moderate moisture inputs [@breshears1997; @west2007; @guo2018].
 
 The positive relationship between $\sigma$ and GPP, particularly during the monsoon season, suggests that temporally-variable hydraulic regulation can maximize carbon uptake during periods of patchy moisture availability.
 Most interestingly, the timing of $\sigma$ and GPP indicates that extreme anisohydry intensifies after GPP peaks.
@@ -346,12 +411,15 @@ Hydraulic regulation strategies could also be linked to temporal dynamics of fol
 In *Callatris rhomboidea*, sustained water stress led to a decline in ABA such that loss of leaf water potential (and thus guard cell turgor) drove stomatal closure, but conversely, low ABA also enabled rapid recovery after rewatering [@brodribb2013].
 Among *Cupressaceae*, including *Juniperus* and *Callatris*, the use of leaf desiccation to close stomata during water stress [@brodribb2014] could explain how *J. osteosperma* is able to tolerate dry periods and respond rapidly to rewetting events, enabling persistence in seasonally dry ecosystems.
 
-Finally, temporal variability in plant hydraulic regulation may also be associated with the timing of belowground dynamics, such as fine root and mycorrhizal development [@peek2006; @lehto2011]. In *J. osteosperma*, fine roots grew when soil water was most available and shifted toward deeper layers as the growing season progressed [@peek2006], and root distributions varied depending on cool-season vs. warm-season precipitation. Rooting dynamics can directly influence plant water potential via rhizosphere conductance, but this is difficult to measure empirically [@bristow1984; @sperry2016].
+Finally, temporal variability in plant hydraulic regulation may also be associated with the timing of belowground dynamics, such as fine root and mycorrhizal development [@peek2006; @lehto2011].
+In *J. osteosperma*, fine roots grew when soil water was most available and shifted toward deeper layers as the growing season progressed [@peek2006], and root distributions varied depending on cool-season vs. warm-season precipitation.
+Rooting dynamics can directly influence plant water potential via rhizosphere conductance, but this is difficult to measure empirically [@bristow1984; @sperry2016].
 Similarly, mycorrhizal symbionts are known to alter root conductivity [@lehto2011], enhance stomatal conductance [@augé2015], and increase plant productivity [@mohan2014], but the temporal dynamics of plant-mycorrhizae relationships under field conditions are poorly understood and deserve further study [@gehring2017].
 
 #### Implications for vegetation modeling
 
-Plant hydraulic schemes are becoming increasingly represented in vegetation and land surface models [@eller2020; @kennedy2019a; @sabot2020]. The link we observed between hydraulic strategy and GPP reinforces the value of these approaches for improved predictions of GPP, especially in dryland ecosystems where patchy resource availability leads to widespread underpredictions of both the magnitude and variability of carbon fluxes [@macbean2021a; @barnes2021].
+Plant hydraulic schemes are becoming increasingly represented in vegetation and land surface models [@eller2020; @kennedy2019a; @sabot2020].
+The link we observed between hydraulic strategy and GPP reinforces the value of these approaches for improved predictions of GPP, especially in dryland ecosystems where patchy resource availability leads to widespread underpredictions of both the magnitude and variability of carbon fluxes [@macbean2021a; @barnes2021].
 Temporal heterogeneity in plant hydraulic strategy and spatial heterogeneity in topoedaphic characteristics may also interact, as evidenced by high variance in stem $\Psi$ among seven co-located trees (Fig. \@ref(fig:fig-psy)a), and contribute to model underperformance in dryland ecosystems.
 However, if transient anisohydry does indeed represent a life history strategy to maximize carbon uptake during pulses of moisture availability, then these models will need to allow for vegetation hydraulic strategies to vary over time.
 
