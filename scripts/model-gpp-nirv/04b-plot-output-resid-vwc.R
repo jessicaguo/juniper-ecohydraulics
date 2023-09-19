@@ -2,7 +2,7 @@
 
 library(coda)
 library(broom.mixed)
-library(dplyr)
+library(tidyverse)
 library(ggplot2)
 library(cowplot)
 library(ggh4x)
@@ -205,10 +205,10 @@ figS3d <- pred %>%
             hjust = 1,
             vjust = 0,
             size = 4) +
-  scale_x_continuous(expression(paste("Observed resid (mol ", CO[2], " ", m^-2, d^-1, ")")),
+  scale_x_continuous(expression(paste("Observed resid")),
                      limits = c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
                                 max(pred$GPP,pred$pred.upper, na.rm = TRUE))) +
-  scale_y_continuous(expression(paste("Predicted resid (mol ", CO[2], " ", m^-2, d^-1, ")")),
+  scale_y_continuous(expression(paste("Predicted resid")),
                      limits = c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
                                 max(pred$GPP,pred$pred.upper, na.rm = TRUE))) +
   theme_bw(base_size = 10) +
