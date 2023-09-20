@@ -66,7 +66,7 @@ flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
 # Combine psy and flux to plot parameters
 # Add residuals of simple model
 derived <- cbind.data.frame(flux, resid = scale(resid_df$pred.mean)) %>%
-  mutate(lab = "Psi[PD]")
+  mutate(lab = "bar(Psi[PD])")
 
 
 # Plot raw
@@ -79,7 +79,7 @@ fig8a <- derived %>%
             size = 0.75) +
   scale_y_continuous(expression(paste("Scaled resid")), 
                      sec.axis = sec_axis(~.-2,
-                                         expression(paste(Psi[PD], " (MPa)")))) +
+                                         expression(paste(bar(Psi[PD]), " (MPa)")))) +
   scale_color_hp_d(option = "Always",
                    labels = parse.labels,
                    begin = 0.5) +
