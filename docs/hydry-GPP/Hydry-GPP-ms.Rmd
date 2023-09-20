@@ -164,19 +164,19 @@ GPP = PAR \cdot fAPAR \cdot LUE
 $${#eq:1}
 
 fAPAR is commonly represented by remotely-sensed vegetation indices; here, we used the near infrared reflectance of vegetation (NIRv) from NASA's Moderate Resolution Imaging Spectoradiometer (MODIS).
-500m resolution MODIS data for US-CdM were screened for the highest quality flags and interpolated to daily values using a Savitzky-Golay filter of order \_ and length \_.\
+500m resolution MODIS data for US-CdM were screened for the highest quality flags and interpolated to daily values using a Savitzky-Golay filter of order \_ and length \_.
 Site-level incoming photosynthetically active radiation (PAR) was obtained the tower sensor.
 NIRv is well-correlated with modeled absorbed photosynthetically active radiation, even at low vegetation cover [badgley2017]; the product of NIRv and incoming PAR is termed NIRvP and considered a robust proxy of photosynthesis globally [@dechant2022].
 
 #### Model description - hydraulic regulation
 
-To specify the hydraulic regulation model, we used the Martinez-Vilalta et al. [-@martínez-vilalta2014] equation to relate $\Psi_{MD}$ to $\Psi_{PD}$:
+To specify the hydraulic regulation model, we used the Martinez-Vilalta et al. [-@martinez2014] equation to relate $\Psi_{MD}$ to $\Psi_{PD}$:
 
 $$
 \begin{array}{c}
 \Psi_{MD} = \sigma \cdot \Psi_{PD} + \lambda
 \end{array}
-$${#eq:1}
+$${#eq:2}
 
 where $\sigma$ represents the stringency of hydraulic regulation and $\lambda$ describes the pressure drop when soil moisture is not limiting.
 Plant hydraulic regulation can be described as isohydry if $\sigma<1$, anisohydry if $\sigma\approx1$, and extreme anisohydry if $\sigma > 1$.
@@ -189,7 +189,7 @@ $$
 \begin{array}{c}
 {\Psi_{MD}}_i \sim Normal({{\overline{\Psi}}_{MD}}_i, \sigma_{\Psi}^2)
 \end{array}
-$${#eq:2}
+$${#eq:3}
 
 where ${{\overline{\Psi}}_{MD}}_i$ is the predicted or mean midday water potential and $\sigma_{\Psi}^2$ represents the observation variance.
 ${{\overline{\Psi}}_{MD}}_i$ was modeled according to Eqn 1, where all terms were allowed to vary over time, either as direct observations ($\Psi_{MD}$,$\Psi_{PD}$) or as modeled parameters ($\sigma$, $\lambda$).
@@ -200,7 +200,7 @@ $$
 \sigma_i = \beta_0 + \beta_1 \cdot D_i^{ant} + \beta_2 \cdot {W_{10}}_i^{ant} + \beta_3 \cdot D_i^{ant} \cdot {W_{10}}_i^{ant} + \mathcal{E}_{\sigma, t(i)}\\
 \lambda_i = \alpha_0 + \alpha_1 \cdot D_i^{ant} + \alpha_2 \cdot {W_{10}}_i^{ant} + \alpha_3 \cdot D_i^{ant}\cdot {W_{10}}_i^{ant} + \mathcal{E}_{\lambda, t(i)}
 \end{array}
-$${#eq:3}
+$${#eq:4}
 
 The $\beta$ and $\alpha$ parameters were estimated for all trees.
 $\mathcal{E}_{\sigma}$ and $\mathcal{E}_{\lambda}$ represent the random effects of each tree, where $t(i)$ indicates tree $t$ associated with each observation $i$.
@@ -212,7 +212,7 @@ $$
 D_i^{ant} = \sum_{p = 0}^{T_{lag}}\omega_{D_p} \cdot D_{t(i)-p}\\
 {W_{10}}_i^{ant} = \sum_{p = 0}^{T_{lag}}\omega_{W_p} \cdot W_{t(i)-p}
 \end{array}
-$${#eq:4}
+$${#eq:5}
 
 where $p$ indicates the time step, $T_{lag}$ represents the total number of past time-steps considered, $\omega_{D_p}$ and $\omega_{W_p}$ indicates the weight or relative importance of the $p$th time step into the past, and $D_{t(i)-p}$ and $W_{t(i)-p}$ are the observed value of each variable at $p$ time steps ago.
 Antecedent covariates are weighted averages of past covariate values, where the weights are stochastically determined by the data.
@@ -225,13 +225,13 @@ $$
 \mathcal{E}_{\sigma, t} \sim Normal(0, \sigma_{\sigma}^2)\\
 \mathcal{E}_{\lambda, t} \sim Normal(0, \sigma_{\lambda}^2)
 \end{array}
-$${#eq:5}
+$${#eq:6}
 
 where reparameterization by sweeping was employed to ensure identifiability between the intercepts ($\beta_0$, $\alpha_0$) and the random effects [@vines1996].
 
 All remaining parameters were given standard priors following Gelman et al. [-@gelman2014].
 The regression coefficients were assigned relatively non-informative normal priors centered at zero with large variance.
-Antecedent importance weights, vectors of length $T_{lag}$ (Eqn 4), were given non-informative Dirichlet priors that assume *a priori* that each past time step has equal importance, and that constrain weights for each covariate to sum to 1 across all time steps, $p$.
+Antecedent importance weights, vectors of length $T_{lag}$ (Eqn. 5), were given non-informative Dirichlet priors that assume *a priori* that each past time step has equal importance, and that constrain weights for each covariate to sum to 1 across all time steps, $p$.
 The standard deviation of tree random effects ($\sigma_{\sigma}$ and $\sigma_{\lambda}$) were given relatively non-informative $Uniform(0, 1)$ priors, while the measurement error precision ($1/\sigma_{\Psi}^2$) was assigned a conjugate, relatively non-informative $Gamma(0.1, 0.1)$ prior.
 
 #### Model description - GPP
@@ -242,7 +242,7 @@ $$
 \begin{array}{c}
 {GPP}_j \sim Normal(\overline{GPP}_j, \sigma_{GPP}^2)
 \end{array}
-$${#eq:6}
+$${#eq:7}
 
 where $\overline{GPP}_j$ is the predicted or mean daily GPP and the variance $\sigma_{GPP}^2$ represents the uncertainty in observed $GPP$.
 $\overline{GPP}_j$ was modeled as a linear function of NIRv, PAR, and their interaction, representing the initial $GPP = fAPAR$ component of the Monteith formulation.
@@ -251,7 +251,7 @@ $$
 \begin{array}{c}
 \overline{GPP}_j = \gamma_0 + \gamma_1 \cdot {NIRv}_j + \gamma_2 \cdot {PAR}_j + \gamma_3 \cdot {NIRv}_j\cdot {PAR}_j
 \end{array}
-$${#eq:7}
+$${#eq:8}
 
 All remaining parameters were given standard priors as previously described.
 
@@ -262,32 +262,33 @@ $$
 \begin{array}{c}
 {resid}_k \sim Normal(\overline{resid}_k, \sigma_{resid}^2)
 \end{array}
-$${#eq:8}
+$${#eq:9}
 
-where $\overline{resid}_k$ is the predicted residual between observed and modeled (eqn. 6, 7) GPP, and the variance $\sigma_{resid}^2$ represents the uncertainty in observed $resid$.
+where $\overline{resid}_k$ is the predicted residual between observed and modeled (Eqn. 7, 8) GPP, and the variance $\sigma_{resid}^2$ represents the uncertainty in observed $resid$.
 $\overline{resid}_k$ is interpreted as a dynamic LUE constraint on the GPP \~ fAPAR relationship.
-We devised three LUE formulations that account for the combined impact of concurrent VPD and antecedent soil moisture (eqn. 9), antecedent soil moisture alone (eqn. 10), and concurrent predawn water potential (eqn. 11):
+We devised three LUE formulations that account for the combined impact of concurrent VPD and antecedent soil moisture (Eqn. 10), antecedent soil moisture alone (Eqn. 11), and concurrent predawn water potential (Eqn. 12):
 
 $$
 \begin{array}{c}
 \overline{resid}_k = \delta_0 + \delta_1 \cdot {D_{max}}_k + \delta_2 \cdot {W_{10}}_k^{ant} + \delta_3 \cdot {D_{max}}_k\cdot {W_{10}}_k^{ant}
 \end{array}
-$${#eq:9}
+$${#eq:10}
 
 $$
 \begin{array}{c}
 \overline{resid}_k = \eta_0 + \eta_1 \cdot {W_{10}}_k^{ant}
 \end{array}
-$${#eq:10}
+$${#eq:11}
 
 $$
 \begin{array}{c}
 \overline{resid}_k = \theta_0 + \theta_1 \cdot {\Psi_{PD}}_k
 \end{array}
-$${#eq:11}
+$${#eq:12}
 
 where $\Psi_{PD}$ were the gapfilled means of predawn water potential at the site level.
-Antecedents weights for $W_{10}^{ant}$ were constructed identically to Eqn 4, with unique weights determined by the GPP residuals.
+Antecedents weights for $W_{10}^{ant}$ were constructed identically to Eqn.
+5, with unique weights determined by the GPP residuals.
 
 #### Model implementation and interpretation
 
@@ -327,46 +328,49 @@ knitr::include_graphics("../../scripts/model-pd-md/figs/fig_2.png")
 
 At a coarse scale, the dynamics of hydraulic regulation can be visually estimated by plotting stem $\Psi_{MD}$ and $\Psi_{PD}$ for each season (Fig. \@ref(fig:fig-sig)).
 The slope $\sigma$ appeared similar during the premonsoon and fall periods, although W and therefore stem $\Psi$ differed substantially between the two seasons.
-During the monsoon period, multiple slopes are evident, with $\sigma > 1$ occurring when both W and $\Psi_{PD}$ are high; the same region during the fall season has a much shallower slope.
+During the monsoon period, slopes appear to shift over time, with $\sigma > 1$ occurring when both W and $\Psi_{PD}$ are high; the same region during the fall season has a much shallower slope.
 
 ```{r fig-sig, echo=FALSE, out.width="100%", fig.cap="Midday vs. predawn stem water potential in each of three seasons. Points are colored by the concurrent daily volumetric water content at 10 cm"}
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_3.png")
 ```
 
-#### Environmental drivers and timescales of $\sigma$ and GPP
+#### Environmental drivers and timescales of $\sigma$
 
-The hydraulic regulation model (Eqn. 1-5) fit the data very well (Fig. S1, observed vs. predicted $\Psi_{MD}$ $R^2$= 0.920) with low bias (slope of observed vs. predicted = 0.919).
-With a much lower sample size, the GPP model (Eqn. 4, 6-7) also fit the data well (Fig. S2, observed vs. predicted $GPP$ $R^2$= 0.741), although with some degree of bias (slope of observed vs. predicted = 0.762) such that high GPP values were underpredicted.
+The hydraulic regulation model (Eqn. 2-6) fit the data very well (Fig. S1, observed vs. predicted $\Psi_{MD}$ $R^2$= 0.920) with low bias (slope of observed vs. predicted = 0.919).
+
+```{r fig-hydry-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with $\\sigma$ and $\\lambda$. Gray horizontal lines indicate the prior means, and asterisks indicate significant covariate effects"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_4.png")
+```
 
 Temporal variation in hydraulic regulation ($\sigma$) was strongly positively associated with antecedent vapor pressure deficit ($D^{ant}$), antecedent soil water content ($W_{10}^{ant}$), and their interaction (Fig. \@ref(fig:fig-hydry-params)a), indicating that *J. osteosperma* became especially anisohydric under dry atmospheric conditions when soils were wet.
 With the larger coefficient, $D^{ant}$ was more influential upon $\sigma$ than $W_{10}^{ant}$.
 While the positive effect of $D$ was primarily driven by the atmospheric dryness on the same day, soil moisture up to 11 days prior was influential (Fig. \@ref(fig:fig-hydry-params)b).
 The pressure drop parameter $\lambda$ was negatively associated with the interaction of $D^{ant}$ and $W_{10}^{ant}$, although the main effects were not significant (Fig. \@ref(fig:fig-hydry-params)a).
 
-```{r fig-hydry-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with $\\sigma$ and $\\lambda$. Gray horizontal lines indicate the prior means, and asterisks indicate significant covariate effects"}
-knitr::include_graphics("../../scripts/model-pd-md/figs/fig_4.png")
-```
+#### Temporal patterns in $\sigma$ and GPP
 
-Like $\sigma$, GPP was positively associated with both environmental covariates and their interaction (Fig. \@ref(fig:fig-gpp-params)a), although in this case $W_{10}^{ant}$ was more influential than $D^{ant}$.
-Soil moisture up to 5 days into the past was most influential on GPP, but no clear temporal trend was observed in the antecedent weights for $D^{ant}$ (Fig. \@ref(fig:fig-gpp-params)b).
-
-```{r fig-gpp-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with GPP. Gray horizontal lines indicate the prior means, and asterisks indicate significant covariate effects"}
-knitr::include_graphics("../../scripts/model-flux-daily/figs/fig_5.png")
-```
-
-#### Relationship between $\sigma$ and GPP
-
-Although general trends in hydraulic regulation can be inferred from grouping $\Psi_{MD}$ and $\Psi_{PD}$ by season (e.g., Fig. \@ref(fig:fig-sig)), the hierarchical Bayesian model allowed for combining posterior parameter distributions with environmental covariates to produce daily timeseries of predicted $\sigma$ (e.g., Fig. \@ref(fig:fig-hydry-gpp)a).
+Although general trends in hydraulic regulation can be inferred from grouping $\Psi_{MD}$ and $\Psi_{PD}$ by season (e.g., Fig. \@ref(fig:fig-sig)), the hierarchical Bayesian model permitted combining posterior parameter distributions with environmental covariates to produce daily timeseries of predicted $\sigma$ (e.g., Fig. \@ref(fig:fig-hydry-gpp)a), which cannot be determined empirically.
 During the premonsoon, *J. osteosperma* shifted between iso- and anisohydry, with $\sigma$ values hovering near 1.
 But during the monsoon season, the three main pulse events precipitated peaks in $\sigma$ that signify extreme anisohydry, with $\sigma$ values well above 1.
 Finally, in the fall, *J. osteosperma* returned to isohydry, and $\sigma$ fell below 1.
+
+```{r fig-hydry-gpp, echo=FALSE, out.width="100%", fig.cap="Relationship between predicted $\\sigma$ (posterior mean and 95% CI) and daily GPP shown as <b>a)</b> time series across three seasons, <b>b)</b> bivariate plots for each season, and <b>c)</b> Pearson's correlation coefficient (estimate and 95% confidence interval) during monsoon season across a range of daily offsets where GPP leads $\\sigma$"}
+knitr::include_graphics("../../scripts/model-pd-md/figs/fig_6.png")
+```
 
 The trends in daily $\sigma$ correspond well to observed time-series of GPP (Fig. \@ref(fig:fig-hydry-gpp)a), particularly in the responsiveness of both $\sigma$ and GPP to the three main pulse events.
 Thus, $\sigma$ and GPP were positively correlated during the monsoon period ($r=0.653, p<0.001$, Fig. \@ref(fig:fig-hydry-gpp)b), although the peak in GPP appeared to lead the the peak in $\sigma$.
 This observation was supported by the highest Pearson's correlation between GPP and $\sigma$ achieved at a 1-2 day offset between the two timeseries (Fig. \@ref(fig:fig-hydry-gpp)c).
 
-```{r fig-hydry-gpp, echo=FALSE, out.width="100%", fig.cap="Relationship between predicted $\\sigma$ (posterior mean and 95% CI) and daily GPP shown as <b>a)</b> time series across three seasons, <b>b)</b> bivariate plots for each season, and <b>c)</b> Pearson's correlation coefficient (estimate and 95% confidence interval) during monsoon season across a range of daily offsets where GPP leads $\\sigma$"}
-knitr::include_graphics("../../scripts/model-pd-md/figs/fig_6.png")
+#### Plant water potential enhances GPP modeling
+
+The GPP model (Eqn. 5, 7-12) also fit the data well (Fig. \@ref(fig:fig-gpp-part1)c, observed vs. predicted $GPP$ $R^2$= 0.733), although with some degree of bias (slope of observed vs. predicted = 0.732) such that some high GPP values were underpredicted.
+Comparing the GPP and NIRv time series (Fig. \@ref(fig:fig-gpp-part1)a), the first major pulse event elicited a strong GPP response prior to any green up detected optically by NIRv, partially accounting for the underprediction of some high GPP values.
+Conversely, low, near-zero GPP in mid to late July was not matched by similar lows in scaled PAR or NIRv, resulting in overprediction of low GPP values.\
+GPP was positively associated with NIRv and the interaction between NIRv and PAR (Fig. \@ref(fig:fig-gpp-part1)b), though PAR alone was not significantly associated with GPP.
+
+```{r fig-gpp-part1, echo=FALSE, out.width="100%", fig.cap="<b>a)</b> Time series of daily total gross primary productivity (GPP) with scaled values of near infrared reflectance of vegetation (NIRv) and photosynthetically active radiation (PAR). Posterior mean and 95% CI of the <b>b)</b> covariate effects and <b>c)</b> predicted versus observed GPP from the first part of the GPP model (Eqn. 7, 8). Gray horizontal lines indicate the prior means, asterisks indicate significant covariate effects, error bars represent the 95% CIs, the solid diagonal is the 1:1 line, and the dashed line represents the line of best fit"}
+knitr::include_graphics("../../scripts/model-gpp-nirv/figs/fig_7.png")
 ```
 
 ### Discussion
