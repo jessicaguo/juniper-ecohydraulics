@@ -2,7 +2,7 @@
 
 library(coda)
 library(broom.mixed)
-library(dplyr)
+library(tidyverse)
 library(ggplot2)
 library(cowplot)
 library(ggh4x)
@@ -68,7 +68,7 @@ fig7a <- flux %>%
   geom_line(aes(y = GPP, color = "GPP"),
             color = "black",
             size = 0.75) +
-  scale_y_continuous(expression(paste("GPP")), 
+  scale_y_continuous(expression(paste("GPP (mol ", CO[2], " ", m^-2, d^-1, ")")), 
                      sec.axis = sec_axis(~.*10,
                                          expression(paste("scaled PAR | NIRv")))) +
   scale_color_hp_d(option = "Sprout",
