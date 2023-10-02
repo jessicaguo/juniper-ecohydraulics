@@ -26,19 +26,10 @@ institute:
   - UU: School of Biological Sciences, University of Utah, Salt Lake City, Utah
   - WC: Wilkes Center for Climate Science and Policy, University of Utah, Salt Lake City, Utah
 
-output: 
-    bookdown::word_document2:
-      number_sections: no
-      fig_caption: yes
-      reference_docx: "templates/template.docx"
-      pandoc_args:
-      - --lua-filter=templates/scholarly-metadata.lua
-      - --lua-filter=templates/author-info-blocks.lua
-      - -Fpandoc-crossref #required for cross-ref equations
-      
+number-sections: true
 linkcolor: black
 bibliography: refs.bib
-link-citations: false
+link-citations: true
 csl: "templates/new-phytologist.csl"
 
 keywords: | 
@@ -166,7 +157,7 @@ $${#eq:1}
 fAPAR is commonly represented by remotely-sensed vegetation indices; here, we used the near infrared reflectance of vegetation (NIRv) from NASA's Moderate Resolution Imaging Spectoradiometer (MODIS).
 500m resolution MODIS data for US-CdM were screened for the highest quality flags and interpolated to daily values using a Savitzky-Golay filter of order \_ and length \_.
 Site-level incoming photosynthetically active radiation (PAR) was obtained the tower sensor.
-NIRv is well-correlated with modeled absorbed photosynthetically active radiation, even at low vegetation cover [badgley2017]; the product of NIRv and incoming PAR is termed NIRvP and considered a robust proxy of photosynthesis globally [@dechant2022].
+NIRv is well-correlated with modeled absorbed photosynthetically active radiation, even at low vegetation cover \[badgley2017\]; the product of NIRv and incoming PAR is termed NIRvP and considered a robust proxy of photosynthesis globally [@dechant2022].
 
 #### Model description - hydraulic regulation
 
@@ -469,7 +460,7 @@ We also thank Newton Tran for assistance with the stem psychrometers, and acknow
 MLB and SAK were supported by the US DOE Environmental System Science program grant #DE-SC0022052.
 SAK was supported by the US Department of Agriculture (USDA) Forest Service Forest Health Protection Evaluation Monitoring program grant #19-05 and the USDA National Institute of Food and Agriculture Sustainable Agricultural Systems program, grant #2021-68012-35898.
 MLB was supported by the NASA SMAP Science Team grant #80NSSC20K1805.
-WRLA acknowledges support from the David and Lucille Packard Foundation, US National Science Foundation grants 1802880, 2003017 and 2044937, and USDA National Institute of Food and Agriculture, Agricultural and Food Research Initiative Competitive Programme, Ecosystem Services and Agro‐Ecosystem Management, grant no. 2018‐67019‐27850.
+WRLA acknowledges support from the David and Lucille Packard Foundation, US National Science Foundation grants 1802880, 2003017 and 2044937, and USDA National Institute of Food and Agriculture, Agricultural and Food Research Initiative Competitive Programme, Ecosystem Services and Agro-Ecosystem Management, grant no. 2018-67019-27850.
 
 ### Author contributions
 
@@ -489,4 +480,8 @@ All authors reviewed the results and approved the final version of the manuscrip
 
 **Fig. S1** Model fit of $\Psi_{MD}$
 
-**Fig. S2** Model fit of GPP
+**Fig. S2** Covariates, antecedent weights, and model fit of GPP residual model with environmental covariates
+
+**Fig. S3** Covariates, antecedent weights, and model fit of GPP residual model with soil water content
+
+**Table S1** Model comparison statistics for the GPP residual model

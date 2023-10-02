@@ -1,48 +1,86 @@
 ---
 title: "Temporally-varying water use strategies in *Juniperus osteosperma* mediate ecosystem carbon fluxes"
 author: 
- - Jessica S. Guo:
+ -  name: Jessica S. Guo
     email: jessicaguo@email.arizona.edu
-    institute: [UArizona]
-    correspondence: true
-    orcid_id: 0000-0002-9566-9182
- - Steven A. Kannenberg:
-    institute: [CSU, GDPE]
-    correspondence: false
-    orcid_id: 0000-0002-4097-9140
- - Mallory L. Barnes:
-    institute: [IU]
-    correspondence: false
-    orcid_id: 0000-0001-8528-6981
- - William R.L. Anderegg:
-    institute: [UU, WC]
-    correspondence: false
-    
-institute:
-  - UArizona: Arizona Experiment Station, University of Arizona, Tucson, Arizona
-  - CSU: Department of Biology, Colorado State University, Fort Collins, Colorado
-  - GDPE: Graduate Degree Program in Ecology, Colorado State University, Fort Collins, Colorado
-  - IU: O'Neill School of Public and Environmental Affars, Indiana University, Bloomington, Indiana
-  - UU: School of Biological Sciences, University of Utah, Salt Lake City, Utah
-  - WC: Wilkes Center for Climate Science and Policy, University of Utah, Salt Lake City, Utah
+    affiliations: 
+      - id: UArizona
+        name: University of Arizona
+        department: Arizona Experiment Station
+        city: Tucson
+        state: Arizona
+    corresponding: true
+    orcid: 0000-0002-9566-9182
+ -  name: Steven A. Kannenberg
+    affiliations: 
+      - id: CSU
+        name: Colorado State University
+        department: Department of Biology
+        city: Fort Collins
+        state: Colorado
+      - id: GPDE
+        name: Graduate Degree Program in Ecology
+        department: Department of Biology
+        city: Fort Collins
+        state: Colorado
+    corresponding: false
+    orcid: 0000-0002-4097-9140
+ -  name: Mallory L. Barnes
+    affiliations: 
+      - id: IU
+        name: Indiana University
+        department: O'Neill School of Public and Environmental Affars
+        city: Bloomington
+        state: Indiana
+    corresponding: false
+    orcid: 0000-0001-8528-6981
+ -  name: William K. Smith
+    affiliations:
+      - id: UAZ
+        name: University of Arizona
+        department: School of Natural Resources and the Environment
+        city: Tucson
+        state: Arizona
+    corresponding: false
+    orcid: 0000-0002-5785-6489
+ -  name: William R.L. Anderegg
+    affiliations:
+      - id: UU
+        name: University of Utah
+        department: School of Biological Sciences
+        city: Salt Lake City
+        state: Utah
+      - id: WC
+        name: University of Utah
+        department: Wilkes Center for Climate Science and Policy
+        city: Salt Lake City
+        state: Utah
+    corresponding: false
+    orcid: 0000-0001-6551-3331
 
-output: 
-    bookdown::word_document2:
-      number_sections: no
-      fig_caption: yes
-      reference_docx: "templates/template.docx"
-      pandoc_args:
-      - --lua-filter=templates/scholarly-metadata.lua
-      - --lua-filter=templates/author-info-blocks.lua
-      - -Fpandoc-crossref #required for cross-ref equations
-      
 linkcolor: black
 bibliography: refs.bib
 link-citations: false
 csl: "templates/new-phytologist.csl"
+crossref: 
+  fig-prefix: Fig.
+  eq-prefix: Eqn.
+  ref-hyperlink: false
+  
+notebook-links: false
 
-keywords: | 
-  carbon uptake; dryland ecosystem; hydraulic regulation; juniper woodland; iso/anisohydry; precipitation pulse dynamics; stem water potential
+format: 
+  docx: 
+    reference-doc: "templates/template.docx"
+
+keywords:
+  - carbon uptake
+  - dryland ecosystem
+  - hydraulic regulation
+  - juniper woodland
+  - iso/anisohydry
+  - precipitation pulse dynamics
+  - stem water potential
   
 editor_options:
   markdown:
@@ -61,9 +99,9 @@ knitr::opts_chunk$set(echo = TRUE)
 | Materials and Methods | 1484       | \-     |
 | Results               | 1014       | \-     |
 | Discussion            | 1473       | \-     |
-| Figures               | \-         | 6      |
-| Supporting Figures    | \-         | 2      |
-| Total                 | 4573       | \-     |
+| Figures               | \-         | 7      |
+| Supporting Figures    | \-         | 3      |
+| Total                 | 5930       | \-     |
 
 \pagebreak
 
@@ -73,13 +111,13 @@ knitr::opts_chunk$set(echo = TRUE)
     However, the environmental controls over iso/anisohydry and the implications of flexible hydraulic behavior for plant productivity remain unknown.
 
 -   In *Juniperus osteosperma*, a drought-resistant dryland conifer, we collected a 5-month growing season timeseries of *in situ*, high temporal-resolution plant water potential ($\Psi$) and stand gross primary productivity.
-    We then quantified the stringency of hydraulic regulation in relation to soil water availability and atmospheric demand, along with its implications for carbon uptake.
+    We quantified the stringency of hydraulic regulation associated with environmental covariates and tested the contribution of predawn water potential to carbon uptake modeling.
 
--   *J. osteosperma* experienced weaker hydraulic regulation (i.e., anisohydry) and higher productivity after monsoon precipitation pulses, when soil moisture and atmospheric demand were high.
-    The slope between $\Psi_{PD}$ and $\Psi_{MD}$ ($\sigma$), a common metric to quantify iso/anisohydry, was strongly correlated with GPP during the monsoon period.
+-   *J. osteosperma* experienced weaker hydraulic regulation (anisohydry) and higher productivity after monsoon precipitation pulses, when soil moisture and atmospheric demand were high, which corresponded to higher GPP.
+    Plant water potential modulates the conversion efficiency of light into carbon more strongly than functions of soil and/or atmospheric moisture.
 
 -   Flexible hydraulic regulation appears to allow *J. osteosperma* to prolong soil water extraction and the period of high carbon uptake following episodic rain events during the growing season.
-    Although the underlying physiological mechanisms need further study, this flexibility may underlie the life history strategy of some drought-tolerant species and suggests why dynamic vegetation models often underestimate the productivity of dryland ecosystems.
+    More broadly, plant water potential and its hydraulic regulation are highly dynamic, suggesting why both process-based and empirical models of productivity often underestimate the magnitude and temporal variability of dryland GPP.
 
 Keywords: `r rmarkdown::metadata$keywords`
 
@@ -87,7 +125,7 @@ Keywords: `r rmarkdown::metadata$keywords`
 
 ### Introduction
 
-Along the soil-plant-atmosphere continuum, gradients of water potential ($\Psi$) drive water transport and integrate the tradeoff between obtaining carbon dioxide for photosynthesis and water loss through stomata [@berry2010].
+Along the soil-plant-atmosphere continuum, gradients of water potential ($\Psi$) drive water transport and govern the tradeoff between obtaining carbon dioxide for photosynthesis and water loss through stomata [@berry2010].
 The concept of a 'plant water use strategy' encompasses the numerous ways plants have evolved to confront this inescapable dilemma, including the popular iso/anisohydry spectrum based on the stomatal regulation of $\Psi$ [@tardieu1998; @jones1998].
 Isohydry describes a conservative stomatal strategy to minimize reductions in $\Psi$ and preserve hydraulic conductivity, while anisohydry is a profligate stomatal strategy that prioritizes carbon gain at the expense of low $\Psi$.
 The degree of iso/anisohydry is generally operationalized as a species-level and theoretical trait, describing a strategy in response to declining soil moisture in the absence of other limiting factors ().
@@ -99,9 +137,9 @@ Particularly in dryland ecosystems, persistent water limitation and episodic pre
 Dryland ecosystems are largely responsible for the interannual variability of the global carbon sink [@poulter2014; @ahlstrom2015], yet dynamic global vegetation models are prone to underestimating C uptake in dryland regions [@macbean2021].
 Understanding the temporal dynamics and environmental sensitivity of plant hydraulic strategies may be critical to improving predictive forecasts of the global carbon cycle.
 
-Current methods to quantify drought impacts on ecosystem productivity often rely on remotely-sensed indices of vegetation greenness [@zeng2022].
-However, while such indices capture structural capacity for photosynthesis on a seasonal basis, they fail to cpature the immediate constraints imposed by soil and atmospheric drought, which must be explicitly represented [@stocker2018].
-The divergence between low seasonality in remote-sensed indices and high seasonality in tower-based measurements is especially apparent in semi-arid and evergreen ecosystems [@garbulsky2008, @pierrat2021].
+Another data source to quantify ecosystem productivity and the impact of drought utilizes remotely-sensed indices of vegetation greenness [@running2004; @zeng2022].
+However, while such indices capture structural capacity for photosynthesis on a seasonal basis, they fail to capture the immediate constraints imposed by soil and atmospheric drought, which must be empirically represented [@stocker2018].
+The divergence between low productivity seasonality from remotely-sensed indices and high productivity seasonality in tower-based measurements is especially apparent in semi-arid and evergreen ecosystems [@garbulsky2008; @pierrat2021], where water limitation recurs seasonally.
 Therefore, inclusion of plant water potential, a direct metric of plant water stress, may provide a physiological constraint on GPP prediction in drylands and improve quantification of drought impacts on the global carbon cycle.
 
 Drought-induced mortality in pinyon-juniper woodlands is an iconic consequence of climate change in the southwest US.
@@ -123,7 +161,7 @@ We ask:
 This study was conducted at an early-successional pinyon-juniper woodland (37.5241 N, 109.7471 W, 1866 m a.s.l.) in southeastern Utah.
 Local climate conditions include cold winters and hot, dry summers, with high interannual variability in summer precipitation due to its location at the northern boundary of the North American Monsoon.
 The locally flat topography is dominated by Utah juniper (*Juniperus osteosperma*, 92% tree basal area) and two-needle pinyon (*Pinus edulis*, 8% tree basal area), with sparse understory comprising big sagebrush (*Artemisia tridentata*), prickly pear cactus (*Opuntia* spp.), and bunchgrasses.
-See Kannenberg et al. in revision for further site details.
+See Kannenberg et al. [-@kannenberg2023] for further site details.
 
 #### Eddy covariance and environmental variables
 
@@ -155,18 +193,20 @@ In addition, site-level means of predawn and midday water potential were calcula
 
 #### Vegetation indices and fAPAR
 
-We employed a Monteith-style framework [@monteith1972] to model tower-based GPP as a function of fraction of absorbed photosynthetically active radiation (fAPAR) and light use efficiency (LUE):
+We employed a Monteith-style framework [@monteith1972] to model tower-based GPP as a function of absorbed photosynthetically active radiation (APAR) and light use efficiency (LUE):
 
 $$
 \begin{array}{c}
-GPP = PAR \cdot fAPAR \cdot LUE
+GPP = APAR \cdot LUE
 \end{array}
-$${#eq:1}
+$$ {#eq-monteith}
 
-fAPAR is commonly represented by remotely-sensed vegetation indices; here, we used the near infrared reflectance of vegetation (NIRv) from NASA's Moderate Resolution Imaging Spectoradiometer (MODIS).
-500m resolution MODIS data for US-CdM were screened for the highest quality flags and interpolated to daily values using a Savitzky-Golay filter of order \_ and length \_.
-Site-level incoming photosynthetically active radiation (PAR) was obtained the tower sensor.
-NIRv is well-correlated with modeled absorbed photosynthetically active radiation, even at low vegetation cover [badgley2017]; the product of NIRv and incoming PAR is termed NIRvP and considered a robust proxy of photosynthesis globally [@dechant2022].
+APAR is defined as the product of the fraction of absorbed photosynthetically active radiation (fAPAR) and photosynthetically active radiation (PAR).
+Here, we used the near infrared reflectance of vegetation (NIRv) calculated from NASA's Moderate Resolution Imaging Spectoradiometer (MODIS) to represent fAPAR.
+MODIS nadir BRDF-adjusted daily reflectance (MCD43A, 1 d, 500 m, collection 6.1) for US-CdM were screened for the highest quality flags; bands 1 (620-670 nm) and 2 (841-876 nm) were combined with background soil reflectance of 0.08 to represent NIRv following Badgley et al. [-@badgley2017].
+Resulting values were smoothed using a Savitzky-Golay filter of derivative order 0, filter order 3, and window length 5.
+Site-level incoming PAR was obtained from the tower-mounted sensor.
+NIRv is well-correlated with modeled fAPAR across all soil reflectances and is robust at low vegetation cover [@badgley2017]; the product of NIRv and incoming PAR is termed NIRvP and considered a strong proxy of photosynthesis globally [@dechant2022].
 
 #### Model description - hydraulic regulation
 
@@ -176,12 +216,12 @@ $$
 \begin{array}{c}
 \Psi_{MD} = \sigma \cdot \Psi_{PD} + \lambda
 \end{array}
-$${#eq:2}
+$$ {#eq-mv}
 
 where $\sigma$ represents the stringency of hydraulic regulation and $\lambda$ describes the pressure drop when soil moisture is not limiting.
 Plant hydraulic regulation can be described as isohydry if $\sigma<1$, anisohydry if $\sigma\approx1$, and extreme anisohydry if $\sigma > 1$.
 
-To allow hydraulic regulation and GPP to vary over the growing season, we specified a hierarchical Bayesian model that estimated $\sigma$, $\lambda$, GPP as linear functions of maximum daily vapor pressure deficit ($D$) and volumetric soil water content at 10 cm ($W_{10}$), which had the highest correlation with plant $\Psi$ and GPP (Kannenberg et al. in revision).
+To allow hydraulic regulation and GPP to vary over the growing season, we specified a hierarchical Bayesian model that estimated $\sigma$, $\lambda$, GPP as linear functions of maximum daily vapor pressure deficit ($D$) and volumetric soil water content at 10 cm ($W_{10}$), which had the highest correlation with plant $\Psi$ and GPP [@kannenberg2023].
 Furthermore, we implemented the stochastic antecedent model [@ogle2015] to quantify the influence of past environmental conditions.
 The data model for hydraulic regulation describes the likelihood of each observed $\Psi_{MD}$, which was normally distributed for each observation $i$ ($i = 1, 2, \ldots, 1425$):
 
@@ -189,10 +229,10 @@ $$
 \begin{array}{c}
 {\Psi_{MD}}_i \sim Normal({{\overline{\Psi}}_{MD}}_i, \sigma_{\Psi}^2)
 \end{array}
-$${#eq:3}
+$$ {#eq-md-likelihood}
 
 where ${{\overline{\Psi}}_{MD}}_i$ is the predicted or mean midday water potential and $\sigma_{\Psi}^2$ represents the observation variance.
-${{\overline{\Psi}}_{MD}}_i$ was modeled according to Eqn 1, where all terms were allowed to vary over time, either as direct observations ($\Psi_{MD}$,$\Psi_{PD}$) or as modeled parameters ($\sigma$, $\lambda$).
+${{\overline{\Psi}}_{MD}}_i$ was modeled according to @eq-md-likelihood, where all terms were allowed to vary over time, either as direct observations ($\Psi_{MD}$,$\Psi_{PD}$) or as modeled parameters ($\sigma$, $\lambda$).
 The time-varying estimates of hydraulic regulation, $\sigma$ and $\lambda$ were indexed by $i$ and modeled as linear combinations of two antecedent covariates and their interaction:
 
 $$
@@ -200,7 +240,7 @@ $$
 \sigma_i = \beta_0 + \beta_1 \cdot D_i^{ant} + \beta_2 \cdot {W_{10}}_i^{ant} + \beta_3 \cdot D_i^{ant} \cdot {W_{10}}_i^{ant} + \mathcal{E}_{\sigma, t(i)}\\
 \lambda_i = \alpha_0 + \alpha_1 \cdot D_i^{ant} + \alpha_2 \cdot {W_{10}}_i^{ant} + \alpha_3 \cdot D_i^{ant}\cdot {W_{10}}_i^{ant} + \mathcal{E}_{\lambda, t(i)}
 \end{array}
-$${#eq:4}
+$$ {#eq-md-regression}
 
 The $\beta$ and $\alpha$ parameters were estimated for all trees.
 $\mathcal{E}_{\sigma}$ and $\mathcal{E}_{\lambda}$ represent the random effects of each tree, where $t(i)$ indicates tree $t$ associated with each observation $i$.
@@ -212,7 +252,7 @@ $$
 D_i^{ant} = \sum_{p = 0}^{T_{lag}}\omega_{D_p} \cdot D_{t(i)-p}\\
 {W_{10}}_i^{ant} = \sum_{p = 0}^{T_{lag}}\omega_{W_p} \cdot W_{t(i)-p}
 \end{array}
-$${#eq:5}
+$$ {#eq-md-antecedent}
 
 where $p$ indicates the time step, $T_{lag}$ represents the total number of past time-steps considered, $\omega_{D_p}$ and $\omega_{W_p}$ indicates the weight or relative importance of the $p$th time step into the past, and $D_{t(i)-p}$ and $W_{t(i)-p}$ are the observed value of each variable at $p$ time steps ago.
 Antecedent covariates are weighted averages of past covariate values, where the weights are stochastically determined by the data.
@@ -225,13 +265,13 @@ $$
 \mathcal{E}_{\sigma, t} \sim Normal(0, \sigma_{\sigma}^2)\\
 \mathcal{E}_{\lambda, t} \sim Normal(0, \sigma_{\lambda}^2)
 \end{array}
-$${#eq:6}
+$$ {#eq-md-random}
 
 where reparameterization by sweeping was employed to ensure identifiability between the intercepts ($\beta_0$, $\alpha_0$) and the random effects [@vines1996].
 
 All remaining parameters were given standard priors following Gelman et al. [-@gelman2014].
 The regression coefficients were assigned relatively non-informative normal priors centered at zero with large variance.
-Antecedent importance weights, vectors of length $T_{lag}$ (Eqn. 5), were given non-informative Dirichlet priors that assume *a priori* that each past time step has equal importance, and that constrain weights for each covariate to sum to 1 across all time steps, $p$.
+Antecedent importance weights, vectors of length $T_{lag}$ (@eq-md-antecedent), were given non-informative Dirichlet priors that assume *a priori* that each past time step has equal importance, and that constrain weights for each covariate to sum to 1 across all time steps, $p$.
 The standard deviation of tree random effects ($\sigma_{\sigma}$ and $\sigma_{\lambda}$) were given relatively non-informative $Uniform(0, 1)$ priors, while the measurement error precision ($1/\sigma_{\Psi}^2$) was assigned a conjugate, relatively non-informative $Gamma(0.1, 0.1)$ prior.
 
 #### Model description - GPP
@@ -242,53 +282,52 @@ $$
 \begin{array}{c}
 {GPP}_j \sim Normal(\overline{GPP}_j, \sigma_{GPP}^2)
 \end{array}
-$${#eq:7}
+$$ {#eq-gpp-likelihood}
 
 where $\overline{GPP}_j$ is the predicted or mean daily GPP and the variance $\sigma_{GPP}^2$ represents the uncertainty in observed $GPP$.
-$\overline{GPP}_j$ was modeled as a linear function of NIRv, PAR, and their interaction, representing the initial $GPP = fAPAR$ component of the Monteith formulation.
+$\overline{GPP}_j$ was modeled as a linear function of NIRv, PAR, and their interaction, representing the initial $GPP = fAPAR$ component of the Monteith [-@monteith1972] formulation [@eq-monteith].
 
 $$
 \begin{array}{c}
 \overline{GPP}_j = \gamma_0 + \gamma_1 \cdot {NIRv}_j + \gamma_2 \cdot {PAR}_j + \gamma_3 \cdot {NIRv}_j\cdot {PAR}_j
 \end{array}
-$${#eq:8}
+$$ {#eq-gpp-regression}
 
 All remaining parameters were given standard priors as previously described.
 
-To account for the remaining effects of LUE, we calculated the residuals of the above model as the posterior mean of $GPP_j - \overline{GPP}_j$; residuals were then scaled for improved model mixing.
+To express the remaining effects of $LUE$ after $fAPAR$ is accounted for, we calculated the residuals of the above model as the posterior mean of $GPP_j - \overline{GPP}_j$; residuals were scaled for improved model mixing.
 The likelihood of the residual model described scaled $resid$ as normally distributed for observations $k$ ($k = 1, 2, \ldots, 166$):
 
 $$
 \begin{array}{c}
 {resid}_k \sim Normal(\overline{resid}_k, \sigma_{resid}^2)
 \end{array}
-$${#eq:9}
+$$ {#eq-resid-likelihood}
 
-where $\overline{resid}_k$ is the predicted residual between observed and modeled (Eqn. 7, 8) GPP, and the variance $\sigma_{resid}^2$ represents the uncertainty in observed $resid$.
-$\overline{resid}_k$ is interpreted as a dynamic LUE constraint on the GPP \~ fAPAR relationship.
-We devised three LUE formulations that account for the combined impact of concurrent VPD and antecedent soil moisture (Eqn. 10), antecedent soil moisture alone (Eqn. 11), and concurrent predawn water potential (Eqn. 12):
+where $\overline{resid}_k$ is the predicted residual between observed and modeled (@eq-gpp-likelihood, @eq-gpp-regression) GPP, and the variance $\sigma_{resid}^2$ represents the uncertainty in observed $resid$.
+$\overline{resid}_k$ is interpreted as a dynamic $LUE$ constraint on the $GPP \sim fAPAR$ relationship.
+We devised three $LUE$ formulations that account for the combined impact of concurrent VPD and antecedent soil moisture (@eq-resid-env), antecedent soil moisture alone (@eq-resid-swc), and concurrent predawn water potential (@eq-resid-pd):
 
 $$
 \begin{array}{c}
 \overline{resid}_k = \delta_0 + \delta_1 \cdot {D_{max}}_k + \delta_2 \cdot {W_{10}}_k^{ant} + \delta_3 \cdot {D_{max}}_k\cdot {W_{10}}_k^{ant}
 \end{array}
-$${#eq:10}
+$$ {#eq-resid-env}
 
 $$
 \begin{array}{c}
 \overline{resid}_k = \eta_0 + \eta_1 \cdot {W_{10}}_k^{ant}
 \end{array}
-$${#eq:11}
+$$ {#eq-resid-swc}
 
 $$
 \begin{array}{c}
 \overline{resid}_k = \theta_0 + \theta_1 \cdot \overline{\Psi_{PD}}_k
 \end{array}
-$${#eq:12}
+$$ {#eq-resid-pd}
 
 where $\overline{\Psi_{PD}}$ were the gapfilled means of predawn water potential at the site level.
-Antecedents weights for $W_{10}^{ant}$ were constructed identically to Eqn.
-5, with unique weights determined by the GPP residuals.
+Antecedents weights for $W_{10}^{ant}$ were constructed identically to @eq-md-antecedent, with unique weights determined by the GPP residuals.
 
 #### Model implementation and interpretation
 
@@ -298,17 +337,16 @@ Models were then run for 150,000 iterations and thinned by 50 to reduce within-c
 Posterior distributions were summarized by their means and 95% highest posterior density credible intervals (henceforth, 95% CIs).
 Covariate effects were significant if the 95% CI did not overlap zero.
 To quantify seasonal variation in $\sigma$, the posterior samples of the $\beta$ regression coefficients and antecedent weights were combined with the time-series of scaled $D_{max}$ and $W_{10}$ to produce posterior means and 95% CIs.
-Model comparison criteria for the three forms of GPP residual models included posterior predictive loss [@gelfand1998] and $R^2$ between observed and predicted values.
+Model comparison criteria for the three forms of GPP residual models included posterior predictive loss [@gelfand1998] and the coefficient of determination ($R^2$) between observed and predicted values.
 
 ### Results
 
 #### Seasonal dynamics of $\Psi$, GPP, and $\sigma$
 
-Over the study period, predawn ($\Psi_{PD}$) and midday ($\Psi_{MD}$) stem water potentials responded dynamically to moisture inputs, particularly during the monsoon period (Fig. \@ref(fig:fig-env), Fig.
-\@ref(fig:fig-psy)a).
+Over the study period, predawn ($\Psi_{PD}$) and midday ($\Psi_{MD}$) stem water potentials responded dynamically to moisture inputs, particularly during the monsoon period (@fig-env, @fig-psy a).
 Monsoon onset was determined as the day on which on the 10% of the total July, August, and September precipitation was accumulated [@grantz2007], which was achieved on 2021-07-23.
 Prior to monsoon onset, the generally high vapor pressure deficit (D) and low volumetric water content (W) yielded relatively consistent mean $\Psi_{PD}$ between -2 and -4 MPa.
-During the monsoon period, D and W were less extreme than during the more arid mid-summer period, though highly variable as a result of three major pulse-drydown events (Fig. \@ref(fig:fig-env)).
+During the monsoon period, D and W were less extreme than during the more arid mid-summer period, though highly variable as a result of three major pulse-drydown events (@fig-env).
 Beginning with the first major pulse event (39 mm on 2021-07-27), mean $\Psi_{PD}$ remained above -2 MPa continuously for 46 days; however, minimum mean $\Psi_{PD}$ was similar in premonsoon and monsoon periods due to rapid decline in $\Psi_{PD}$ following the third major pulse-drydown.
 Finally, mean $\Psi_{PD}$ stayed above -2 MPa during the fall season, likely due to cooling temperatures and reduced atmospheric demand.
 
@@ -316,17 +354,17 @@ Finally, mean $\Psi_{PD}$ stayed above -2 MPa during the fall season, likely due
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_1_sep.png")
 ```
 
-Seasonal GPP dynamics were similarly responsive to precipitation inputs (Fig. \@ref(fig:fig-psy)b).
+Seasonal GPP dynamics were similarly responsive to precipitation inputs (@fig-env b).
 GPP declined during the premonsoon period to near-zero levels, while the onset of the monsoon prompted sharp increases.
 Interestingly, while the first major pulse event was the largest single-day total (39 mm on 2021-07-27) that corresponded to almost immediate increases in $\Psi_{PD}$, GPP rose only modestly.
-All three peaks in GPP during the monsoon period lagged the moisture inputs and stayed high only briefly, in contrast to $\Psi_{PD}$ (Fig. \@ref(fig:fig-psy)a).
+All three peaks in GPP during the monsoon period lagged the moisture inputs and stayed high only briefly, in contrast to $\Psi_{PD}$ (@fig-psy a).
 Fall GPP averaged $0.1\ mol\,CO_2\,m^{-2}\,d^{-1}$, about the same as initial GPP during the premonsoon period.
 
 ```{r fig-psy, echo=FALSE, out.width="100%", fig.cap="Time series of <b>a)</b> chamber and automated daily measurements of stem water potential and <b>b)</b> daily total gross primary productivity (GPP). Labeled boxes subdivide the study period into before, during, and after the monsoon season. Error bars represent population standard deviation"}
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_2.png")
 ```
 
-At a coarse scale, the dynamics of hydraulic regulation can be visually estimated by plotting stem $\Psi_{MD}$ and $\Psi_{PD}$ for each season (Fig. \@ref(fig:fig-sig)).
+At a coarse scale, the dynamics of hydraulic regulation can be visually estimated by plotting stem $\Psi_{MD}$ and $\Psi_{PD}$ for each season (@fig-sig).
 The slope $\sigma$ appeared similar during the premonsoon and fall periods, although W and therefore stem $\Psi$ differed substantially between the two seasons.
 During the monsoon period, slopes appear to shift over time, with $\sigma > 1$ occurring when both W and $\Psi_{PD}$ are high; the same region during the fall season has a much shallower slope.
 
@@ -336,20 +374,20 @@ knitr::include_graphics("../../scripts/model-pd-md/figs/fig_3.png")
 
 #### Environmental drivers and timescales of $\sigma$
 
-The hydraulic regulation model (Eqn. 2-6) fit the data very well (Fig. S1, observed vs. predicted $\Psi_{MD}$ $R^2$= 0.920) with low bias (slope of observed vs. predicted = 0.919).
+The hydraulic regulation model (@eq-md-likelihood - @eq-md-random) fit the data very well (Fig. S1, observed vs. predicted $\Psi_{MD}$ $R^2$= 0.920) with low bias (slope of observed vs. predicted = 0.919).
 
 ```{r fig-hydry-params, echo=FALSE, out.width="100%", fig.cap="Posterior mean and 95% CI of the <b>a)</b> covariate effects and <b>b)</b> antecedent weights $\\omega$ of covariates associated with $\\sigma$ and $\\lambda$. Gray horizontal lines indicate the prior means, and asterisks indicate significant covariate effects"}
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_4.png")
 ```
 
-Temporal variation in hydraulic regulation ($\sigma$) was strongly positively associated with antecedent vapor pressure deficit ($D^{ant}$), antecedent soil water content ($W_{10}^{ant}$), and their interaction (Fig. \@ref(fig:fig-hydry-params)a), indicating that *J. osteosperma* became especially anisohydric under dry atmospheric conditions when soils were wet.
-With the larger coefficient, $D^{ant}$ was more influential upon $\sigma$ than $W_{10}^{ant}$.
-While the positive effect of $D$ was primarily driven by the atmospheric dryness on the same day, soil moisture up to 11 days prior was influential (Fig. \@ref(fig:fig-hydry-params)b).
-The pressure drop parameter $\lambda$ was negatively associated with the interaction of $D^{ant}$ and $W_{10}^{ant}$, although the main effects were not significant (Fig. \@ref(fig:fig-hydry-params)a).
+Temporal variation in hydraulic regulation ($\sigma$) was strongly positively associated with antecedent vapor pressure deficit ($D^{ant}$), antecedent soil water content ($W_{10}^{ant}$), and their interaction (@fig-hydry-params a), indicating that *J. osteosperma* became especially anisohydric under dry atmospheric conditions when soils were wet.
+Given its larger coefficient, $D^{ant}$ was more influential on $\sigma$ than $W_{10}^{ant}$.
+While the positive effect of $D$ was primarily driven by the atmospheric dryness on the same day, soil moisture up to 11 days prior was influential (@fig-hydry-params b).
+The pressure drop parameter $\lambda$ was negatively associated with the interaction of $D^{ant}$ and $W_{10}^{ant}$, although the main effects were not significant (@fig-hydry-params a).
 
 #### Temporal patterns in $\sigma$ and GPP
 
-Although general trends in hydraulic regulation can be inferred from grouping $\Psi_{MD}$ and $\Psi_{PD}$ by season (e.g., Fig. \@ref(fig:fig-sig)), the hierarchical Bayesian model permitted combining posterior parameter distributions with environmental covariates to produce daily timeseries of predicted $\sigma$ (e.g., Fig. \@ref(fig:fig-hydry-gpp)a), which cannot be determined empirically.
+Although general trends in hydraulic regulation can be inferred from grouping $\Psi_{MD}$ and $\Psi_{PD}$ by season (e.g., @fig-sig), the hierarchical Bayesian model permitted combining posterior parameter distributions with environmental covariates to produce daily timeseries of predicted $\sigma$ (e.g., @fig-hydry-gpp a), which cannot be determined empirically.
 During the premonsoon, *J. osteosperma* shifted between iso- and anisohydry, with $\sigma$ values hovering near 1.
 But during the monsoon season, the three main pulse events precipitated peaks in $\sigma$ that signify extreme anisohydry, with $\sigma$ values well above 1.
 Finally, in the fall, *J. osteosperma* returned to isohydry, and $\sigma$ fell below 1.
@@ -358,56 +396,56 @@ Finally, in the fall, *J. osteosperma* returned to isohydry, and $\sigma$ fell b
 knitr::include_graphics("../../scripts/model-pd-md/figs/fig_6.png")
 ```
 
-The trends in daily $\sigma$ correspond well to observed time-series of GPP (Fig. \@ref(fig:fig-hydry-gpp)a), particularly in the responsiveness of both $\sigma$ and GPP to the three main pulse events.
-Thus, $\sigma$ and GPP were positively correlated during the monsoon period ($r=0.653, p<0.001$, Fig. \@ref(fig:fig-hydry-gpp)b), although the peak in GPP appeared to lead the the peak in $\sigma$.
-This observation was supported by the highest Pearson's correlation between GPP and $\sigma$ achieved at a 1-2 day offset between the two timeseries (Fig. \@ref(fig:fig-hydry-gpp)c).
+The trends in daily $\sigma$ correspond well to observed time-series of GPP (@fig-hydry-gpp a), particularly in the responsiveness of both $\sigma$ and GPP to the three main pulse events.
+Thus, $\sigma$ and GPP were positively correlated during the monsoon period ($r=0.653, p<0.001$, @fig-hydry-gpp b), although the peak in GPP appeared to lead the the peak in $\sigma$.
+This observation was supported by the highest Pearson's correlation between GPP and $\sigma$ achieved at a 1-2 day offset between the two timeseries (@fig-hydry-gpp c).
 
 #### Plant water potential relationship to GPP
 
-The initial GPP model (Eqn. 7, 8) also fit the data well (Fig. \@ref(fig:fig-gpp-part1)c, observed vs. predicted $GPP$ $R^2$= 0.733), although with some degree of bias (slope of observed vs. predicted = 0.732) such that some high GPP values were underpredicted.
-Comparing the GPP and NIRv time series (Fig. \@ref(fig:fig-gpp-part1)a), the first major pulse event elicited a strong GPP response prior to any green up detected optically by NIRv, partially accounting for the underprediction of some high GPP values.
+The initial GPP model (@eq-gpp-likelihood, @eq-gpp-regression) also fit the data well (@fig-gpp-part1 c, observed vs. predicted $GPP$ $R^2$= 0.733), although with some degree of bias (slope of observed vs. predicted = 0.732) such that some high GPP values were underpredicted.
+Comparing the GPP and NIRv time series (@fig-gpp-part1 a), the first major pulse event elicited a strong GPP response prior to any green up detected optically by NIRv, partially accounting for the underprediction of some high GPP values.
 Conversely, low, near-zero GPP in mid to late July was not matched by extreme lows in scaled PAR or NIRv, resulting in overprediction of low GPP values.
-GPP was positively associated with NIRv and the interaction between NIRv and PAR (Fig. \@ref(fig:fig-gpp-part1)b), though PAR alone was not significantly associated with GPP.
+GPP was positively associated with NIRv and the interaction between NIRv and PAR (@fig-gpp-part1 b), though PAR alone was not significantly associated with GPP.
 
 ```{r fig-gpp-part1, echo=FALSE, out.width="100%", fig.cap="<b>a)</b> Time series of daily total gross primary productivity (GPP) with scaled values of near infrared reflectance of vegetation (NIRv) and photosynthetically active radiation (PAR). Posterior mean and 95% CI of the <b>b)</b> covariate effects and <b>c)</b> predicted versus observed GPP from the first part of the GPP model (Eqn. 7, 8). Gray horizontal lines indicate the prior means, asterisks indicate significant covariate effects, error bars represent the 95% CIs, the solid diagonal is the 1:1 line, and the dashed line represents the line of best fit"}
 knitr::include_graphics("../../scripts/model-gpp-nirv/figs/fig_7.png")
 ```
 
 Residuals from the initial GPP model were interpreted as the light use efficiency (LUE) component of the Monteith et al. [-@monteith1972] framework.
-Three functional forms of the residual model were tested: environmental covariates with D and $W_{10}^{ant}$ (Eqn. 4, 10), soil water content with $W_{10}^{ant}$ only (Eqn. 4, 11), and predawn water potential with $\overline{\Psi_{PD}}$ only (Eqn. 12).
-Of the three models, predawn water potential has the strongest coefficient of determination, lowest posterior predictive loss, and fewest effective number of parameters (Table. S1).
+Three functional forms of the residual model were tested: environmental covariates with D and $W_{10}^{ant}$ (@eq-md-antecedent, @eq-resid-env), soil water content with $W_{10}^{ant}$ only (@eq-md-antecedent, @eq-resid-swc), and predawn water potential with $\overline{\Psi_{PD}}$ only (@eq-resid-pd).
+Of the three models, predawn water potential had the strongest coefficient of determination, lowest posterior predictive loss, and fewest effective number of parameters (Table. S1).
 
 ```{r fig-gpp-resid-pd, echo=FALSE, out.width="100%", fig.cap="<b>a)</b> Time series of daily residuals from the GPP model with site-averaged predawn water potential ($\\overline{\\Psi_{PD}}$). Posterior mean and 95% CI of the <b>b)</b> covariate effects and <b>c)</b> predicted versus observed residuals from predawn water potential model (Eqn. 12). Gray horizontal lines indicate the prior means, asterisks indicate significant covariate effects, error bars represent the 95% CIs, the solid diagonal is the 1:1 line, and the dashed line represents the line of best fit"}
 knitr::include_graphics("../../scripts/model-gpp-nirv/figs/fig_8.png")
 ```
 
-The predawn water potential model (Eqn. 12) fit the GPP residuals moderately well (Fig. \@ref(fig-gpp-resid-pd)c, observed vs. predicted $resid$ $R^2$= 0.199), and a fair amount bias was apparent.
-Notably, the temporal pattern of $\overline{\Psi_{PD}}$ matched that of GPP residuals remarkably well.
-$\overline{\Psi_{PD}}$ was significantly and positively correlated with the GPP residuals (Fig. \@ref(fig-gpp-resid-pd)b).
-Taken together, the initial GPP model and best-performing LUE model using only predawn water potential improved the overall model fit to about $R^2$= 0.786.
+The predawn water potential model (@eq-resid-pd) fit the GPP residuals moderately well (@fig-gpp-resid-pd c, observed vs. predicted $resid$ $R^2$= 0.199), and a fair amount bias was apparent.
+Notably, the temporal pattern of $\overline{\Psi_{PD}}$ closely matched that of GPP residuals.
+$\overline{\Psi_{PD}}$ was significantly and positively correlated with the GPP residuals (@fig-gpp-resid-pd b).
+Taken together, the initial GPP model and best-performing LUE model using only predawn water potential improved the overall model fit to $R^2$= 0.786.
 
-Interestingly, the other models that modified LUE with environmental covariates (D, $W_{10}^{ant}$) and soil water content ($W_{10}^{ant}$ only) did not perform as well (Table S1).
+The models using environmental covariates (D, $W_{10}^{ant}$) and soil water content ($W_{10}^{ant}$ only) explained less variation in GPP residuals than the model using only predawn water potential(Table S1).
 In the environmental covariates model, neither D nor $W_{10}^{ant}$ was significantly correlated to the GPP residuals (Fig. S2).
-This is likely because D and PAR are highly correlated (Fig. @ref(fig:fig-env)), while the residuals represent remaining variation after accounting for PAR and NIRv.
+This is likely because D and PAR were highly correlated (@fig-env), while the residuals represent remaining variation after PAR has been accounted for.
 In the soil water content only model, $W_{10}^{ant}$ was positively correlated to the GPP residuals, with the most influential water contents occurring 3-5 days prior.
 
 ### Discussion
 
-In this study, we set out to improve our understanding of temporal variability in plant hydraulic regulation and its relationship to carbon uptake.
-We leveraged contemporaneous, high-resolution water potential and carbon flux data to compare temporal trends in daily plant water potential, GPP, and hydraulic behavior in a dryland ecosystem.
+In this study, we set out to improve our understanding of temporal variability in plant hydraulic regulation and its relationship to ecosystem carbon uptake.
+We leveraged contemporaneous, high-resolution water potential and carbon flux data to compare temporal trends in daily plant water potential, hydraulic behavior, and GPP in a dryland ecosystem.
 First, we found that in *J. osteosperma*, hydraulic regulation varied over the growing season.
 Increasing anisohydricity was observed following precipitation pulses, associated with high soil moisture and high atmospheric demand.
-Next, we found that both GPP and $\sigma$ were driven by antecedent soil moisture, but with different temporal patterns.
-Daily GPP was responsive to soil moisture up to 5 days prior, while daily $\sigma$ responded to soil moisture up to 11 days prior.
-Finally, we found that over the course of the growing season, GPP and $\sigma$ were most positively correlated during the monsoon season, but with different temporal trajectories following precipitation pulses.
-Suprisingly, although both $\Psi_{MD}$ and $\Psi_{PD}$ responded rapidly to precipitation inputs, plants achieved maximum $\sigma$ 2-5 days after peak GPP was reached for a given moisture pulse.
+Next, we found that GPP and $\sigma$ were most positively correlated during the monsoon season, but with different temporal trajectories following precipitation pulses.
+Surprisingly, although both $\Psi_{MD}$ and $\Psi_{PD}$ responded rapidly to precipitation inputs, plants achieved maximum $\sigma$ 2-5 days after peak GPP was reached for a given moisture pulse.
 Together, these results hint at the intriguing possibility that extreme anisohydry can serve to maximize soil water extraction and prolong GPP pulses in dryland ecosystems.
+Finally, predawn water potential represented a water stress constraint on GPP better than environmental covariates such as atmospheric and soil moisture conditions.
+As a direct metric of water stress, plant water potential closely matched the timing of GPP variability not accounted for by light and canopy photosynthetic capacity, clarifying the promise of vegetation water stress to enhance subseasonal GPP prediction in dryland ecosystems.
 
 #### Temporally-varying hydraulic behavior
 
 *Juniperus* species are considered more anisohydric than co-occurring pinyon pines due to their more cavitation-resistant xylem [@linton1998], higher hydraulic safety margins [@plaut2012], and lower leaf water potentials [@west2007; @breshears2009], while their categorization based on stomatal control is less conclusive [@garcia2016].
 Due to less vulnerable xylem in *Juniperus*, low water potentials alone do not suggest less stringent stomatal control, as they should be interpreted relative to vulnerability curve parameters such as $\Psi_{50}$, or the xylem pressure at 50% loss of hydraulic conductance.
-Here, a 166-day time series of $\Psi_{PD}$ and $\Psi_{MD}$ in *J. osteosperma* reveals strong, context-dependent variation in hydraulic regulation, an intermediate timescale that can potentially bridge the gap between short-term stomatal response-based definition of iso/anisohydry [@tardieu1998] and definitions that rely on seasonal extremes [@klein2014; @martínez-vilalta2021].
+Here, a 166-day time series of $\Psi_{PD}$ and $\Psi_{MD}$ in *J. osteosperma* reveals strong, context-dependent variation in hydraulic regulation, an intermediate timescale that can potentially bridge the gap between short-term stomatal response-based definition of iso/anisohydry [@tardieu1998] and definitions that rely on seasonal extremes [@klein2014; @martinez-vilalta2021].
 We posit that using response-based metrics [@kannenberg2022a] to quantify plant water use strategies can enable predictive understanding of plant-environment interactions.
 
 Dry air in combination with wet soil drove large increases in $\sigma$ in *J. osteosperma*, attesting to the importance of vapor pressure deficit as a driver of plant responses [@grossiord2020; @novick2016].
@@ -426,7 +464,7 @@ to extract soil water even at low soil water potentials [@west2007] is consisten
 
 The mechanisms underlying temporally flexible hydraulic behavior are not well understood, although there are some tantalizing hints in similarly temporally-variable leaf water relations and ABA synthesis.
 Both *Larrea* and *Juniperus* experience seasonally varying leaf water relations and a strong difference in turgor loss point between rehydrated and un-rehydrated leaves [@meinzer1986; @meinzer2014].
-By extrapolating the pressure-volume relationships, Meinzer et al. [-@meinzer2014] found that turgor loss would ultimately occur at -8.2 MPa for *J. monosperma*, and indeed 99.1% of our individual $\Psi_{MD}$ observations remained above this threshold.
+By extrapolating the pressure-volume relationships, Meinzer et al. [-@meinzer2014] found that turgor loss would ultimately occur at -8.2 MPa for *J. monosperma*, and indeed 99.1% of our individual $\Psi_{MD}$ observations occurred above this threshold.
 Seasonally varying leaf-water relations in anisohydric species may indicate that a combination of osmotic and cell wall elasticity adjustment can maintain turgor across different levels of leaf hydration.
 
 Hydraulic regulation strategies could also be linked to temporal dynamics of foliar ABA during soil water stress and recovery [@brodribb2013].
@@ -436,13 +474,13 @@ Among *Cupressaceae*, including *Juniperus* and *Callatris*, the use of leaf des
 Finally, temporal variability in plant hydraulic regulation may also be associated with the timing of belowground dynamics, such as fine root and mycorrhizal development [@peek2006; @lehto2011].
 In *J. osteosperma*, fine roots grew when soil water was most available and shifted toward deeper layers as the growing season progressed [@peek2006], and root distributions varied depending on cool-season vs. warm-season precipitation.
 Rooting dynamics can directly influence plant water potential via rhizosphere conductance, but this is difficult to measure empirically [@bristow1984; @sperry2016].
-Similarly, mycorrhizal symbionts are known to alter root conductivity [@lehto2011], enhance stomatal conductance [@augé2015], and increase plant productivity [@mohan2014], but the temporal dynamics of plant-mycorrhizae relationships under field conditions are poorly understood and deserve further study [@gehring2017].
+Similarly, mycorrhizal symbionts are known to alter root conductivity [@lehto2011], enhance stomatal conductance [@auge2015], and increase plant productivity [@mohan2014], but the temporal dynamics of plant-mycorrhizae relationships under field conditions are poorly understood and deserve further study [@gehring2017].
 
-#### Implications for vegetation modeling
+#### Implications for hydraulic modeling
 
 Plant hydraulic schemes are becoming increasingly represented in vegetation and land surface models [@eller2020; @kennedy2019a; @sabot2020].
-The link we observed between hydraulic strategy and GPP reinforces the value of these approaches for improved predictions of GPP, especially in dryland ecosystems where patchy resource availability leads to widespread underpredictions of both the magnitude and variability of carbon fluxes [@macbean2021a; @barnes2021].
-Temporal heterogeneity in plant hydraulic strategy and spatial heterogeneity in topoedaphic characteristics may also interact, as evidenced by high variance in stem $\Psi$ among seven co-located trees (Fig. \@ref(fig:fig-psy)a), and contribute to model underperformance in dryland ecosystems.
+The link we observed between hydraulic strategy and GPP reinforces the value of these approaches for improved predictions of GPP, especially in dryland ecosystems where patchy resource availability leads to widespread underpredictions of both the magnitude and variability of carbon fluxes [@biederman2017; @macbean2021a; @barnes2021].
+Temporal heterogeneity in plant hydraulic strategy and spatial heterogeneity in topoedaphic characteristics may also interact, as evidenced by high variance in stem $\Psi$ among seven co-located trees [@fig-psy a], and contribute to model underperformance in dryland ecosystems.
 However, if transient anisohydry does indeed represent a life history strategy to maximize carbon uptake during pulses of moisture availability, then these models will need to allow for vegetation hydraulic strategies to vary over time.
 
 One avenue of model development operationalizes the trade-off between carbon gain and hydraulic costs [@sperry2016; @wolf2016; @mencuccini2019], a subset of stomatal optimization models that accounts for the cavitation risk of low plant $\Psi$ [@wang2020].
@@ -451,16 +489,27 @@ Improving the temporal fidelity of optimization models could involve explicit im
 Promisingly, temporally-variable water use strategies may arise as an emergent property of such models [@kannenberg2022a], although a deeper understanding of underlying mechanistic processes (e.g, turgor maintenance across leaf hydration gradients, ABA synthesis, belowground temporal dynamics) is needed.
 Broadly, more research regarding when, where, and how temporally-varying water use strategies arise is necessary to evaluate their role in improved modeling of dryland carbon fluxes.
 
+#### Importance of plant water potential
+
+The logic of Monteith et al. [-@monteith1972] relates the meteorological constraint of available sunlight with the vegetation constraint of available leaf area, modified by the conversion efficiency of light that differs by plant types [@running2004].
+Variability in light use efficiency (LUE) can originate from demand-side constraints, such as respiration costs that scale with plant size and habit [@hunt1994], or supply-side constraints, such as temperature or VPD thresholds that down regulate photosynthesis.
+Supply-side water limitation may be especially relevant for capturing drought impacts on GPP [@schwalm2010], which tend to affect photosynthesis more than respiration.
+However, VPD alone is insufficient to capture drought effects, as soil moisture limitations on LUE can significantly reduce annual GPP [@stocker2018], especially in dryland regions.
+
+In our study of a single growing season, we found that predawn water potential matches the temporal pattern of LUE even more strongly than antecedent soil moisture, which comports with the critical role of water potential to plant physiology.
+Importantly, predawn water potential improved GPP model fit even though measurement scales varied greatly, with NIRv derived from 500 m MODIS data, GPP from a flux tower, and stand water potential averaged from 7 trees within the tower footprint, suggesting that the theoretical foundation connecting plant hydraulics to ecosystem productivity is robust to significant scale mismatch.
+Current initiatives to collect and aggregate soil and plant water potential in conjunction with flux tower measurements, including the Ameriflux 'Year of Water' and the PSInet RCN database, are anticipated to improve water potential data availability and spur new approaches to estimating vegetation water stress beyond single-site studies.
+
 #### Conclusions
 
 Though classically considered anisohydric, *J. osteosperma* exhibited multiple hydraulic regulation strategies within a growing season.
 Extreme anisohydry was only evident after monsoon precipitation pulses, while soils were rapidly drying yet carbon uptake was high.
 This suggests that temporally flexible hydraulic regulation allows *J. osteosperma* to both avoid extreme $\Psi_{MD}$ and xylem cavitation during seasonal drought and prolong high carbon uptake following episodic precipitation events.
-Evaluating plant responses at intermediate timescales can reveal the important contribution of hydraulic regulation to the magnitude and timing of dryland ecosystem fluxes.
+Evaluating plant water potential at intermediate timescales can reveal the important contribution of hydraulic regulation to the magnitude and timing of dryland ecosystem fluxes.
 
 ### Data availability
 
-All data and code stored in a GitHub repository that will be made public and archived on Zenodo upon manuscript acceptance.
+All data and code are stored in a GitHub repository that will be made public and archived on Zenodo upon manuscript acceptance.
 
 ### Acknowledgements
 
@@ -469,12 +518,13 @@ We also thank Newton Tran for assistance with the stem psychrometers, and acknow
 MLB and SAK were supported by the US DOE Environmental System Science program grant #DE-SC0022052.
 SAK was supported by the US Department of Agriculture (USDA) Forest Service Forest Health Protection Evaluation Monitoring program grant #19-05 and the USDA National Institute of Food and Agriculture Sustainable Agricultural Systems program, grant #2021-68012-35898.
 MLB was supported by the NASA SMAP Science Team grant #80NSSC20K1805.
-WRLA acknowledges support from the David and Lucille Packard Foundation, US National Science Foundation grants 1802880, 2003017 and 2044937, and USDA National Institute of Food and Agriculture, Agricultural and Food Research Initiative Competitive Programme, Ecosystem Services and Agro‐Ecosystem Management, grant no. 2018‐67019‐27850.
+WRLA acknowledges support from the David and Lucille Packard Foundation, US National Science Foundation grants 1802880, 2003017 and 2044937, and USDA National Institute of Food and Agriculture, Agricultural and Food Research Initiative Competitive Programme, Ecosystem Services and Agro-Ecosystem Management, grant no. 2018-67019-27850.
 
 ### Author contributions
 
 JSG and SAK conceived of and designed study with input from WRLA.
-Data were collected by SAK, processed by SAK and JSG, and analyzed by JSG.
+Field data were collected by SAK, processed by SAK and JSG, and analyzed by JSG.
+Remote sensing data were processed by MLB and analyzed by JSG with input from WKS.
 JSG prepared the manuscript with input from all co-authors.
 All authors reviewed the results and approved the final version of the manuscript.
 
@@ -489,4 +539,8 @@ All authors reviewed the results and approved the final version of the manuscrip
 
 **Fig. S1** Model fit of $\Psi_{MD}$
 
-**Fig. S2** Model fit of GPP
+**Fig. S2** Covariates, antecedent weights, and model fit of GPP residual model with environmental covariates
+
+**Fig. S3** Covariates, antecedent weights, and model fit of GPP residual model with soil water content
+
+**Table S1** Model comparison statistics for the GPP residual model
