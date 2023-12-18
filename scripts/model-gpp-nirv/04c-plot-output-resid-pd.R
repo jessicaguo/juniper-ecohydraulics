@@ -233,3 +233,74 @@ ggsave(filename = "scripts/model-gpp-nirv/figs/fig_8.png",
        width = 8, height = 6,
        units = "in")
 
+### Per Bill's request, make a GPP vs GPP plot with the residuals added together ###
+# need original data
+
+# Residuals from main model
+load("scripts/model-gpp-nirv/model-main-resid.Rdata") 
+res_mean <- mean(resid_df$pred.mean)
+res_sd <- sd(resid_df$pred.mean)
+
+# coda of replicated gpp
+load("scripts/model-gpp-nirv/coda/codarep-resid-pd.Rdata")
+main_mat <- rbind(as.matrix(coda.rep1[[1]]),
+                 as.matrix(coda.rep1[[2]]),
+                 as.matrix(coda.rep1[[3]]))
+
+# coda of replicated resid, then unscaled
+load("scripts/model-gpp-nirv/coda/codarep-main.Rdata")
+resid_pd_mat <- (rbind(as.matrix(coda.rep4[[1]]),
+                      as.matrix(coda.rep4[[2]]),
+                      as.matrix(coda.rep4[[3]])) +
+  res_mean)*res_sd
+
+
+tot_mat <- main_mat + resid_pd_mat
+
+tot_sum_df <- data.frame(pred.mean = apply(tot_mat, 2, FUN = mean),
+                         pred.lower = apply(tot_mat, 2, FUN = quantile, probs = 0.025),
+                         pred.upper = apply(tot_mat, 2, FUN = quantile, probs = 0.975))
+                         
+
+mod_comp <- cbind(flux, tot_sum_df) %>%
+  select(date, GPP, season, pred.mean, pred.lower, pred.upper) 
+
+m2 <- lm(pred.mean ~ GPP, data = mod_comp)
+sm2 <- summary(m2) # R2 = 0.7997, slope = 0.8886
+round(sm2$adj.r.squared, 3)
+# alternate version of GPP instead of resid 
+fig8c <- mod_comp %>%
+  ggplot(aes(x = GPP, y = pred.mean)) +
+  geom_abline(intercept = 0, slope = 1, col = "black",
+              size = 1) +
+  geom_abline(intercept = coef(sm2)[1,1], 
+              slope = coef(sm2)[2,1], 
+              col = "black",
+              lty = 2) +
+  geom_errorbar(aes(ymin = pred.lower, ymax = pred.upper),
+                alpha = 0.25) +
+  geom_point() +
+  geom_text(x = 0.3, y = 0, 
+            label = "italic(R^2)==0.800",
+            parse = TRUE,
+            hjust = 1,
+            vjust = 0,
+            size = 4) +
+  scale_x_continuous(expression(paste("Observed GPP (mol ", CO[2], " ", m^-2, d^-1, ")")),
+                     limits = c(min(mod_comp$GPP,mod_comp$pred.lower,  na.rm = TRUE), 
+                                max(mod_comp$GPP,mod_comp$pred.upper, na.rm = TRUE))) +
+  scale_y_continuous(expression(paste("Predicted GPP (mol ", CO[2], " ", m^-2, d^-1, ")")),
+                     limits = c(min(mod_comp$GPP,mod_comp$pred.lower,  na.rm = TRUE), 
+                                max(mod_comp$GPP,mod_comp$pred.upper, na.rm = TRUE))) +
+  theme_bw(base_size = 10) +
+  # coord_fixed(xlim=c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
+  #                    max(pred$GPP,pred$pred.upper, na.rm = TRUE)),
+  #             ylim=c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
+  #                    max(pred$GPP,pred$pred.upper,  na.rm = TRUE))) +
+  theme(panel.grid = element_blank(),
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"))
+
+fig8c
+
+
