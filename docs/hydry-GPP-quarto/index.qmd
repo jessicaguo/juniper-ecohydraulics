@@ -110,14 +110,14 @@ knitr::opts_chunk$set(echo = TRUE)
 -   Some plants exhibit temporally flexible hydraulic regulation, in which the strictness of hydraulic control (i.e., iso/anisohydry) changes in response to environmental conditions.
     However, the environmental controls over iso/anisohydry and the implications of flexible hydraulic behavior for plant productivity remain unknown.
 
--   In *Juniperus osteosperma*, a drought-resistant dryland conifer, we collected a 5-month growing season timeseries of *in situ*, high temporal-resolution plant water potential ($\Psi$) and stand gross primary productivity.
-    We quantified the stringency of hydraulic regulation associated with environmental covariates and tested the contribution of predawn water potential to carbon uptake modeling.
+-   In *Juniperus osteosperma*, a drought-resistant dryland conifer, we collected a 5-month growing season timeseries of *in situ*, high temporal-resolution plant water potential ($\Psi$) and stand gross primary productivity (GPP).
+    We quantified the stringency of hydraulic regulation associated with environmental covariates and tested the contribution of predawn water potential to modeling carbon uptake.
 
--   *J. osteosperma* experienced weaker hydraulic regulation (anisohydry) and higher productivity after monsoon precipitation pulses, when soil moisture and atmospheric demand were high, which corresponded to higher GPP.
-    Plant water potential modulates the conversion efficiency of light into carbon more strongly than functions of soil and/or atmospheric moisture.
+-   *J. osteosperma* showed less stringent hydraulic regulation (toward anisohydry) and higher productivity after monsoon precipitation pulses, when soil moisture and atmospheric demand were high, which corresponded to higher GPP.
+    The inclusion of plant water potential improved modeled estimates of GPP more strongly than the inclusion of soil and/or atmospheric moisture.
 
 -   Flexible hydraulic regulation appears to allow *J. osteosperma* to prolong soil water extraction and the period of high carbon uptake following episodic rain events during the growing season.
-    More broadly, plant water potential and its hydraulic regulation are highly dynamic, suggesting why both process-based and empirical models of productivity often underestimate the magnitude and temporal variability of dryland GPP.
+    More broadly, plant water potential and its hydraulic regulation are highly dynamic, suggesting why both process-based and empirical models often underestimate the magnitude and temporal variability of dryland GPP.
 
 Keywords: `r rmarkdown::metadata$keywords`
 
@@ -128,27 +128,29 @@ Keywords: `r rmarkdown::metadata$keywords`
 Along the soil-plant-atmosphere continuum, gradients of water potential ($\Psi$) drive water transport and govern the tradeoff between obtaining carbon dioxide for photosynthesis and water loss through stomata [@berry2010].
 The concept of a 'plant water use strategy' encompasses the numerous ways plants have evolved to confront this inescapable dilemma, including the popular iso/anisohydry spectrum based on the stomatal regulation of $\Psi$ [@tardieu1998; @jones1998].
 Isohydry describes a conservative stomatal strategy to minimize reductions in $\Psi$ and preserve hydraulic conductivity, while anisohydry is a profligate stomatal strategy that prioritizes carbon gain at the expense of low $\Psi$.
-The degree of iso/anisohydry is generally operationalized as a species-level and theoretical trait, describing a strategy in response to declining soil moisture in the absence of other limiting factors ().
+The degree of iso/anisohydry is generally operationalized as a species-level and theoretical trait, describing a strategy in response to declining soil moisture in the absence of other limiting factors [@novick2019].
 However, recent work has demonstrated that these strategies can be quite variable within a species and may arise from plant-environment interactions [@hochberg2018], including vapor pressure deficit (VPD), which is often decoupled from soil moisture at short timescales [@novick2016].
 Within-species shifts in iso/anisohydry have been reported for *Larrea tridentata* [@guo2020] and *Quercus douglasii* [@feng2019] in different seasons, in *Quercus suber* due to competition [@haberstroh2022], *Acacia aptaneura* as a result of repeated experimental drought [@nolan2017], and in multiple species between wet and dry years [@wu2021].
 
-The implications of temporally-variable hydraulic strategies on ecosystem carbon (C) fluxes are not well understood, but are important for understanding the dynamics of the land carbon sink and, by extension, its potential to forecast and mitigate the effects of climate change [@novick2022; @kennedy2019].
+The implications of temporally-variable hydraulic strategies on ecosystem carbon (C) fluxes are not yet fully understood.
+This knowledge gap limits our ability to model the dynamics of the land carbon sink, thereby limiting our ability to predict and mitigate climate change impacts [@novick2022; @kennedy2019].
 Particularly in dryland ecosystems, persistent water limitation and episodic precipitation promote tight coupling between carbon and water cycles [@biederman2016], resulting in added temporal complexity that can be difficult to model [@ogle2004; @noy-meir1973; @loik2004; @feldman2018].
-Dryland ecosystems are largely responsible for the interannual variability of the global carbon sink [@poulter2014; @ahlstrom2015], yet dynamic global vegetation models are prone to underestimating C uptake in dryland regions [@macbean2021].
-Understanding the temporal dynamics and environmental sensitivity of plant hydraulic strategies may be critical to improving predictive forecasts of the global carbon cycle.
+Dryland ecosystems are largely responsible for the interannual variability of the global carbon sink [@poulter2014; @ahlstrom2015], yet dynamic global vegetation models have been found to significantly underestimate the interannual variability of C uptake in dryland regions [@macbean2021; @biederman2017].
+Understanding the temporal dynamics and environmental sensitivity of plant hydraulic strategies may be critical to improving predictive forecasts of the global carbon cycle [@sabot2020; @sabot2022; @eller2020].
 
-Another data source to quantify ecosystem productivity and the impact of drought utilizes remotely-sensed indices of vegetation greenness [@running2004; @zeng2022].
-However, while such indices capture structural capacity for photosynthesis on a seasonal basis, they fail to capture the immediate constraints imposed by soil and atmospheric drought, which must be empirically represented [@stocker2018].
-The divergence between low productivity seasonality from remotely-sensed indices and high productivity seasonality in tower-based measurements is especially apparent in semi-arid and evergreen ecosystems [@garbulsky2008; @pierrat2021], where water limitation recurs seasonally.
-Therefore, inclusion of plant water potential, a direct metric of plant water stress, may provide a physiological constraint on GPP prediction in drylands and improve quantification of drought impacts on the global carbon cycle.
+Despite its importance, plant hydraulic stress is often notably absent from large-scale estimates of ecosystem productivity [@smith2019].
+Such models commonly combine remotely-sensed indices of vegetation greenness and light use efficiency [@running2004; @zeng2022], defined as the slope of the relationship between biomass and cumulative intercepted photosynthetically active radiation [@monteith1977].
+Greenness indices can represent the structural capacity for photosynthesis on a seasonal basis [@wang2022], but do not capture the immediate constraints imposed by soil and atmospheric drought, such that productivity seasonality is much weaker in remotely-sensed than tower-based data in semi-arid and evergreen ecosystems [@biederman2017; @smith2019; @garbulsky2008; @pierrat2021].
+Instead, water stress effects are empirically incorporated into light use efficiency (LUE), which can be especially challenging to represent in dryland regions and during periods of drought [@zhang2007; @leuning2005], as productivity is highly sensitive to soil moisture deficits beyond what is reflected in atmospheric dryness [@novick2016; @stocker2018].
+Plant water potential, a direct metric of plant water stress that integrates soil and atmospheric drivers, may thus provide a key physiological constraint on ecosystem productivity in drylands, which could improve our ability to represent drought impacts and quantify interannual variability of C uptake.
 
-Drought-induced mortality in pinyon-juniper woodlands is an iconic consequence of climate change in the southwest US.
-Pinyon mortality following the 2002-2003 drought was associated with differences in plant hydraulic regulation [@breshears2009; @plaut2012]; juniper survival was largely attributed to a less hydraulically vulnerable xylem and thus a greater ability to withstand low water potentials [@mcdowell2008].
+Pinyon-juniper woodlands are broadly distributed in the southwestern United States and provide a well-studied test system for how hydraulic strategies like iso/anisohydry can modulate productivity and mortality [@mcdowell2008].
+Pinyon mortality following the 2002-2003 drought was likely associated with differences in plant hydraulic regulation [@breshears2009; @plaut2012]; juniper survival was largely attributed to a less hydraulically vulnerable xylem and thus a greater ability to withstand low water potentials [@mcdowell2008].
 Although generally considered anisohydric, *Juniperus monosperma* exhibited strong stomatal control and negligible xylem embolism under drought manipulation [@garcia-forner2016], thereby challenging the hypothesis that anisohydric species are more prone to hydraulic failure.
 As the southwestern US megadrought persists [@williams2022] and induces mortality even among resilient *Juniperus* spp.
-[@kannenberg2021], it is imperative to examine how anisohydric strategies interact with plant productivity and survival.
+[@kannenberg2021], it is imperative to examine how flexible hydraulic strategies interact with plant productivity and survival.
 
-In this study, we utilize a five-month time-series of plant $\Psi$ and ecosystem C fluxes in a juniper woodland to evaluate the temporal dynamics of hydraulic strategy and gross primary productivity (GPP).
+In this study, we utilize a five-month time-series of plant $\Psi$ and gross primary productivity (GPP) in a juniper woodland to evaluate the temporal dynamics of hydraulic strategy and incorporate plant water stress into a common, remotely-sensed approach to GPP.
 By contemporaneously measuring plant $\Psi$ and GPP continuously at daily resolution, we can directly investigate the implications of $\Psi$ regulation and predawn water potential for productivity in an iconic southwestern species.
 We ask:
 
