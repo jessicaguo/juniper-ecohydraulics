@@ -174,18 +174,18 @@ See Kannenberg et al. in revision for additional details on calibration and main
 
 Eddy covariance and environmental data were processed first by summarizing to half-hourly values, gapfilling, and then summarizing to daily values used in the subsequent figures and analysis.
 High frequency eddy covariance data were processed into half-hourly values of net ecosystem exchange (NEE) using *EasyFlux PC* (Campbell Scientific) following a procedure of despiking [@vickers1997], coordinate rotation, spectral correction [@massman2000], and Webb-Pearman-Leuning density correction [@webb1980].
-NEE was gap-filled using the 50th percentile Ustar distribution and partitioned into gross primary productivity (GPP) and ecosystem respiration using the nighttime method [@reichstein2005] in the R package 'REddyProc' [@wutzler2018].
-All environmental variables were summarized to half-hourly means or sums where appropriate; air temperature, vapor pressure deficit, and incoming shortwave radiation were gap-filled using the MDS algorithm [@reichstein2005].
+NEE was gap-filled using the 50th percentile Ustar distribution and partitioned into GPP and ecosystem respiration using the nighttime method [@reichstein2005] in the R package 'REddyProc' [@wutzler2018].
+All environmental variables were aggregated to 30 minute temporal resolutions; air temperature, vapor pressure deficit, and incoming shortwave radiation were gap-filled using the MDS algorithm [@reichstein2005].
 Ecosystem fluxes and precipitation were aggregated to daily sums, vapor pressure deficit was summarized to daily maximums, and the remaining environmental variables were summarized as daily means.
 
 #### Plant water potential
 
 Stem water potential of seven mature *J. osteosperma* within the tower footprint (\< 20 m) was monitored with both automated and manual measurements between May 24 and November 5, 2021.
-Half-hourly water potential was monitored with stem psychrometers (ICT International PSY1) that were calibrated prior to installation.
+Half-hourly water potential was monitored with stem psychrometers (ICT International PSY1) calibrated prior to installation.
 Two instruments per tree were installed by removing the bark and phloem to expose a flat xylem surface.
 Psychrometer sensor heads were attached with self-adhesive silicone tape to maintain a tight seal and wrapped in reflective insulation to minimize temperature gradients.
 Because plant wounding responses can fill the sensor chamber, each psychrometer was uninstalled, cleaned with chloroform, and reinstalled on a new branch every 4-5 weeks.
-The day after reinstallation, the xylem water potential was measured manually with a Scholander-type pressure chamber (PMS 610) by excising a needle cluster with diameter between 2 and 4 mm and measuring within 2 minutes of collection.
+The day after reinstallation, the xylem water potential was measured manually with a Scholander-type pressure chamber (PMS 610) by excising a needle cluster with diameter between 2 and 4 mm and measuring within 2 minutes of collection; psychrometer water potentials generally matched pressure chamber values [@kannenberg2023].
 
 The half-hourly stem water potential time series were subjected to quality control by visual assessment and processed to daily values.
 After removing data during the maintenance period (+ 1 day) and outliers that were \> 0.5 MPa from adjacent points, data that met the following criteria were also discarded: 1) a step change in the magnitude of water potential not attributable to a precipitation event; 2) loss of diurnal pattern in water potential.
