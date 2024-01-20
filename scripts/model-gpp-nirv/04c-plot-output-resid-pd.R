@@ -1,5 +1,6 @@
 # Make plots of parameters and observed vs. predicted
 
+library(tidyverse)
 library(coda)
 library(broom.mixed)
 library(dplyr)
@@ -14,6 +15,8 @@ load("scripts/model-gpp-nirv/coda/codarep-resid-pd.Rdata")
 load("data_cleaned/psy_daily_site_gapfilled.Rdata")
 
 load("scripts/model-gpp-nirv/model-main-resid.Rdata") # resid_df
+
+load(file = "scripts/model-pd-md/products/param_pred.Rdata") # param_pred, contains sigma.mean
 
 # Load met data
 load("data_cleaned/met_daily.Rdata")
@@ -61,13 +64,19 @@ flux <- readr::read_csv("data_raw/US-CdM daily.csv") %>%
   left_join(sat_dat) %>%
   left_join(psy_daily_site_gapfilled %>%
               filter(type == "PD") %>%
-              select(-n)) 
+              select(-n)) %>%
+  left_join(param_pred |> select(date, starts_with("sigma")),
+            by = join_by("date"))
+
 
 # Combine psy and flux to plot parameters
 # Add residuals of simple model
 derived <- cbind.data.frame(flux, resid = scale(resid_df$pred.mean)) %>%
   mutate(lab = "bar(Psi[PD])")
 
+
+cor(derived$resid, derived$sigma.mean, use = "complete.obs")
+cor(derived$resid, derived$WP_mean, use = "complete.obs")
 
 # Plot raw
 parse.labels <- function(x) parse(text = x)
