@@ -84,6 +84,12 @@ met_ppt <- met_in %>%
   filter(date >= min(psy_in$date) &
            date <= max(psy_in$date))
 
+rect <- data.frame(season = c("premonsoon", "monsoon", "fall"),
+                   xmin = c(min(psy_in$date), monsoon_st, as.Date("2021-10-01")),
+                   xmax = c(monsoon_st, monsoon_en + 1, max(psy_in$date))) %>%
+  mutate(mid = as.Date(rowMeans(cbind(xmin, xmax)), origin = "1970-01-01"))
+
+
 fig1a <- ggplot() +
   geom_rect(data = rect,
           aes(xmin = xmin, xmax = xmax,
@@ -105,7 +111,7 @@ fig1a <- ggplot() +
                      sec.axis = sec_axis(~(.+5)*100,
                                          expression(paste("PAR (mmol ",
                                                           m^-2, s^-1, ")")))) +
-  scale_color_hp_d(option = "Hufflepuff") +
+  scale_color_hp_d(option = "DracoMalfoy") +
   scale_fill_manual(values = c("gray90", "gray70", "gray90")) +
   theme_bw(base_size = 14) +
   theme(panel.grid = element_blank(),
