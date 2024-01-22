@@ -195,20 +195,14 @@ In addition, site-level means of predawn and midday water potential were calcula
 
 #### Vegetation indices and fAPAR
 
-We employed a Monteith-style framework [@monteith1972] to model tower-based GPP as a function of absorbed photosynthetically active radiation (APAR) and light use efficiency (LUE):
-
-$$
-\begin{array}{c}
-GPP = APAR \cdot LUE
-\end{array}
-$$ {#eq-monteith}
-
-APAR is defined as the product of the fraction of absorbed photosynthetically active radiation (fAPAR) and photosynthetically active radiation (PAR).
-Here, we used the near infrared reflectance of vegetation (NIRv) calculated from NASA's Moderate Resolution Imaging Spectoradiometer (MODIS) to represent fAPAR.
-MODIS nadir BRDF-adjusted daily reflectance (MCD43A, 1 d, 500 m, collection 6.1) for US-CdM were screened for the highest quality flags; bands 1 (620-670 nm) and 2 (841-876 nm) were combined with background soil reflectance of 0.08 to represent NIRv following Badgley et al. [-@badgley2017].
+Following a Monteith light use efficiency (LUE) framework [@monteith1972], we used the near-infrared reflectance of vegetation index (NIRv) to represent the fraction of photosynthetically active radiation absorbed by the vegetation (fAPAR) -- the key proxy of the structural capacity for photosyntehsis on a seasonal basis [@badgley2017; @badgley2019].
+We calcluated NIRv from Moderate Resolution Imaging Spectroradiometer (MODIS) nadir bidirectional reflectance distribution function (BRDF) adjusted daily reflectance product (MCD43A, 1 d, 500 m, collection 6.1).
+MODIS bands 1 (620-670 nm) and 2 (841-876 nm) were combined with background soil reflectance of 0.08 to represent NIRv following Badgley et al. [-@badgley2017].
+For each day of the measurement period, we selected all pixels within a \_\_ $m^2$ radius of the site (\_\_ total pixels) to roughly match the footprint of the flux tower.
+We then filtered these pixels to include only the highest quality observations (MODIS quality flag = 0).
 Resulting values were smoothed using a Savitzky-Golay filter of derivative order 0, filter order 3, and window length 5.
-Site-level incoming PAR was obtained from the tower-mounted sensor.
-NIRv is well-correlated with modeled fAPAR across all soil reflectances and is robust at low vegetation cover [@badgley2017]; the product of NIRv and incoming PAR is termed NIRvP and considered a strong proxy of photosynthesis globally [@dechant2022].
+NIRv is well-correlated with modeled fAPAR across all soil reflectances and is robust at low vegetation cover [@badgley2017; @wang2022].
+Following Monteith, incoming PAR (from the tower-mounted sensor) and NIRv were evaluated as the primary drivers of GPP (see @sec-gpp-model).
 
 #### Model description - hydraulic regulation
 
@@ -223,7 +217,7 @@ $$ {#eq-mv}
 where $\sigma$ represents the stringency of hydraulic regulation and $\lambda$ describes the pressure drop when soil moisture is not limiting.
 Plant hydraulic regulation can be described as isohydry if $\sigma<1$, anisohydry if $\sigma\approx1$, and extreme anisohydry if $\sigma > 1$.
 
-To allow hydraulic regulation and GPP to vary over the growing season, we specified a hierarchical Bayesian model that estimated $\sigma$, $\lambda$, GPP as linear functions of maximum daily vapor pressure deficit ($D$) and volumetric soil water content at 10 cm ($W_{10}$), which had the highest correlation with plant $\Psi$ and GPP [@kannenberg2023].
+To allow hydraulic regulation and GPP to vary over the growing season, we specified a hierarchical Bayesian model that estimated $\sigma$ and $\lambda$ as linear functions of maximum daily vapor pressure deficit ($D$) and volumetric soil water content at 10 cm ($W_{10}$), which had the highest correlation with plant $\Psi$ and GPP [@kannenberg2023].
 Furthermore, we implemented the stochastic antecedent model [@ogle2015] to quantify the influence of past environmental conditions.
 The data model for hydraulic regulation describes the likelihood of each observed $\Psi_{MD}$, which was normally distributed for each observation $i$ ($i = 1, 2, \ldots, 1425$):
 
@@ -276,9 +270,12 @@ The regression coefficients were assigned relatively non-informative normal prio
 Antecedent importance weights, vectors of length $T_{lag}$ (@eq-md-antecedent), were given non-informative Dirichlet priors that assume *a priori* that each past time step has equal importance, and that constrain weights for each covariate to sum to 1 across all time steps, $p$.
 The standard deviation of tree random effects ($\sigma_{\sigma}$ and $\sigma_{\lambda}$) were given relatively non-informative $Uniform(0, 1)$ priors, while the measurement error precision ($1/\sigma_{\Psi}^2$) was assigned a conjugate, relatively non-informative $Gamma(0.1, 0.1)$ prior.
 
-#### Model description - GPP
+#### Model description - GPP {#sec-gpp-model}
 
-To model daily ecosystem productivity, the likelihood of observed $GPP$ was normally distributed for for each observation $j$ ($j = 1, 2, \ldots, 166$):
+To assess the drivers of daily ecosystem productivity, we developed a two-part model based on the Monteith [-@monteith1972] framework.
+Daily GPP was sequentially modeled as a function of the structural capacity for photosynthesis (NIRv) and incoming PAR; the residuals were interpreted as LUE and evaluated as combinations of water stress indices, including soil moisture, VPD, and predawn water potential.
+
+The likelihood of observed $GPP$ was normally distributed for for each observation $j$ ($j = 1, 2, \ldots, 166$):
 
 $$
 \begin{array}{c}
@@ -287,7 +284,7 @@ $$
 $$ {#eq-gpp-likelihood}
 
 where $\overline{GPP}_j$ is the predicted or mean daily GPP and the variance $\sigma_{GPP}^2$ represents the uncertainty in observed $GPP$.
-$\overline{GPP}_j$ was modeled as a linear function of NIRv, PAR, and their interaction, representing the initial $GPP = fAPAR$ component of the Monteith [-@monteith1972] formulation [@eq-monteith].
+$\overline{GPP}_j$ was modeled as a linear function of NIRv, PAR, and their interaction, representing the photosynthetic-capacity component of the Monteith [-@monteith1972] formulation.
 
 $$
 \begin{array}{c}
@@ -413,35 +410,33 @@ GPP was positively associated with NIRv and the interaction between NIRv and PAR
 knitr::include_graphics("../../scripts/model-gpp-nirv/figs/fig_7.png")
 ```
 
-Residuals from the initial GPP model were interpreted as the light use efficiency (LUE) component of the Monteith et al. [-@monteith1972] framework.
+Residuals from the initial GPP model were interpreted as fluctuations in light use efficiency (LUE), follwoing the logic of the Monteith et al. [-@monteith1972] framework.
 Three functional forms of the residual model were tested: environmental covariates with D and $W_{10}^{ant}$ (@eq-md-antecedent, @eq-resid-env), soil water content with $W_{10}^{ant}$ only (@eq-md-antecedent, @eq-resid-swc), and predawn water potential with $\overline{\Psi_{PD}}$ only (@eq-resid-pd).
-Of the three models, predawn water potential had the strongest coefficient of determination, lowest posterior predictive loss, and fewest effective number of parameters (Table. S1).
+Of the three models, the predawn water potential model had the fewest effective number of parameters ($pD$), lowest posterior predictive loss ($D\infty$), strongest coefficient of determination ($R^2$), and lowest bias (@fig-gpp-resid b,c).
 
-```{r fig-gpp-resid-pd, echo=FALSE, out.width="100%", fig.cap="<b>a)</b> Time series of daily residuals from the GPP model with site-averaged predawn water potential ($\\overline{\\Psi_{PD}}$). Posterior mean and 95% CI of the <b>b)</b> covariate effects and <b>c)</b> predicted versus observed residuals from predawn water potential model (Eqn. 12). Gray horizontal lines indicate the prior means, asterisks indicate significant covariate effects, error bars represent the 95% CIs, the solid diagonal is the 1:1 line, and the dashed line represents the line of best fit"}
-knitr::include_graphics("../../scripts/model-gpp-nirv/figs/fig_8.png")
+```{r fig-gpp-resid, echo=FALSE, out.width="100%", fig.cap="<b>a)</b> Time series of daily residuals from the GPP model with daily maximum VPD ($D$), volumetric water content at 10 cm ($W_{10}$), and site-averaged predawn water potential ($\\overline{\\Psi_{PD}}$), all standardized to the same scale. Posterior mean and 95% CI of the <b>b)</b> covariate effects and <b>c)</b> predicted versus observed residuals from each residual model: Env (Eqn. 4 & Eqn. 9), Soil only (Eqn. 4 & Eqn. 10), and $\Psi$ only (Eqn. 11). Gray horizontal lines indicate the prior means, asterisks indicate significant covariate effects, error bars represent the 95% CIs, the solid diagonal is the 1:1 line, and the dashed line represents the line of best fit"}
+knitr::include_graphics("../../scripts/model-gpp-nirv/figs/fig_8_new.png")
 ```
 
-The predawn water potential model (@eq-resid-pd) fit the GPP residuals moderately well (@fig-gpp-resid-pd c, observed vs. predicted $resid$ $R^2$= 0.199), and a fair amount bias was apparent.
-Notably, the temporal pattern of $\overline{\Psi_{PD}}$ closely matched that of GPP residuals.
-$\overline{\Psi_{PD}}$ was significantly and positively correlated with the GPP residuals (@fig-gpp-resid-pd b).
-Taken together, the initial GPP model and best-performing LUE model using only predawn water potential improved the overall model fit to $R^2$= 0.786.
+Among the GPP residual models, the predawn water potential model (@eq-resid-pd) fit the GPP residuals moderately well (observed vs. predicted $resid$ $R^2$= 0.199) while employing the fewest effective parameters and minimizing posterior predictive loss (@fig-gpp-resid b).
+Combining the initial GPP model and the best-performing LUE model using predawn water potential improved the overall $R^2$ from 0.733 to 0.800 and the bias from 0.732 to 0.89 (@fig-gpp-part1 c, @fig-gpp-resid c).
 
-The models using environmental covariates (D, $W_{10}^{ant}$) and soil water content ($W_{10}^{ant}$ only) explained less variation in GPP residuals than the model using only predawn water potential(Table S1).
-In the environmental covariates model, neither D nor $W_{10}^{ant}$ was significantly correlated to the GPP residuals (Fig. S2).
-This is likely because D and PAR were highly correlated (@fig-env), while the residuals represent remaining variation after PAR has been accounted for.
-In the soil water content only model, $W_{10}^{ant}$ was positively correlated to the GPP residuals, with the most influential water contents occurring 3-5 days prior.
+The strong performance of $\overline{\Psi_{PD}}$ for predicting GPP residuals is likely due to their close temporal coherence (@fig-gpp-resid a), which outperformed $W_{10}^{ant}$ alone or in conjunction with $D$ (@fig-gpp-resid b).
+The antecedent weights for $W_{10}^{ant}$ (Fig. S2) indicated that GPP residuals lagged soil moisture by 3-5 days, but the temporally-weighted soil moisture still did not correlated as strongly with GPP residuals as $\overline{\Psi_{PD}}$ did.
+Surprisingly, neither D nor $W_{10}^{ant}$ was significantly associated with the GPP residuals in the environmental covariates model (@fig-gpp-resid b).
+This is likely because D and PAR were highly correlated (@fig-env), and the GPP residuals already accounted for PAR.
 
 ### Discussion
 
 In this study, we set out to improve our understanding of temporal variability in plant hydraulic regulation and its relationship to ecosystem carbon uptake.
 We leveraged contemporaneous, high-resolution water potential and carbon flux data to compare temporal trends in daily plant water potential, hydraulic behavior, and GPP in a dryland ecosystem.
 First, we found that in *J. osteosperma*, hydraulic regulation varied over the growing season.
-Increasing anisohydricity was observed following precipitation pulses, associated with high soil moisture and high atmospheric demand.
-Next, we found that GPP and $\sigma$ were most positively correlated during the monsoon season, but with different temporal trajectories following precipitation pulses.
-Surprisingly, although both $\Psi_{MD}$ and $\Psi_{PD}$ responded rapidly to precipitation inputs, plants achieved maximum $\sigma$ 2-5 days after peak GPP was reached for a given moisture pulse.
+Increasing anisohydricity was observed following precipitation pulses, associated with high soil moisture and high atmospheric demand (@fig-hydry-params).
+Next, we found that GPP and $\sigma$ were most positively correlated during the monsoon season, but with different temporal trajectories following precipitation pulses (@fig-hydry-gpp).
+Surprisingly, although both $\Psi_{MD}$ and $\Psi_{PD}$ responded rapidly to precipitation inputs, plants achieved maximum $\sigma$ 2-5 days after peak GPP was reached for a given moisture pulse (@fig-hydry-gpp c).
 Together, these results hint at the intriguing possibility that extreme anisohydry can serve to maximize soil water extraction and prolong GPP pulses in dryland ecosystems.
-Finally, predawn water potential represented a water stress constraint on GPP better than environmental covariates such as atmospheric and soil moisture conditions.
-As a direct metric of water stress, plant water potential closely matched the timing of GPP variability not accounted for by light and canopy photosynthetic capacity, clarifying the promise of vegetation water stress to enhance subseasonal GPP prediction in dryland ecosystems.
+Finally, predawn water potential represented a water stress constraint that was found to explain more of the variability in GPP compared to environmental covariates associated with atmospheric and soil moisture conditions (@fig-gpp-resid).
+As a direct metric of water stress, plant water potential closely matched the timing of GPP variability not accounted for by light availability and canopy photosynthetic capacity, underscoring vegetation water stress as the dominant constraint on subseasonal GPP dynamics in dryland ecosystems.
 
 #### Temporally-varying hydraulic behavior
 
