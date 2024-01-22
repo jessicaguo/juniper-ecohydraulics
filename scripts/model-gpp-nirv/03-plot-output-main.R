@@ -191,13 +191,25 @@ fig7c <- pred %>%
             hjust = 1,
             vjust = 0,
             size = 4) +
-  scale_x_continuous(expression(paste("Observed GPP (mol ", CO[2], " ", m^-2, d^-1, ")")),
+  geom_text(x = 0.28, y = -0.03, 
+            label = "slope==0.732",
+            parse = TRUE,
+            hjust = 1,
+            vjust = 0,
+            size = 4) +
+  scale_x_continuous("Observed GPP",
                      limits = c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
                                 max(pred$GPP,pred$pred.upper, na.rm = TRUE))) +
-  scale_y_continuous(expression(paste("Predicted GPP (mol ", CO[2], " ", m^-2, d^-1, ")")),
+  scale_y_continuous("Predicted GPP",
                      limits = c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
                                 max(pred$GPP,pred$pred.upper, na.rm = TRUE))) +
-  theme_bw(base_size = 10) +
+  # scale_x_continuous(expression(paste("Observed GPP (mol ", CO[2], " ", m^-2, d^-1, ")")),
+  #                    limits = c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
+  #                               max(pred$GPP,pred$pred.upper, na.rm = TRUE))) +
+  # scale_y_continuous(expression(paste("Predicted GPP (mol ", CO[2], " ", m^-2, d^-1, ")")),
+  #                    limits = c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
+  #                               max(pred$GPP,pred$pred.upper, na.rm = TRUE))) +
+  theme_bw(base_size = 12) +
   # coord_fixed(xlim=c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
   #                    max(pred$GPP,pred$pred.upper, na.rm = TRUE)),
   #             ylim=c(min(pred$GPP,pred$pred.lower,  na.rm = TRUE), 
