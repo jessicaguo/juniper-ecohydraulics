@@ -237,7 +237,7 @@ fig7
 
 ggsave(filename = "scripts/model-gpp-nirv/figs/fig_7.png",
        plot = fig7,
-       width = 8, height = 6,
+       width = 7, height = 6,
        units = "in")
 
 

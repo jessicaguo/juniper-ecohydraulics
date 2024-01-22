@@ -323,7 +323,7 @@ fig7c <-
             vjust = 0,
             size = 4) +
   geom_text(data = sum_df,
-            aes(x = 0.3, y = -0.035,
+            aes(x = 0.3, y = -0.04,
                 label = lab2),
             parse = TRUE,
             hjust = 1,
@@ -356,7 +356,7 @@ plot_grid(fig7a, fig7b, fig7c,
           nrow = 3)
 
 ggsave("scripts/model-gpp-nirv/figs/fig_8_new.png",
-       width = 8, height = 8,
+       width = 7, height = 7,
        units = "in")
 
 
