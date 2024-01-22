@@ -182,7 +182,7 @@ fig7b <-
              aes(x = Covariate, 
                  y = pred.mean)) +
   geom_point(data = pos_neg,
-             aes(x = Covariate, y = pred.upper + 0.1),
+             aes(x = Covariate, y = max(pred.upper) + 0.1),
              pch = 8,
              col = "gray70",
              stroke = 1) +
