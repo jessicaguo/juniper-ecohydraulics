@@ -3,8 +3,8 @@
 
 #### For revision
 # Replot main fig to be all 3 params for panel a
-# Regression params for panel b
-# and fit (combined with original data) for panel 
+# All Regression params for panel b
+# and all fit (combined with original data) for panel c
 
 # Make plots of parameters and observed vs. predicted
 
@@ -294,14 +294,16 @@ sm3 <- summary(lm(pred.mean~GPP, data = mod_comp_3))
 sum_df <- data.frame(model = c("Env", "Soil~only", "Psi~only"),
                      slope = c(coef(sm1)[2,1], coef(sm2)[2,1], coef(sm3)[2,1]),
                      int = c(coef(sm1)[1,1], coef(sm2)[1,1], coef(sm3)[1,1]),
-                     R2 = c(round(sm1$adj.r.squared, 3),
-                            round(sm2$adj.r.squared, 3),
-                            round(sm3$adj.r.squared, 3))) |> 
+                     R2 = c(round(sm1$adj.r.squared, 2),
+                            round(sm2$adj.r.squared, 2),
+                            sprintf('%.2f', sm3$adj.r.squared)) |> 
+                       as.character()) |> 
   mutate(lab = paste("italic(R^2)==", R2),
+         lab2 = paste("slope==", round(slope, 2)), 
          model = factor(model, levels = c("Env", "Soil~only", "Psi~only")))
                      
-
-fig7c <- mod_comp %>%
+fig7c <-
+  mod_comp %>%
   ggplot(aes(x = GPP, y = pred.mean)) +
   geom_abline(intercept = 0, slope = 1, col = "black",
               size = 1) +
@@ -316,6 +318,13 @@ fig7c <- mod_comp %>%
   geom_text(data = sum_df,
             aes(x = 0.3, y = 0,
             label = lab),
+            parse = TRUE,
+            hjust = 1,
+            vjust = 0,
+            size = 4) +
+  geom_text(data = sum_df,
+            aes(x = 0.3, y = -0.035,
+                label = lab2),
             parse = TRUE,
             hjust = 1,
             vjust = 0,
@@ -353,6 +362,66 @@ ggsave("scripts/model-gpp-nirv/figs/fig_8_new.png",
 
 
 # For supplemental fig
-# Replot to be models 1 and 2 parameters for panel a
-# Lag effects for panel b
-# and fit (combined with original data) for panel c
+# For completeness sake, create antecedent plots for models 1 and 2
+
+wB_1 <- param_sum_1 %>%
+  filter(grepl("wB", term)) %>%
+  tidyr::separate(term, 
+                  into = c("Parameter", "ts")) %>%
+  mutate(Timestep = case_when(Parameter == "wB"  & ts == 1 ~ "0-2",
+                              Parameter == "wB"  & ts == 2 ~ "3-5",
+                              Parameter == "wB"  & ts == 3 ~ "6-8",
+                              Parameter == "wB"  & ts == 4 ~ "9-11",
+                              Parameter == "wB"  & ts == 5 ~ "12-14",
+                              Parameter == "wB"  & ts == 6 ~ "15-17",
+                              Parameter == "wB"  & ts == 7 ~ "18-20",),
+         Timestep = factor(Timestep, levels = c("0-2", "3-5", "6-8", "9-11",
+                                                "12-14", "15-17", "18-20")),
+         Covariate = case_when(Parameter == "wB" ~ "W[10]^ant"),
+         model = "Env")
+
+wB_2 <- param_sum_2 %>%
+  filter(grepl("wB", term)) %>%
+  tidyr::separate(term, 
+                  into = c("Parameter", "ts")) %>%
+  mutate(Timestep = case_when(Parameter == "wB"  & ts == 1 ~ "0-2",
+                              Parameter == "wB"  & ts == 2 ~ "3-5",
+                              Parameter == "wB"  & ts == 3 ~ "6-8",
+                              Parameter == "wB"  & ts == 4 ~ "9-11",
+                              Parameter == "wB"  & ts == 5 ~ "12-14",
+                              Parameter == "wB"  & ts == 6 ~ "15-17",
+                              Parameter == "wB"  & ts == 7 ~ "18-20",),
+         Timestep = factor(Timestep, levels = c("0-2", "3-5", "6-8", "9-11",
+                                                "12-14", "15-17", "18-20")),
+         Covariate = case_when(Parameter == "wB" ~ "W[10]^ant"),
+         model = "Soil~only")
+
+wB <- wB_1 |> 
+  bind_rows(wB_2) |> 
+  mutate(model = factor(model, levels = c("Env", "Soil~only")))
+
+ggplot() +
+  geom_hline(yintercept = 1/7,
+             size = 0.8, 
+             color = "gray70") +
+  geom_errorbar(data = wB,
+                aes(x = Timestep,
+                    ymin = pred.lower,
+                    ymax = pred.upper),
+                width = 0) +
+  geom_point(data = wB,
+             aes(x = Timestep, y = pred.mean)) +
+  scale_y_continuous("Antecedent weights") +
+  scale_x_discrete("Timesteps (days)") +
+  facet_grid(~model, labeller = label_parsed) +
+  theme_bw(base_size = 14) +
+  theme(strip.background = element_blank(),
+        strip.text.x = element_text(size = 12, colour = "black"),
+        panel.grid = element_blank(),
+        axis.text.x = element_text(colour = "black"),
+        axis.text.y = element_text(colour = "black"))
+
+
+ggsave("scripts/model-gpp-nirv/figs/fig_S2_new.png",
+       width = 8, height = 3,
+       units = "in")
