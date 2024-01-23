@@ -486,22 +486,30 @@ Improving the temporal fidelity of optimization models could involve explicit im
 Promisingly, temporally-variable water use strategies may arise as an emergent property of such models [@kannenberg2022a], although a deeper understanding of underlying mechanistic processes (e.g, turgor maintenance across leaf hydration gradients, ABA synthesis, belowground temporal dynamics) is needed.
 Broadly, more research regarding when, where, and how temporally-varying water use strategies arise is necessary to evaluate their role in improved modeling of dryland carbon fluxes.
 
-#### Importance of plant water potential
+#### Importance of plant water potential at large scales
 
 The logic of Monteith et al. [-@monteith1972] relates the meteorological constraint of available sunlight with the vegetation constraint of available leaf area, modified by the conversion efficiency of light that differs by plant types [@running2004].
-Variability in light use efficiency (LUE) can originate from demand-side constraints, such as respiration costs that scale with plant size and habit [@hunt1994], or supply-side constraints, such as temperature or VPD thresholds that down regulate photosynthesis.
-Supply-side water limitation may be especially relevant for capturing drought impacts on GPP [@schwalm2010], which tend to affect photosynthesis more than respiration.
+Variability in light use efficiency (LUE) can originate from growth and maintenance constraints, such as respiration costs that scale with plant size and habit [@hunt1994], or resource constraints, such as nutrients, temperature, soil moisture, or VPD thresholds that down-regulate LUE and thus GPP.
+Water limitation may be especially relevant for capturing drought impacts on GPP [@schwalm2010], which tend to affect photosynthesis more than respiration.
 However, VPD alone is insufficient to capture drought effects, as soil moisture limitations on LUE can significantly reduce annual GPP [@stocker2018], especially in dryland regions.
 
 In our study of a single growing season, we found that predawn water potential matches the temporal pattern of LUE even more strongly than antecedent soil moisture, which comports with the critical role of water potential to plant physiology.
 Importantly, predawn water potential improved GPP model fit even though measurement scales varied greatly, with NIRv derived from 500 m MODIS data, GPP from a flux tower, and stand water potential averaged from 7 trees within the tower footprint, suggesting that the theoretical foundation connecting plant hydraulics to ecosystem productivity is robust to significant scale mismatch.
+Inclusion of predawn water potential rather than soil moisture and VPD improved not only model fit of GPP, but also the significantly reduced model bias [@fig-gpp-resid], primarily by accounting for the transition between dry season and first monsoon pulse.
+Overprediction of low premonsoon GPP and underprediction of high monsoon GPP were ameliorated by concurrent shifts in predawn water potential.
+Predawn water potential is thus highly promising for indexing the temporal variabilty of dryland GPP.
+
+While continuous timeseries of plant water potential remain rare, new technology and collective efforts are poised to increase accessibility to this key metric.
+At large scales, promising pathways are being explored to develop remote sensing-based proxies of plant water potential using thermal [@farella2022] and microwave [@konings2021] observations.
 Current initiatives to collect and aggregate soil and plant water potential in conjunction with flux tower measurements, including the Ameriflux 'Year of Water' and the PSInet RCN database, are anticipated to improve water potential data availability and spur new approaches to estimating vegetation water stress beyond single-site studies.
+Establishment of an expanded network of water potential measurements co-located at existing flux tower sites is essential to calibrate and evaluate both model and remote sensing approaches.
 
 #### Conclusions
 
 Though classically considered anisohydric, *J. osteosperma* exhibited multiple hydraulic regulation strategies within a growing season.
 Extreme anisohydry was only evident after monsoon precipitation pulses, while soils were rapidly drying yet carbon uptake was high.
 This suggests that temporally flexible hydraulic regulation allows *J. osteosperma* to both avoid extreme $\Psi_{MD}$ and xylem cavitation during seasonal drought and prolong high carbon uptake following episodic precipitation events.
+Furthermore, plant water potential significantly improved GPP model fit and bias, despite significant scale mismatch, heralding the immense potential of using plant water stress to increase the temporal fidelity of GPP predictions, a particular challenge in dryland ecosystems.\
 Evaluating plant water potential at intermediate timescales can reveal the important contribution of hydraulic regulation to the magnitude and timing of dryland ecosystem fluxes.
 
 ### Data availability
