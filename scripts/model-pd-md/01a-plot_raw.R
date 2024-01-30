@@ -390,3 +390,20 @@ ggsave(filename = "scripts/model-pd-md/figs/fig_3.png",
        plot = fig3,
        width = 8, height = 3,
        units = "in")
+
+# Check correlations
+psy2 <- mean_psy |> 
+  left_join(met_in, join_by("date"))
+
+psy2 |> 
+  ggplot(aes(x = VWC10, y = MD_mean)) +
+  geom_point()
+
+psy2 |> 
+  ggplot(aes(x = VWC5, y = PD_mean)) +
+  geom_point()
+
+cor(psy2$VWC10, psy2$MD_mean)
+cor(psy2$VWC5, psy2$MD_mean)
+cor(psy2$VWC10, psy2$PD_mean, use = "complete.obs")
+cor(psy2$VWC5, psy2$PD_mean, use = "complete.obs")
