@@ -91,7 +91,8 @@ fit_df <- data.frame(season = c("premonsoon", "monsoon", "monsoon", "fall"),
                      int = c(coef(m1)[[1]], intercept(m.seg2)$PD_mean[1], intercept(m.seg2)$PD_mean[2], coef(m3)[[1]]))
 # Create df for geom_line
 fitted_df <- data.frame(PD_mean = rep(seq(-5, 0, by = 0.1), 3)) |> 
-  mutate(season = rep(c("premonsoon", "monsoon", "fall"), each = 51),
+  mutate(season = rep(c("premonsoon", "monsoon", "fall"), each = 51) |> 
+           factor(levels = c("premonsoon", "monsoon", "fall")),
          fitted = c(predict(m1, newdata = data.frame(PD_mean = seq(-5, 0, by = 0.1))),
                     predict(m.seg2, newdata = data.frame(PD_mean = seq(-5, 0, by = 0.1))),
                     predict(m3, newdata = data.frame(PD_mean = seq(-5, 0, by = 0.1)))))
