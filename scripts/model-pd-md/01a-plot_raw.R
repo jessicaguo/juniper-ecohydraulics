@@ -19,7 +19,7 @@ man <- readr::read_csv("data_raw/Pressure-chamber-data.csv") %>%
 ppt <- met_in %>%
   filter(date >= as.Date("2021-07-01"),
          date <= as.Date("2021-09-30")) %>%
-  select(date, Precip) %>%
+  dplyr::select(date, Precip) %>%
   mutate(cPrecip = cumsum(Precip))
 
 tot <- sum(ppt$Precip)
@@ -214,7 +214,7 @@ mean_man <- man %>%
 ppt <- met_in %>%
   filter(date >= as.Date("2021-07-01"),
          date <= as.Date("2021-09-30")) %>%
-  select(date, Precip) %>%
+  dplyr::select(date, Precip) %>%
   mutate(cPrecip = cumsum(Precip))
 
 tot <- sum(ppt$Precip)
@@ -332,10 +332,24 @@ ggsave(filename = "scripts/model-pd-md/figs/fig_2.png",
        units = "in")
 
 
+#### combine into single fig ####
+
+
+fig2_new <- plot_grid(fig1a, fig1b, fig2a, fig2b,
+                  ncol = 1,
+                  align = "v",
+                  labels = "auto",
+                  label_size = 12)
+
+ggsave(filename = "scripts/model-pd-md/figs/fig_2_new.png",
+       plot = fig2_new,
+       width = 8, height = 10,
+       units = "in")
+
 # Join to label each psy with season and plot in MD vs. PD space
 mean_psy2 <- mean_psy %>%
   left_join(ppt, by = "date") %>%
-  select(-Precip) %>%
+  dplyr::select(-Precip) %>%
   mutate(season = case_when(is.na(cPrecip) & date <= as.Date("2021-06-30") ~ "premonsoon",
                             season == "premonsoon" ~ "premonsoon",
                             season == "monsoon" ~ "monsoon",
