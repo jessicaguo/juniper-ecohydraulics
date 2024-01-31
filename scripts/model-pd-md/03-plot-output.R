@@ -87,16 +87,13 @@ fig4a <- ggplot() +
              stroke = 1) +
   scale_y_continuous("Covariate effects") +
   scale_x_discrete(labels = scales::parse_format()) +
-  facet_grid2(rows = vars(Parameter),
-              # cols = vars(Panel),
-              scales = "free",
-              independent = "y",
-              space = "free_x",
+  facet_wrap(~Parameter,
+              nrow = 1,
+              scales = "free_y",
               labeller = label_parsed) +
   theme_bw(base_size = 14) +
   theme(strip.background = element_blank(),
-        strip.text.x = element_blank(),
-        strip.text.y = element_text(size = 16, face = "bold"),
+        strip.text.x = element_text(size = 16, face = "bold"),
         panel.grid = element_blank(),
         axis.title.x = element_blank(),
         axis.text.x = element_text(colour = "black"),
@@ -140,7 +137,7 @@ fig4b <- ggplot() +
              aes(x = Timestep, y = pred.mean)) +
   scale_y_continuous("Antecedent weights") +
   scale_x_discrete("Timesteps (days)") +
-  facet_wrap(~Covariate, ncol = 2,
+  facet_wrap(~Covariate, nrow = 1,
              scales = "free_x",
              labeller = label_parsed) +
   theme_bw(base_size = 14) +
