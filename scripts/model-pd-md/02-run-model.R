@@ -203,10 +203,19 @@ resid.sum <- tidyMCMC(coda.resid,
 
 psy_resid <- cbind.data.frame(psy_in, resid.sum)
 
-hist(psy_resid$pred.mean, breaks = 35)
-hist(psy_resid$MD, breaks = 35)
-qqnorm(psy_resid$MD)
-qqline(psy_resid$MD)
+par(mfrow=c(1,2))
+hist(psy_resid$pred.mean, breaks = 35, 
+     cex.main = 0.75, cex.lab = 0.75, cex.axis = 0.75)
+qqnorm(y = psy_resid$pred.mean, 
+       cex.main = 0.75, cex.lab = 0.75, cex.axis = 0.75)
+qqline(y = psy_resid$pred.mean)
+
+hist(psy_resid$MD, breaks = 35, 
+     cex.main = 0.75, cex.lab = 0.75, cex.axis = 0.75)
+qqnorm(y = psy_resid$MD, 
+       cex.main = 0.75, cex.lab = 0.75, cex.axis = 0.75)
+qqline(y = psy_resid$MD)
+
 # Run model for replicated data, time series of sigma and lambda
 coda.rep <- coda.samples(jm, 
                          variable.names = c("md.rep"),
