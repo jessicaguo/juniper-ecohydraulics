@@ -188,8 +188,25 @@ mean(coda.out[[3]][,ind])
 #   dir.create("scripts/model-pd-md/inits")
 # }
 # save(saved_state, file = "scripts/model-pd-md/inits/saved_state.Rdata")
+# Run model for residuals
+coda.resid <- coda.samples(jm,
+                           variable.names = c("resid"),
+                           n.iter = 3000)
+save(coda.resid, file = "scripts/model-pd-md/coda/codaresid.Rdata")
 
+resid.sum <- tidyMCMC(coda.resid,
+                      conf.int = TRUE,
+                      conf.method = "HPDinterval") %>%
+  rename(pred.mean = estimate,
+         pred.lower = conf.low,
+         pred.upper = conf.high)
 
+psy_resid <- cbind.data.frame(psy_in, resid.sum)
+
+hist(psy_resid$pred.mean, breaks = 35)
+hist(psy_resid$MD, breaks = 35)
+qqnorm(psy_resid$MD)
+qqline(psy_resid$MD)
 # Run model for replicated data, time series of sigma and lambda
 coda.rep <- coda.samples(jm, 
                          variable.names = c("md.rep"),

@@ -43,7 +43,8 @@ model{
       #w50Temp[i,k] <- mean(VWC50[(doy[i]-k*pC+1):(doy[i]-k*pC+pC)])*wC[k]
     #}  
     
-    # Part of the calculation of the posterior predictive loss	
+    # Part of the calculation of the posterior predictive loss
+    resid[i] <- mu[i] - md[i]
     Sqdiff[i] <- pow(md.rep[i] - md[i],2)
   }
   
