@@ -3,6 +3,7 @@
 .Rhistory
 
 # Suppress data folders/files
+_extensions/
 *.Rdata
 data_raw/
 data_cleaned/
@@ -20,7 +21,7 @@ docs/hydry-GPP/NP_2022_sub1_proof.pdf
 docs/hydry-GPP/Hydry-GPP-ms.pdf
 docs/hydry-GPP/NewPhyt/
 plots/
-
+docs/hydry-GPP-quarto/_manuscript/
 # Suppress html and rsconnect files
 *.html
 scripts/rsconnect/
