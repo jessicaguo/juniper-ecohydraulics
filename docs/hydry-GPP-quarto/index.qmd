@@ -1,5 +1,5 @@
 ---
-title: "Dynamic regulation of water potential in *Juniperus osteosperma* mediate ecosystem carbon fluxes"
+title: "Dynamic regulation of water potential in *Juniperus osteosperma* mediates ecosystem carbon fluxes"
 author: 
  -  name: Jessica S. Guo
     email: jessicaguo@email.arizona.edu
@@ -83,20 +83,20 @@ knitr::opts_chunk$set(echo = TRUE)
 | Section               | Word count | Number |
 |-----------------------|------------|--------|
 | Summary               | 195        | \-     |
-| Introduction          | 912        | \-     |
-| Materials and Methods | 1843       | \-     |
-| Results               | 1464       | \-     |
-| Discussion            | 2032       | \-     |
+| Introduction          | 936        | \-     |
+| Materials and Methods | 1822       | \-     |
+| Results               | 1477       | \-     |
+| Discussion            | 1887       | \-     |
 | Figures               | \-         | 6      |
 | Supporting Figures    | \-         | 2      |
-| Total                 | 6469       | \-     |
+| Total                 | 6339       | \-     |
 
 \pagebreak
 
 ### Summary
 
--   Some plants exhibit dynamic hydraulic regulation, in which the strictness of hydraulic control (i.e., iso/anisohydry) changes in response to environmental conditions.
-    However, the environmental controls over iso/anisohydry and the implications of flexible hydraulic behavior for plant productivity remain unknown.
+-   Some plants exhibit dynamic hydraulic regulation, in which the strictness of hydraulic regulation (i.e., iso/anisohydry) changes in response to environmental conditions.
+    However, the environmental controls over iso/anisohydry and the implications of flexible hydraulic regulation for plant productivity remain unknown.
 
 -   In *Juniperus osteosperma*, a drought-resistant dryland conifer, we collected a 5-month growing season timeseries of *in situ*, high temporal-resolution plant water potential ($\Psi$) and stand gross primary productivity (GPP).
     We quantified the stringency of hydraulic regulation associated with environmental covariates and evaluated how predawn water potential contributes to empirically predicting carbon uptake.
@@ -475,8 +475,6 @@ It remains an open question how best to account for transient hydraulic strategi
 
 #### Importance of plant water potential at large scales
 
-The logic of Monteith et al. [-@monteith1972] relates the meteorological constraint of available sunlight with the vegetation constraint of available leaf area, modified by the conversion efficiency of light that differs by plant types [@running2004].
-Variability in light use efficiency (LUE) can originate from growth and maintenance constraints, such as respiration costs that scale with plant size and habit [@hunt1994], or resource constraints, such as nutrients, temperature, soil moisture, or VPD thresholds that down-regulate LUE and thus GPP.
 In our study of a single growing season, we found that predawn water potential matches the temporal pattern of LUE even more strongly than antecedent soil moisture, which comports with the critical role of water potential to plant physiology.
 Importantly, predawn water potential improved GPP model fit even though measurement scales varied greatly, with NIRv derived from a 500 m pixel, GPP from a flux tower, and stand water potential averaged from 7 trees within the tower footprint, suggesting that the theoretical foundation connecting plant hydraulics to ecosystem productivity is robust to significant scale mismatch.
 Inclusion of predawn water potential rather than VPD and soil moisture improved not only model fit of GPP, but also the significantly reduced model bias (@fig-gpp-resid), primarily by accounting for the transition between dry season and first monsoon pulse, wherein high predawn water potentials signal physiological readiness for photosynthesis even though vegetation greenness is still lagging.
@@ -496,8 +494,7 @@ We believe that an expanded network of water potential measurements co-located a
 Though classically considered anisohydric, *J. osteosperma* exhibited multiple hydraulic regulation strategies within a growing season.
 Extreme anisohydry was only evident after monsoon precipitation pulses, while soils were rapidly drying yet carbon uptake was high.
 This suggests that temporally flexible hydraulic regulation allows *J. osteosperma* to avoid extreme $\Psi_{MD}$ and xylem cavitation during seasonal drought and prolong high carbon uptake following episodic precipitation events.
-Furthermore, plant water potential significantly improved GPP model fit and reduced bias despite significant scale mismatch, heralding the immense potential of using plant water stress to increase the temporal fidelity of GPP predictions.
-Evaluating plant water potential at intermediate timescales can reveal the important contribution of hydraulic regulation to the magnitude and timing of dryland ecosystem fluxes.
+Furthermore, plant water potential significantly improved GPP model fit and reduced bias despite significant scale mismatch, heralding the immense potential of using plant water stress to increase the temporal fidelity of ecosystem carbon predictions.
 
 ### Data availability
 
@@ -507,10 +504,11 @@ All data and code are stored in a GitHub repository that will be made public and
 
 The instrumentation for the eddy covariance tower was provided by the AmeriFlux Management Project, administered through the US Department of Energy (DOE).
 We also thank Newton Tran for assistance with the stem psychrometers, and acknowledge the State of Utah School and Institutional Trust Lands Administration for land permissions.
-JSG acknowledges support from the the US National Science Foundation - Division of Integrative Organismal Biology via a Research Coordination Grant (#2243900).
+JSG acknowledges support from the US National Science Foundation - Division of Integrative Organismal Biology via a Research Coordination Grant (#2243900).
 MLB and SAK were supported by the US DOE Environmental System Science program grant #DE-SC0022052.
 SAK was supported by the US Department of Agriculture (USDA) Forest Service Forest Health Protection Evaluation Monitoring program grant #19-05 and the USDA National Institute of Food and Agriculture Sustainable Agricultural Systems program, grant #2021-68012-35898.
-MLB was supported by the NASA SMAP Science Team grant #80NSSC20K1805.
+MLB and WKS were supported by the NASA SMAP Science Team grant #80NSSC20K1805.
+WKS and JSG were supported by the NASA Carbon Cycle Science grant #80NSSC23K0109.
 WRLA acknowledges support from the David and Lucille Packard Foundation, US National Science Foundation grants 1802880, 2003017 and 2044937, and USDA National Institute of Food and Agriculture, Agricultural and Food Research Initiative Competitive Programme, Ecosystem Services and Agro-Ecosystem Management, grant no. 2018-67019-27850.
 
 ### Author contributions
