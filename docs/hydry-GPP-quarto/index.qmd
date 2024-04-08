@@ -86,10 +86,10 @@ knitr::opts_chunk$set(echo = TRUE)
 | Introduction          | 936        | \-     |
 | Materials and Methods | 1822       | \-     |
 | Results               | 1477       | \-     |
-| Discussion            | 1887       | \-     |
+| Discussion            | 1923       | \-     |
 | Figures               | \-         | 6      |
 | Supporting Figures    | \-         | 2      |
-| Total                 | 6339       | \-     |
+| Total                 | 6375       | \-     |
 
 \pagebreak
 
@@ -403,7 +403,7 @@ knitr::include_graphics("../../scripts/model-gpp-nirv/figs/fig_7.png")
 Residuals from the initial GPP model were interpreted as fluctuations in light use efficiency (LUE), and model fit was compare among three functional forms: environmental covariates with $D$ and $W_{10}^{ant}$ (@eq-md-antecedent, @eq-resid-env), soil water content with $W_{10}^{ant}$ only (@eq-md-antecedent, @eq-resid-swc), and predawn water potential with $\overline{\Psi_{PD}}$ only (@eq-resid-pd).
 Of the three models, the $\overline{\Psi_{PD}}$ model had the fewest effective number of parameters ($pD$), lowest posterior predictive loss ($D\infty$), strongest coefficient of determination ($R^2$), and lowest bias (@fig-gpp-resid b,c).
 
-```{r fig-gpp-resid, echo=FALSE, out.width="100%", fig.cap="<b>a)</b> Time series of daily residuals from the GPP model with daily maximum vapor pressure deficit ($D$), volumetric water content at 10 cm ($W_{10}$), and site-averaged predawn water potential ($\\overline{\\Psi_{PD}}$), all standardized to the same scale. Posterior mean and 95% CI of the <b>b)</b> covariate effects and <b>c)</b> predicted versus observed residuals from each residual model: Env (Eqn. 4 & Eqn. 9), Soil only (Eqn. 4 & Eqn. 10), and $\\Psi$ only (Eqn. 11). Gray horizontal lines indicate the prior means, asterisks indicate significant covariate effects, error bars represent the 95% CIs, the solid diagonal is the 1:1 line, and the dashed line represents the line of best fit"}
+```{r fig-gpp-resid, echo=FALSE, out.width="100%", fig.cap="<b>a)</b> Time series of daily residuals from the GPP model with daily maximum vapor pressure deficit ($D$), volumetric water content at 10 cm ($W_{10}$), and site-averaged predawn water potential ($\\overline{\\Psi_{PD}}$), all standardized to the same scale. Posterior mean and 95% CI of the <b>b)</b> covariate effects and <b>c)</b> predicted versus observed residuals from each residual model: Env (Eqn. 5 & Eqn. 10), Soil only (Eqn. 5 & Eqn. 11), and $\\Psi$ only (Eqn. 12). Gray horizontal lines indicate the prior means, asterisks indicate significant covariate effects, error bars represent the 95% CIs, the solid diagonal is the 1:1 line, and the dashed line represents the line of best fit"}
 knitr::include_graphics("../../scripts/model-gpp-nirv/figs/fig_8_new.png")
 ```
 
@@ -445,20 +445,22 @@ Because soil moisture declines rapidly after precipitation pulses, extreme aniso
 The propensity of *Juniperus* spp.
 to extract soil water even at low soil water potentials [@west2007] is consistent with extreme anisohydry and prolonged elevation of GPP as soils dry.
 
-#### Possible mechanisms of flexible hydraulic behavior
+#### Possible mechanisms of temporally-varying hydraulic regulation
 
-The mechanisms underlying temporally flexible hydraulic behavior are not well understood, although there are some tantalizing hints in similarly temporally-variable leaf water relations and ABA synthesis.
-Both *Larrea* and *Juniperus* experience seasonally varying leaf water relations and a strong difference in turgor loss point between rehydrated and un-rehydrated leaves [@meinzer1986; @meinzer2014].
-By extrapolating the pressure-volume relationships, Meinzer et al. [-@meinzer2014] found that turgor loss would ultimately occur at -8.2 MPa for *J. monosperma*, and indeed 99.1% of our individual $\Psi_{MD}$ observations occurred above this threshold.
-Seasonally varying leaf-water relations in anisohydric species may indicate that a combination of osmotic and cell wall elasticity adjustment can maintain turgor across different levels of leaf hydration.
+The mechanisms underlying temporally-varying hydraulic regulation are not well understood, but coordination with other temporally-varying physiology and growth responses could play a role.
+First, pressure-volume relationships in *Juniperus monosperma* are plastic depending on leaf hydration [@meinzer2014], such that as a leaf dehydrates, it experiences more negative turgor loss point and less elastic cell walls.
+Conceivably, stomatal regulation of leaf water potential could also vary with leaf hydration, which may be especially dynamic in evergreen leaves experiencing pulse-driven precipitation.
+Accounting for plastic adjustment in turgor loss point, *J. monosperma* would ultimately lose turgor at -8.2 MPa [@meinzer2014], and indeed 99.1% of our individual $\Psi_{MD}$ observations occurred above this threshold.
+Temporally-varying leaf-water relations may indicate that osmotic adjustment, cell wall elastic properties, and stomatal regulation could vary in concert to maintain turgor across declining leaf hydration.
 
 Hydraulic regulation strategies could also be linked to temporal dynamics of foliar ABA during soil water stress and recovery [@brodribb2013].
-In *Callatris rhomboidea*, sustained water stress led to a decline in ABA such that loss of leaf water potential (and thus guard cell turgor) drove stomatal closure, but conversely, low ABA also enabled rapid recovery after rewatering [@brodribb2013].
-Among *Cupressaceae*, including *Juniperus* and *Callatris*, the use of leaf desiccation to close stomata during water stress [@brodribb2014] could explain how *J. osteosperma* is able to tolerate dry periods and respond rapidly to rewetting events, enabling persistence in seasonally dry ecosystems.
+In *Callatris rhomboidea*, sustained water stress led to a decline in ABA such that loss of leaf water potential (and thus guard cell turgor) drove stomatal closure, with the corollary of low ABA also enabling rapid recovery of leaf water potential after rewatering [@brodribb2013].
+Among *Cupressaceae*, including *Juniperus* and *Callatris*, the use of leaf desiccation to close stomata during prolonged water stress [@brodribb2014] could explain why *J. osteosperma* experiences temporally-varying hydraulic regulation.
+The hydraulic risk of extreme anisohydry could also be partially compensated by rapid recovery following rewetting, enabling persistence in seasonally dry ecosystems.
 
-Finally, temporal variability in plant hydraulic regulation may also be associated with the timing of belowground dynamics, such as fine root and mycorrhizal development [@peek2006; @lehto2011].
+Finally, temporally-varying hydraulic regulation may be associated with the timing of belowground dynamics that enable increased conductance, such as fine root and mycorrhizal development [@peek2006; @lehto2011].
 In *J. osteosperma*, fine roots grew when soil water was most available and shifted toward deeper layers as the growing season progressed [@peek2006], and root distributions varied depending on cool-season vs. warm-season precipitation.
-Rooting dynamics can directly influence plant water potential via rhizosphere conductance, but this is difficult to measure empirically [@bristow1984; @sperry2016].
+Rooting dynamics can directly influence plant water potential via rhizosphere conductance, although this is difficult to quantify empirically [@bristow1984; @sperry2016].
 Similarly, mycorrhizal symbionts are known to alter root conductivity [@lehto2011], enhance stomatal conductance [@auge2015], and increase plant productivity [@mohan2014], but the temporal dynamics of plant-mycorrhizae relationships under field conditions are poorly understood and merit further investigation [@gehring2017].
 
 #### Implications for hydraulic modeling
