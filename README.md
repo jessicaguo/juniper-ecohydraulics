@@ -2,7 +2,9 @@
 
 #### Authors: Jessica S. Guo, Mallory L. Barnes, William K. Smith, William R.L. Anderegg, Steven A. Kannenberg
 
-Manuscript accepted at New Phytologist. DOI forthcoming. 
+[![DOI](https://zenodo.org/badge/424811963.svg)](https://zenodo.org/doi/10.5281/zenodo.10951220)
+
+Manuscript accepted pending minor revisions at New Phytologist. DOI forthcoming. 
 
 ### Project summary
 
