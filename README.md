@@ -4,6 +4,8 @@
 
 Manuscript accepted at New Phytologist. DOI forthcoming. 
 
+### Project summary
+
 We instrumented seven juniper trees with stem psychrometers at the Ameriflux site US-CdM during the growing season of 2021 to examine water potential regulation strategies and ecosystem productivity. *J. osteosperma* experiences temporally-varying hydraulic regulation, including extreme anisohydry associated with wet soils and dry air. Extreme anisohydry may serve to prolong water extraction from the soil and extend the GPP response to precipitation during the monsoon season. After accounting for the effect of light and vegetation greenness, predawn water potential corresponded to GPP better than indirect measures of water stress such as VPD and soil moisture. In drylands, dynamic and pulse-driven moisture conditions mean that ecosystem productivity must account for vegetation water stress, especially when temperature and light are not limiting. 
 
 ### Compendium contents
