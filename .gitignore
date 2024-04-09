@@ -4,16 +4,31 @@
 
 # Suppress data folders/files
 _extensions/
-*.Rdata
-data_raw/
-data_cleaned/
+daily_app/*.Rdata
+daily_app/*.Rdata
+data_cleaned/*.docx
+data_raw/prism_ppt_1991_2020
+data_raw/*.dat
 docs/*.docx
 docs/travel
 docs/hydry-GPP/*.docx
 docs/hydry-GPP/templates/*.docx
 docs/hydry-GPP/rsconnect
 scripts/model-pd-daily/plots/
-scripts/model-pd-md/figs/
+scripts/model-pd-daily/*.Rdata
+scripts/model-pd-daily/hpc
+scripts/model-pd-daily/coda
+scripts/model-pd-daily/inits
+scripts/model-flux-daily/*.Rdata
+scripts/model-flux-daily/coda/
+scripts/model-flux-daily/inits/
+scripts/model-pd-md/products
+scripts/model-pd-md/coda
+scripts/model-pd-md/Gordon_poster
+scripts/model-pd-md/figs
+scripts/model-gpp-nirv/coda
+scripts/model-gpp-nirv/figs
+scripts/model-gpp-nirv/not_run
 docs/ESA_2022/
 docs/AGU_2022/
 docs/RISE_2022/
