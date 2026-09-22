@@ -2,7 +2,7 @@
 
 #### Authors: Jessica S. Guo, Mallory L. Barnes, William K. Smith, William R.L. Anderegg, Steven A. Kannenberg
 
-[![link to paper](https://doi.org/10.1111/nph.19805)]
+[link to paper](https://doi.org/10.1111/nph.19805)
 
 Manuscript accepted pending minor revisions at New Phytologist. DOI forthcoming. 
 
