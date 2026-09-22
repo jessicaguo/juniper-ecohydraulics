@@ -4,7 +4,7 @@
 # Daily summarized env variables are also calculated
 
 
-source("juniper-ecohydraulics-main/source/round.POSIXct.R")
+source("source/round.POSIXct.R")
 library(suncalc)
 library(readr)
 library(dplyr)
@@ -39,7 +39,7 @@ sun_dt <- getSunlightTimes(date = seq(as.Date("2021-01-01"),
 rm(round.POSIXct)
 
 # Psychrometer (cleaned)
-psy <- read_csv(file = "juniper-ecohydraulics-main/data_cleaned/psy_hourly.csv",
+psy <- read_csv(file = "data_cleaned/psy_hourly.csv",
                 locale = locale(tz = "America/Denver")) %>%
   mutate(Tree = as.factor(Tree),
          Logger = as.factor(Logger))
@@ -107,12 +107,12 @@ psy_daily_site <- psy_daily_shrub |>
   ungroup()
 
 # Write out datasets
-write_csv(psy_30_branch, "juniper-ecohydraulics-main/data_cleaned/psy_30_branch.csv")
-write_csv(psy_30_shrub, "juniper-ecohydraulics-main/data_cleaned/psy_30_shrub.csv")
-write_csv(psy_30_site, "juniper-ecohydraulics-main/data_cleaned/psy_30_site.csv")
-write_csv(psy_daily_branch, "juniper-ecohydraulics-main/data_cleaned/psy_daily_branch.csv")
-write_csv(psy_daily_shrub, "juniper-ecohydraulics-main/data_cleaned/psy_daily_shrub.csv")
-write_csv(psy_daily_site, "juniper-ecohydraulics-main/data_cleaned/psy_daily_site.csv")
+write_csv(psy_30_branch, "data_cleaned/psy_30_branch.csv")
+write_csv(psy_30_shrub, "data_cleaned/psy_30_shrub.csv")
+write_csv(psy_30_site, "data_cleaned/psy_30_site.csv")
+write_csv(psy_daily_branch, "data_cleaned/psy_daily_branch.csv")
+write_csv(psy_daily_shrub, "data_cleaned/psy_daily_shrub.csv")
+write_csv(psy_daily_site, "data_cleaned/psy_daily_site.csv")
 
 # Met data
 col_names <- names(read_csv("juniper-ecohydraulics-main/data_raw/Other-tower-data.csv",
